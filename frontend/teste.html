@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cigana</title>
+</head>
+<body>
+
+<h1 id="title"></h1>
+<p id="content"></p>
+
+<div id="choices"></div>
+
+<script>
+async function carregarCapitulo(id) {
+  // pegar capítulo
+  const cap = await fetch(`http://localhost:3001/api/chapters/${id}`);
+  const capData = await cap.json();
+
+  document.getElementById('title').innerText = capData.title;
+  document.getElementById('content').innerText = capData.content;
+
+  // pegar escolhas
+  const choices = await fetch(`http://localhost:3001/api/chapters/${id}/choices`);
+  const choicesData = await choices.json();
+
+  const div = document.getElementById('choices');
+  div.innerHTML = '';
+
+  choicesData.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.innerText = choice.choice_text;
+
+    btn.onclick = () => {
+      carregarCapitulo(choice.next_chapter_id);
+    };
+
+    div.appendChild(btn);
+  });
+}
+
+// inicia no capítulo 1
+carregarCapitulo(1);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+{
+  "chapters": [
+    {
+      "id": 1,
+      "title": "Capítulo 1: O Começo",
+      "content": {
+        "text": "Você acorda em uma antiga caravana cigana. As luzes douradas do amanhecer iluminam os tecidos coloridos ao seu redor. Uma mulher idosa, com olhos sábios e cheios de histórias, te observa com um sorriso misterioso. 'Bem-vindo', ela diz. 'Tenho uma história para contar, mas você precisa decidir como segui-la.'",
+        "image": "/images/chapter1.jpg",
+        "video": null
+      },
+      "choices": [
+        {
+          "id": 1,
+          "text": "Ouvir a história sobre as tradições ciganas",
+          "nextChapterId": 2
+        },
+        {
+          "id": 2,
+          "text": "Perguntar sobre a desmitificação da cultura",
+          "nextChapterId": 3
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Capítulo 2: Tradições",
+      "content": {
+        "text": "A mulher começa a contar histórias de suas ancestrais, das danças ao redor da fogueira, das músicas que ecoam através dos séculos...",
+        "image": null,
+        "video": null
+      },
+      "choices": [
+        {
+          "id": 3,
+          "text": "Voltar à escolha anterior",
+          "nextChapterId": 1
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Capítulo 3: Desmitificação",
+      "content": {
+        "text": "A verdade sobre o povo cigano é mais complexa e bela do que os mitos sugerem. Vamos explorar juntos...",
+        "image": null,
+        "video": null
+      },
+      "choices": [
+        {
+          "id": 4,
+          "text": "Voltar à escolha anterior",
+          "nextChapterId": 1
+        }
+      ]
+    }
+  ]
+}
