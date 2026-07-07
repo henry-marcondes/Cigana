@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="esquema_livro.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.46228"
+     inkscape:cx="190.79793"
+     inkscape:cy="869.19057"
+     inkscape:window-width="1366"
+     inkscape:window-height="719"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <rect
+       x="114.08371"
+       y="684.918"
+       width="56.200685"
+       height="25.645597"
+       id="rect2572" />
+    <marker
+       style="overflow:visible"
+       id="Arrow2"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow2"
+       markerWidth="7.6999998"
+       markerHeight="5.5999999"
+       viewBox="0 0 7.7 5.6"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="arrow2L" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Camada 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g1692"
+       transform="translate(34.921413,-15.367555)">
+      <rect
+         style="fill:#ffff00;stroke:#6e3273;stroke-width:0.034098"
+         id="rect234"
+         width="17.076937"
+         height="8.9041395"
+         x="23.673347"
+         y="130.27423" />
+      <text
+         xml:space="preserve"
+         style="font-size:4.23333px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;stroke:#6e3273;stroke-width:0.0649999"
+         x="24.990431"
+         y="136.15344"
+         id="text290"><tspan
+           sodipodi:role="line"
+           id="tspan288"
+           style="font-size:4.23333px;fill:#000000;stroke-width:0.065"
+           x="24.990431"
+           y="136.15344">Contos</tspan></text>
+    </g>
+    <path
+       style="fill:#ffff00;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;marker-mid:url(#Arrow2);marker-end:url(#Arrow2)"
+       d="m 65.925074,123.64547 0.006,13.63812"
+       id="path1411" />
+    <rect
+       style="fill:#ffff00;stroke:#6e3273;stroke-width:0.052962"
+       id="rect1346"
+       width="26.988934"
+       height="13.592148"
+       x="52.501347"
+       y="140.20401" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;stroke:#000000;stroke-width:0.065;stroke-dasharray:none"
+       x="53.432072"
+       y="145.51988"
+       id="text1585"><tspan
+         sodipodi:role="line"
+         id="tspan1583"
+         style="fill:#000000;stroke-width:0.065;stroke-dasharray:none"
+         x="53.432072"
+         y="145.51988">Area Restrita</tspan></text>
+    <rect
+       style="fill:#ffff00;stroke:#6e3273;stroke-width:0.052962"
+       id="rect2450"
+       width="26.988934"
+       height="13.592148"
+       x="52.276958"
+       y="163.44296" />
+    <text
+       xml:space="preserve"
+       style="font-size:2.74197px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;stroke:#000000;stroke-width:0.0421011;stroke-dasharray:none;text-anchor:middle;text-align:center"
+       x="67.535271"
+       y="145.66077"
+       id="text2446"
+       transform="scale(0.97632929,1.0242446)"><tspan
+         sodipodi:role="line"
+         id="tspan2444"
+         style="stroke-width:0.0421011;text-anchor:middle;text-align:center"
+         x="61.764797"
+         y="145.66077">Pago por</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.0421011;text-anchor:middle;text-align:center"
+         x="61.764797"
+         y="149.08823"
+         id="tspan2448">conto</tspan></text>
+    <path
+       style="fill:#ffff00;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;marker-mid:url(#Arrow2);marker-end:url(#Arrow2)"
+       d="m 65.558472,153.78792 -0.09079,6.67153"
+       id="path2456"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.1354px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.048142;stroke-dasharray:none"
+       x="63.620605"
+       y="174.08185"
+       id="text2564"
+       transform="scale(1.0377683,0.96360624)"><tspan
+         sodipodi:role="line"
+         id="tspan2562"
+         style="text-align:center;text-anchor:middle;stroke-width:0.0481421"
+         x="63.620605"
+         y="174.08185">Usuário tem</tspan><tspan
+         sodipodi:role="line"
+         style="text-align:center;text-anchor:middle;stroke-width:0.0481421"
+         x="63.620605"
+         y="178.0011"
+         id="tspan2566">Acesso a area</tspan><tspan
+         sodipodi:role="line"
+         style="text-align:center;text-anchor:middle;stroke-width:0.0481421"
+         x="63.620605"
+         y="181.92035"
+         id="tspan2568">de imagens</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="scale(0.26458333)"
+       id="text2570"
+       style="fill:#000000;-inkscape-font-specification:sans-serif;font-family:sans-serif;font-size:16px;stroke:#000000;stroke-width:0.24566929;stroke-dasharray:none;text-align:center;white-space:pre;shape-inside:url(#rect2572)" />
+    <rect
+       style="fill:#ffff00;stroke:#6e3273;stroke-width:0.0452814"
+       id="rect2582"
+       width="24.217869"
+       height="11.072593"
+       x="19.85549"
+       y="189.07985" />
+    <rect
+       style="fill:#ffff00;stroke:#6e3273;stroke-width:0.0452814"
+       id="rect2584"
+       width="24.217869"
+       height="11.072593"
+       x="51.769402"
+       y="189.02551" />
+    <rect
+       style="fill:#ffff00;stroke:#6e3273;stroke-width:0.0452814"
+       id="rect2586"
+       width="24.217869"
+       height="11.072593"
+       x="83.059891"
+       y="188.97432" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.0649999;stroke-dasharray:none"
+       x="31.399502"
+       y="193.66855"
+       id="text2590"><tspan
+         sodipodi:role="line"
+         id="tspan2588"
+         style="font-size:3.52778px;stroke-width:0.065"
+         x="31.399502"
+         y="193.66855">Escolhe o </tspan><tspan
+         sodipodi:role="line"
+         style="font-size:3.52778px;stroke-width:0.065"
+         x="31.399502"
+         y="198.07828"
+         id="tspan2592">cenário</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:2.71711px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.0500634;stroke-dasharray:none"
+       x="64.913193"
+       y="184.31947"
+       id="text2596"
+       transform="scale(0.96028742,1.0413549)"><tspan
+         sodipodi:role="line"
+         id="tspan2594"
+         style="stroke-width:0.0500635"
+         x="64.913193"
+         y="184.31947">monta seu</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.0500635"
+         x="64.913193"
+         y="187.71587"
+         id="tspan2598">personagem</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.0500635"
+         x="64.913193"
+         y="191.11224"
+         id="tspan2600">biotipo e roupas</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.0649999;stroke-dasharray:none"
+       x="94.724579"
+       y="193.93175"
+       id="text2604"><tspan
+         sodipodi:role="line"
+         id="tspan2602"
+         style="stroke-width:0.065"
+         x="94.724579"
+         y="193.93175">Textos mais</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.065"
+         x="94.724579"
+         y="198.34146"
+         id="tspan2606">Exitantes</tspan></text>
+    <rect
+       style="fill:#00ffff;stroke:#000000;stroke-width:0.0695495;stroke-dasharray:none"
+       id="rect2670"
+       width="14.018497"
+       height="12.32424"
+       x="82.964325"
+       y="141.2749" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.94978px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.0912011;stroke-dasharray:none"
+       x="85.688354"
+       y="152.67989"
+       id="text2614"
+       transform="scale(1.044116,0.95774798)"><tspan
+         sodipodi:role="line"
+         id="tspan2612"
+         style="stroke-width:0.0912011"
+         x="85.688354"
+         y="152.67989">R$ ??</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.0912011"
+         x="85.688354"
+         y="158.86711"
+         id="tspan2616">PIX</tspan></text>
+    <path
+       style="fill:#ffff00;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;marker-mid:url(#Arrow2);marker-end:url(#Arrow2)"
+       d="m 64.456063,178.90172 -0.09079,6.67153"
+       id="path2728"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;marker-end:url(#Arrow2)"
+       d="m 51.542676,171.16695 -19.608687,0.48237 0.12733,14.08212"
+       id="path2734"
+       sodipodi:nodetypes="ccc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;marker-end:url(#Arrow2)"
+       d="m 79.244374,170.86496 19.608677,0.48237 -0.12733,14.08212"
+       id="path2750"
+       sodipodi:nodetypes="ccc" />
+    <rect
+       style="fill:#ffff00;stroke:#6e3273;stroke-width:0.052962"
+       id="rect2764"
+       width="26.988934"
+       height="13.592148"
+       x="49.908863"
+       y="210.22409" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;stroke:#000000;stroke-width:0.065;stroke-dasharray:none"
+       x="50.839588"
+       y="215.53996"
+       id="text2768"><tspan
+         sodipodi:role="line"
+         id="tspan2766"
+         style="fill:#000000;stroke-width:0.065;stroke-dasharray:none"
+         x="50.839588"
+         y="215.53996">Area Privada</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:2.74197px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.0421011;stroke-dasharray:none"
+       x="64.879936"
+       y="214.02341"
+       id="text2774"
+       transform="scale(0.97632929,1.0242446)"><tspan
+         sodipodi:role="line"
+         id="tspan2770"
+         style="text-align:center;text-anchor:middle;stroke-width:0.0421011"
+         x="64.879936"
+         y="214.02341">Pago por</tspan><tspan
+         sodipodi:role="line"
+         style="text-align:center;text-anchor:middle;stroke-width:0.0421011"
+         x="64.879936"
+         y="217.45087"
+         id="tspan2772">conto</tspan></text>
+    <rect
+       style="fill:#00ffff;stroke:#000000;stroke-width:0.0695495;stroke-dasharray:none"
+       id="rect2776"
+       width="14.018497"
+       height="12.32424"
+       x="86.110603"
+       y="210.85658" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.94978px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.0912011;stroke-dasharray:none"
+       x="88.701691"
+       y="225.33122"
+       id="text2782"
+       transform="scale(1.044116,0.95774798)"><tspan
+         sodipodi:role="line"
+         id="tspan2778"
+         style="stroke-width:0.0912011"
+         x="88.701691"
+         y="225.33122">R$ ??</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.0912011"
+         x="88.701691"
+         y="231.51845"
+         id="tspan2780">PIX</tspan></text>
+    <rect
+       style="fill:#ffff00;stroke:#6e3273;stroke-width:0.0601053"
+       id="rect2784"
+       width="30.202818"
+       height="15.643141"
+       x="47.639294"
+       y="236.56633" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.0649999;stroke-dasharray:none"
+       x="62.814423"
+       y="240.81816"
+       id="text2788"><tspan
+         sodipodi:role="line"
+         id="tspan2786"
+         style="fill:#000000;stroke-width:0.065"
+         x="62.814423"
+         y="240.81816">Usuário</tspan><tspan
+         sodipodi:role="line"
+         style="fill:#000000;stroke-width:0.065"
+         x="62.814423"
+         y="245.22787"
+         id="tspan2790">interege com</tspan><tspan
+         sodipodi:role="line"
+         style="fill:#000000;stroke-width:0.065"
+         x="62.814423"
+         y="249.63759"
+         id="tspan2841">os personagens</tspan></text>
+  </g>
+</svg>

@@ -2,6 +2,12 @@ body {
   font-family: Arial, sans-serif;
   padding: 20px;
 }
+
+body {
+  background-color: #121212;
+  color: #ffffff;
+}
+
 * {
   margin: 0;
   padding: 0;
