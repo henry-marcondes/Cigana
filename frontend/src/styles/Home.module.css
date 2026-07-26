@@ -1,0 +1,68 @@
+.container {
+    min-height: 100vh;
+    background: #f4efe2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.book {
+    width: 100%;
+    max-width: 900px;
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.15);
+}
+
+.bookTitle {
+    text-align: center;
+    font-size: 32px;
+    color: #6b3f19;
+    margin-bottom: 10px;
+}
+
+.chapterTitle {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+
+.content {
+    color: #222;   
+    line-height: 1.8;
+    font-size: 18px;
+    text-align: justify;
+    white-space: pre-line;
+    margin-bottom: 40px;
+}
+
+.choiceArea {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.choiceButton {
+    padding: 14px;
+    font-size: 17px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #8b5e3c;
+    color: white;
+    transition: .3s;
+}
+
+.choiceButton:hover {
+    background: #6d4527;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    color: gray;
+    font-size: 14px;
+}

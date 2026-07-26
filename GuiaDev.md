@@ -1,9 +1,9 @@
 # 📚 Projeto Cigana
 
 🟢 1. Clonar o repositório
-git clone https://github.com/henry-marcondes/cigana.git
+git clone https://github.com/henry-marcondes/Cigana.git
 
-# cd cigana
+# cd Cigana
 
 🟢 2. Backend
 
