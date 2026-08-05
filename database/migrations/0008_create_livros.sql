@@ -1,3 +1,9 @@
+-- =====================================================
+-- Migration: 0008_create_livro.sql
+-- Descrição : Relacionamento entre livros
+-- Projeto   : Plataforma Ciganas
+-- PostgreSQL: 16+
+-- =====================================================
 BEGIN;
 
 CREATE TABLE livros (
