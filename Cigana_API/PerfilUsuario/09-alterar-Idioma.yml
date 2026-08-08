@@ -1,0 +1,27 @@
+info:
+  name: 09-alterar-Idioma
+  type: http
+  seq: 9
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/perfis/c9b8ea0c-737d-4aec-ac94-d0204c2082ca/idioma
+
+  body:
+    type: json
+    data: |-
+      {
+        "idioma_id": "eec257d6-39b3-481e-a698-fe8c2ba84f15"
+      }
+
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

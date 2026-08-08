@@ -1,0 +1,28 @@
+
+info:
+  name: 06-alterar-Nome-Usuario
+  type: http
+  seq: 6
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/perfis/c9b8ea0c-737d-4aec-ac94-d0204c2082ca/nome-usuario
+
+  body:
+    type: json
+    data: |-
+      {
+        "nome_usuario": "maria.clara"
+      }
+
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

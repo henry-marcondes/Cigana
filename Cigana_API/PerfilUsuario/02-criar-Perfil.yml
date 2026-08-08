@@ -1,0 +1,29 @@
+info:
+  name: 02-criar-Perfil
+  type: http
+  seq: 2
+http:
+  method: POST
+  url: http://localhost:3001/api/perfis
+  body:
+    type: json
+    data: |-
+      {
+        "usuario_id": "b928d051-5c47-4d1d-a77c-dc8ae401e363",
+        "nome": "Maria",
+        "sobrenome": "Teste",
+        "nome_usuario": "maria.teste",
+        "avatar_url": null,
+        "biografia": "Perfil de teste da plataforma Ciganas.",
+        "idioma_id": "eec257d6-39b3-481e-a698-fe8c2ba84f15"
+      }
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

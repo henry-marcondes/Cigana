@@ -1,0 +1,25 @@
+info:
+  name: 05-alterar-Dados-Pessoais
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/perfis/c9b8ea0c-737d-4aec-ac94-d0204c2082ca/dados-pessoais
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Maria",
+        "sobrenome": "Clara Atualizado"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

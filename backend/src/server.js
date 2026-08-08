@@ -3,10 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./middleware/errorHandler');
 
-// Routes
-const booksRoutes = require('./routes/books');
-const chaptersRoutes = require('./routes/chapters');
-const progressRoutes = require('./routes/progress');
+// routes
+const usuarioRoutes = require('./routes/usuarioRoutes');
+const perfilUsuarioRoutes = require('./routes/perfilUsuarioRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,7 +14,7 @@ const PORT = process.env.PORT || 3001;
 const corsOptions = {
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
@@ -29,9 +28,8 @@ app.get('/', (req, res) => {
 });
 
 // Routes
-app.use('/books', booksRoutes);
-app.use('/api/chapters', chaptersRoutes);
-app.use('/api/progress', progressRoutes);
+app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/perfis', perfilUsuarioRoutes);
 
 // Error handling
 app.use(errorHandler);

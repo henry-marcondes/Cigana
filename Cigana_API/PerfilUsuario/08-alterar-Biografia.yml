@@ -1,0 +1,27 @@
+info:
+  name: 08-alterar-Biografia
+  type: http
+  seq: 8
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/perfis/c9b8ea0c-737d-4aec-ac94-d0204c2082ca/biografia
+
+  body:
+    type: json
+    data: |-
+      {
+        "biografia": "Esta é a nova biografia do perfil Maria Clara, atualizada durante os testes da plataforma Ciganas."
+      }
+
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

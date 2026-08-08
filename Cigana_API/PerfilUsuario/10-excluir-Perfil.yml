@@ -1,0 +1,16 @@
+info:
+  name: 10-excluir-Perfil
+  type: http
+  seq: 10
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/perfis/c9b8ea0c-737d-4aec-ac94-d0204c2082ca
+
+  auth: inherit
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5
