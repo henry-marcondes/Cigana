@@ -1,0 +1,23 @@
+info:
+  name: 06-alterar-Biografia-Autor
+  type: http
+  seq: 6
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/autores/f5847c4a-c902-40b8-b828-8ab1525e9aba/biografia
+  body:
+    type: json
+    data: |-
+      {
+        "biografia": "Andréia Gomes Silva é autora de livros interativos e participa do desenvolvimento de conteúdos para a plataforma Ciganas."
+      }
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

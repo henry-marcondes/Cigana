@@ -1,0 +1,23 @@
+info:
+  name: 05-alterar-Nome-Autor
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/autores/f5847c4a-c902-40b8-b828-8ab1525e9aba/nome
+  body:
+    type: json
+    data: |-
+      {
+        "nome_publico": "Andréia Gomes Silva - Autora"
+      }
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

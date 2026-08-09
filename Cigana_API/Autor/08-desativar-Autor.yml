@@ -1,0 +1,15 @@
+info:
+  name: 08-desativar-Autor
+  type: http
+  seq: 8
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/autores/f5847c4a-c902-40b8-b828-8ab1525e9aba
+  auth: inherit
+  headers: []
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

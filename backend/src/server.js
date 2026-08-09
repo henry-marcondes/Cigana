@@ -6,6 +6,7 @@ const errorHandler = require('./middleware/errorHandler');
 // routes
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const perfilUsuarioRoutes = require('./routes/perfilUsuarioRoutes');
+const autorRoutes = require('./routes/autorRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,6 +31,7 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/perfis', perfilUsuarioRoutes);
+app.use('/api/autores', autorRoutes);
 
 // Error handling
 app.use(errorHandler);

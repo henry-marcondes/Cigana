@@ -1,0 +1,15 @@
+info:
+  name: 10-buscar-Autor-Desativado
+  type: http
+  seq: 10
+
+http:
+  method: GET
+  url: http://localhost:3001/api/autores/f5847c4a-c902-40b8-b828-8ab1525e9aba
+  auth: inherit
+  headers: []
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

@@ -1,0 +1,26 @@
+info:
+  name: 02-criar-Autor
+  type: http
+  seq: 2
+http:
+  method: POST
+  url: http://localhost:3001/api/autores
+  body:
+    type: json
+    data: |-
+      {
+        "usuario_id": "40d14a6e-8cf2-491e-9b46-6324605ef7c2",
+        "nome_publico": "Andréia Gomes Silva",
+        "biografia": "Autora de livros interativos da plataforma Ciganas.",
+        "foto_url": "https://exemplo.com/foto-autora.jpg"
+      }
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5
