@@ -1,0 +1,26 @@
+info:
+  name: 06-alterar-status
+  type: http
+  seq: 6
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/livros/f50a9c1f-9bda-40a1-b8bc-06fe81371795/status
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  body:
+    type: json
+    data: |
+      {
+        "status_livro_id": "0cc9183d-05c1-4b3d-83a8-7fc2c611ab12"
+      }
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

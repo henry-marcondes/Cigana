@@ -1,0 +1,15 @@
+info:
+  name: 03-listar-capitulos-por-livro
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: http://localhost:3001/api/capitulos/livro/2b681f24-69d3-49c1-b60a-b4097f31aa4b
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

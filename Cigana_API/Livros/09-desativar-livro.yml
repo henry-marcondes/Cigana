@@ -1,0 +1,15 @@
+info:
+  name: 09-desativar-livro
+  type: http
+  seq: 9
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/livros/f50a9c1f-9bda-40a1-b8bc-06fe81371795
+  auth: inherit
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

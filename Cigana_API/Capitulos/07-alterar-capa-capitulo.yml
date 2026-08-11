@@ -1,0 +1,26 @@
+info:
+  name: 07-alterar-capa-capitulo
+  type: http
+  seq: 7
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/capitulos/935c3672-43a9-43a7-8357-4bc9db7ef054/capa
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  body:
+    type: json
+    data: |
+      {
+        "capa_url": "http://ciganas/capa_url/capa_02.png"
+      }
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

@@ -1,0 +1,26 @@
+info:
+  name: 07-alterar-visibilidade
+  type: http
+  seq: 7
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/livros/f50a9c1f-9bda-40a1-b8bc-06fe81371795/visibilidade
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  body:
+    type: json
+    data: |
+      {
+        "visibilidade_livro_id": "265ad467-d0f8-4ca7-b93b-69cb7c23a4b3"
+      }
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

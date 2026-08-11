@@ -1,0 +1,31 @@
+info:
+  name: 02-criar-capitulo
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3001/api/capitulos
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "livro_id": "2b681f24-69d3-49c1-b60a-b4097f31aa4b",
+        "titulo": "Capítulo Introdução",
+        "slug": "capitulo-primeiro",
+        "resumo": " Capitulo de teste para API",
+        "texto_introdutorio": "Apenas um pequeno teste de texto",
+        "capa_url": "http://ciganas/capa_url/capa_01.png",
+        "ordem_exibicao": 1,
+        "ativo": "true"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

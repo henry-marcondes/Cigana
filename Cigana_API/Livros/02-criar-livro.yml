@@ -1,0 +1,34 @@
+info:
+  name: 02-criar-livro
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3001/api/livros
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "categoria_id": "699436fb-ac29-43c5-8143-80bc1ef76f82",
+        "classificacao_indicativa_id": "faae24e1-6406-42d2-8cd2-0443fd4e1799",
+        "idioma_id": "eec257d6-39b3-481e-a698-fe8c2ba84f15",
+        "status_livro_id": "cbcacb5b-943e-4ed6-be3a-74e2003765c9",
+        "visibilidade_livro_id": "265ad467-d0f8-4ca7-b93b-69cb7c23a4b3",
+        "titulo": "Livro de Contos Romanticos",
+        "slug": "livro-de-teste-Assinantes",
+        "resumo": "Livro utilizado para testes da API da Plataforma Ciganas.",
+        "isbn": "9780000000000",
+        "ano_publicacao": 2026,
+        "ordem_exibicao": 1
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

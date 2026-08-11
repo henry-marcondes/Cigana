@@ -1,0 +1,32 @@
+info:
+  name: 05-alterar-informacoes
+  type: http
+  seq: 5
+
+http:
+  method: PUT
+  url: http://localhost:3001/api/livros/f50a9c1f-9bda-40a1-b8bc-06fe81371795
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  body:
+    type: json
+    data: |
+      {
+        "titulo": "Livro de Teste Ciganas - Atualizado",
+        "slug": "livro-de-teste-ciganas-atualizado",
+        "resumo": "Livro de teste atualizado pela API da Plataforma Ciganas.",
+        "isbn": "9780000000000",
+        "ano_publicacao": 2026,
+        "data_publicacao": "2026-08-09T00:00:00Z",
+        "ordem_exibicao": 2
+      }
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

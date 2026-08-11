@@ -1,0 +1,19 @@
+info:
+  name: 08-desativar-capitulo
+  type: http
+  seq: 8
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/capitulos/935c3672-43a9-43a7-8357-4bc9db7ef054/desativar
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

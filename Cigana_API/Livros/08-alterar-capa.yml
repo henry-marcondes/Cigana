@@ -1,0 +1,26 @@
+info:
+  name: 08-alterar-capa
+  type: http
+  seq: 8
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/livros/f50a9c1f-9bda-40a1-b8bc-06fe81371795/capa
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  body:
+    type: json
+    data: |
+      {
+        "capa_url": "https://exemplo.com/capas/livro-de-teste-ciganas.jpg"
+      }
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

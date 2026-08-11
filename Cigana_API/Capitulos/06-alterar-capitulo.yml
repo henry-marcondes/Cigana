@@ -1,0 +1,30 @@
+info:
+  name: 06-alterar-capitulo
+  type: http
+  seq: 6
+
+http:
+  method: PUT
+  url: http://localhost:3001/api/capitulos/935c3672-43a9-43a7-8357-4bc9db7ef054
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  body:
+    type: json
+    data: |
+      {
+        "titulo": "Capítulo Introdução - Atualizado",
+        "slug": "capitulo-primeiro-atualizado",
+        "resumo": "Resumo atualizado do capítulo.",
+        "texto_introdutorio": "Texto introdutório atualizado para validação da API.",
+        "ordem_exibicao": 2
+      }
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5
