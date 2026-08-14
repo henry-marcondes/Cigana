@@ -1,0 +1,29 @@
+info:
+  name: 07-criar-segunda-cena
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: http://localhost:3001/api/cenas
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "capitulo_id": "935c3672-43a9-43a7-8357-4bc9db7ef054",
+        "titulo": "Segunda Cena",
+        "slug": "segunda-cena",
+        "texto": "Esta é a segunda cena criada para testar a alteração da cena inicial.",
+        "ordem_exibicao": 3,
+        "cena_inicial": false
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

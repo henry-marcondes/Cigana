@@ -1,0 +1,17 @@
+info:
+  name: 08-definir-cena-inicial
+  type: http
+  seq: 8
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/cenas/fb6c1057-e591-4c8d-9156-8a5f9d0a8107/inicial
+  headers: []
+  body: {}
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,17 @@
+info:
+  name: 04-buscar-cena-por-slug
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:3001/api/cenas/capitulo/935c3672-43a9-43a7-8357-4bc9db7ef054/slug/cena-inicial
+  headers: []
+  body: {}
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

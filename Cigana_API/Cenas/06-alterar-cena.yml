@@ -1,0 +1,27 @@
+info:
+  name: 06-alterar-cena
+  type: http
+  seq: 6
+
+http:
+  method: PUT
+  url: http://localhost:3001/api/cenas/ed1e8e6a-dd88-48a2-8161-0e7ce3841e05
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "titulo": "Cena Inicial Atualizada",
+        "slug": "cena-inicial-atualizada",
+        "texto": "Texto da cena atualizado para validação da API.",
+        "ordem_exibicao": 2
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

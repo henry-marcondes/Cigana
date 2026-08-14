@@ -1,0 +1,29 @@
+info:
+  name: 01-criar-cena
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3001/api/cenas
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "capitulo_id": "935c3672-43a9-43a7-8357-4bc9db7ef054",
+        "titulo": "Cena Inicial",
+        "slug": "cena-inicial",
+        "texto": "Esta é a primeira cena do capítulo utilizada para testar a API da Plataforma Ciganas.",
+        "ordem_exibicao": 1,
+        "cena_inicial": true
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

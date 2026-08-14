@@ -9,6 +9,8 @@ const perfilUsuarioRoutes = require('./routes/perfilUsuarioRoutes');
 const autorRoutes = require('./routes/autorRoutes');
 const livroRoutes = require('./routes/livroRoutes');
 const capituloRoutes = require('./routes/capituloRoutes');
+const cenaRoutes = require('./routes/cenaRoutes');
+const escolhaRoutes = require('./routes/escolhaRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -36,6 +38,8 @@ app.use('/api/perfis', perfilUsuarioRoutes);
 app.use('/api/autores', autorRoutes);
 app.use('/api/livros', livroRoutes);
 app.use('/api/capitulos', capituloRoutes);
+app.use('/api/cenas', cenaRoutes);
+app.use('/api/escolhas', escolhaRoutes);
 
 // Error handling
 app.use(errorHandler);
