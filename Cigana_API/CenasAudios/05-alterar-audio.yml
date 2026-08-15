@@ -1,0 +1,22 @@
+info:
+  name: 05 - Alterar Áudio
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/cena-audios/63e65adc-6c72-4324-a8b2-59092b24163c/audio
+  body:
+    type: json
+    data: |-
+      {
+        "audio_url": "Cigana/media/audios/musica-02.mpeg"
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    type: status
+    value: 200

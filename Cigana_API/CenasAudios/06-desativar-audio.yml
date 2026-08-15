@@ -1,0 +1,12 @@
+info:
+  name: 06 - Desativar Áudio
+  type: http
+  seq: 6
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/cena-audios/63e65adc-6c72-4324-a8b2-59092b24163c
+
+  assertions:
+    type: status
+    value: 200

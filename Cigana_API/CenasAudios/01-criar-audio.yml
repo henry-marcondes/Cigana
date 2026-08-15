@@ -1,0 +1,29 @@
+info:
+  name: 01 - Criar Áudio
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3001/api/cena-audios
+  body:
+    type: json
+    data: |-
+      {
+        "cena_id": "ed1e8e6a-dd88-48a2-8161-0e7ce3841e05",
+        "titulo": "Música 01",
+        "legenda": "Música ambiente da cena",
+        "descricao": "Áudio de fundo utilizado para ambientação da cena.",
+        "audio_url": "Cigana/media/audios/musica-01.mpeg",
+        "reproducao_automatica": true,
+        "reproducao_em_loop": true,
+        "ordem_exibicao": 1
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    type: status
+    value: 201

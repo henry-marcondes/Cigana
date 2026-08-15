@@ -12,6 +12,7 @@ const capituloRoutes = require('./routes/capituloRoutes');
 const cenaRoutes = require('./routes/cenaRoutes');
 const escolhaRoutes = require('./routes/escolhaRoutes');
 const cenasImagemRoutes = require('./routes/cenaImagemRoutes');
+const cenaAudioRoutes = require('./routes/cenaAudioRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -42,6 +43,7 @@ app.use('/api/capitulos', capituloRoutes);
 app.use('/api/cenas', cenaRoutes);
 app.use('/api/escolhas', escolhaRoutes);
 app.use('/api/cena-Imagens', cenasImagemRoutes);
+app.use('/api/cena-audios',cenaAudioRoutes);
 
 // Error handling
 app.use(errorHandler);
