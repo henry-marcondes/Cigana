@@ -1,0 +1,21 @@
+info:
+  name: 05-Alterar Imagem da Cena
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/cena-imagens/85c3da00-88a5-4102-93f2-8d2c073b973b/imagem
+  body:
+    type: json
+    data: |-
+      {
+        "imagem_url": "http://localhost:3001/media/imagens/cigana_Andreia_2.png"
+      }
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

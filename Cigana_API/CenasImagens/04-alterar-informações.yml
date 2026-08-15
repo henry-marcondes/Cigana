@@ -1,0 +1,24 @@
+info:
+  name: 04-Alterar Informações da Cena Imagem
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/cena-imagens/85c3da00-88a5-4102-93f2-8d2c073b973b/informacoes
+  body:
+    type: json
+    data: |-
+      {
+        "titulo": "Cigana Andréia Atualizada",
+        "legenda": "Imagem atualizada da personagem Andréia.",
+        "texto_alternativo": "Retrato atualizado de Andréia, uma mulher cigana.",
+        "ordem_exibicao": 2
+      }
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

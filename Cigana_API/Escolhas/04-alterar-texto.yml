@@ -1,0 +1,21 @@
+info:
+  name: 04-Alterar Texto da Escolha
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/escolhas/47bbbcf9-2e94-454c-b34d-508f31dbdc28/texto
+  body:
+    type: json
+    data: |-
+      {
+        "texto": "Continuar para a segunda cena"
+      }
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200
