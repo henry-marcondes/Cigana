@@ -1,0 +1,27 @@
+info:
+  name: 04 - Alterar Informações do Vídeo
+  type: http
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/cena-videos/4932fac5-8dd6-46c9-b0fd-5fdaaefdab4e/informacoes
+
+  body:
+    type: json
+    data: |-
+      {
+        "titulo": "Apresentação da Cultura Cigana - Atualizada",
+        "legenda": "Vídeo introdutório atualizado sobre a cultura cigana.",
+        "descricao": "Apresentação audiovisual atualizada utilizada na cena inicial.",
+        "miniatura_url": "Cigana/media/videos/miniaturas/linux_2.png",
+        "reproducao_automatica": true,
+        "reproducao_em_loop": false,
+        "ordem_exibicao": 1
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assert:
+    - status: 200

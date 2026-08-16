@@ -1,0 +1,14 @@
+info:
+  name: 02 - Listar Vídeos por Cena
+  type: http
+
+http:
+  method: GET
+  url: http://localhost:3001/api/cena-videos/cena/ed1e8e6a-dd88-48a2-8161-0e7ce3841e05
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assert:
+    - status: 200
