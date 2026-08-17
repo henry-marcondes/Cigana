@@ -1,0 +1,14 @@
+info:
+  name: 08 - Desativar Progresso de Leitura
+  type: http
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/progresso-leitura/9183a625-ecd3-4f13-92f2-bfaa28250ee1
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assert:
+    - status: 200

@@ -1,0 +1,27 @@
+info:
+  name: 01-Criar Marcador
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3001/api/marcadores
+  body:
+    type: json
+    data: |-
+      {
+        "usuario_id": "b928d051-5c47-4d1d-a77c-dc8ae401e363",
+        "livro_id": "2b681f24-69d3-49c1-b60a-b4097f31aa4b",
+        "cena_id": "ed1e8e6a-dd88-48a2-8161-0e7ce3841e05",
+        "titulo": "marcador 1",
+        "observacao": "teste 1 dos marcadores",
+        "categoria": "leitura de texto",
+        "ordem_exibicao": 1
+      }
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 201

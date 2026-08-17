@@ -1,0 +1,14 @@
+info:
+  name: 04 - Buscar Progresso por Usuário e Livro
+  type: http
+
+http:
+  method: GET
+  url: http://localhost:3001/api/progresso-leitura/usuario/b928d051-5c47-4d1d-a77c-dc8ae401e363/livro/2b681f24-69d3-49c1-b60a-b4097f31aa4b
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assert:
+    - status: 200

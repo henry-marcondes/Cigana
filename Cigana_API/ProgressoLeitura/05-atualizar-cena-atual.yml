@@ -1,0 +1,21 @@
+info:
+  name: 05 - Atualizar Cena Atual
+  type: http
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/progresso-leitura/9183a625-ecd3-4f13-92f2-bfaa28250ee1/cena
+
+  body:
+    type: json
+    data: |-
+      {
+        "cena_atual_id": "fb6c1057-e591-4c8d-9156-8a5f9d0a8107"
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assert:
+    - status: 200

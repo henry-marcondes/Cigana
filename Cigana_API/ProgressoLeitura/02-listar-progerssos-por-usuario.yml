@@ -1,0 +1,14 @@
+info:
+  name: 02 - Listar Progressos por Usuário
+  type: http
+
+http:
+  method: GET
+  url: http://localhost:3001/api/progresso-leitura/usuario/b928d051-5c47-4d1d-a77c-dc8ae401e363
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assert:
+    - status: 200

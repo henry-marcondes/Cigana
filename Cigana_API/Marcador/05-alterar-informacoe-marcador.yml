@@ -1,0 +1,26 @@
+info:
+  name: 05-Alterar Informações do Marcador
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/marcadores/5212c6b8-d87e-41b2-948b-32d8e91aeaa8
+
+  body:
+    type: json
+    data: |-
+      {
+        "titulo": "marcador 1 atualizado",
+        "observacao": "teste 1 dos marcadores atualizado",
+        "categoria": "leitura atualizada",
+        "ordem_exibicao": 2
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

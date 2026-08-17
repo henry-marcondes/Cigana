@@ -1,0 +1,26 @@
+info:
+  name: 01 - Criar Progresso de Leitura
+  type: http
+
+http:
+  method: POST
+  url: http://localhost:3001/api/progresso-leitura
+
+  body:
+    type: json
+    data: |-
+      {
+        "usuario_id": "b928d051-5c47-4d1d-a77c-dc8ae401e363",
+        "livro_id": "2b681f24-69d3-49c1-b60a-b4097f31aa4b",
+        "versao_livro": "1",
+        "cena_atual_id": "ed1e8e6a-dd88-48a2-8161-0e7ce3841e05",
+        "percentual_concluido": 25,
+        "concluido": false
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assert:
+    - status: 201

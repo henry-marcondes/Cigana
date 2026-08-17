@@ -1,0 +1,21 @@
+info:
+  name: 06 - Atualizar Percentual de Leitura
+  type: http
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/progresso-leitura/9183a625-ecd3-4f13-92f2-bfaa28250ee1/percentual
+
+  body:
+    type: json
+    data: |-
+      {
+        "percentual_concluido": 75
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assert:
+    - status: 200
