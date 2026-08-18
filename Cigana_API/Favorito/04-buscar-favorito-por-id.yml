@@ -1,0 +1,16 @@
+info:
+  name: 04-Buscar Favorito por ID
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:3001/api/favoritos/b9440194-e5d1-4311-87fa-d0b14703e786
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

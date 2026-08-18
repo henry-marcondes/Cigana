@@ -1,0 +1,23 @@
+info:
+  name: 01-Criar Favorito
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3001/api/favoritos
+  body:
+    type: json
+    data: |-
+      {
+        "usuario_id": "b928d051-5c47-4d1d-a77c-dc8ae401e363",
+        "livro_id": "2b681f24-69d3-49c1-b60a-b4097f31aa4b"
+      }
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 201
+
