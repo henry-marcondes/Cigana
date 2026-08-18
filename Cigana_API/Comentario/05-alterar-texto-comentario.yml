@@ -1,0 +1,23 @@
+info:
+  name: 05-Alterar Texto Comentario
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/comentarios/5b3cd270-a80f-4ca7-aa96-4704b7db9a2d/texto
+
+  body:
+    type: json
+    data: |-
+      {
+        "texto": "texto do comentario atualizado"
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

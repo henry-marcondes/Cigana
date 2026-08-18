@@ -1,0 +1,23 @@
+info:
+  name: 06-Alterar Nota Avaliacao
+  type: http
+  seq: 6
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/avaliacoes/b34613e7-9a30-49a4-ad9a-e33fa722736c/nota
+
+  body:
+    type: json
+    data: |-
+      {
+        "nota": 5
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

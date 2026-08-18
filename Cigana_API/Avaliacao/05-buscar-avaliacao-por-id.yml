@@ -1,0 +1,16 @@
+info:
+  name: 05-Buscar Avaliacao por ID
+  type: http
+  seq: 5
+
+http:
+  method: GET
+  url: http://localhost:3001/api/avaliacoes/b34613e7-9a30-49a4-ad9a-e33fa722736c
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

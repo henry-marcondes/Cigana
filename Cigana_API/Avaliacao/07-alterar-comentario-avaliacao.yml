@@ -1,0 +1,23 @@
+info:
+  name: 07-Alterar Comentario Avaliacao
+  type: http
+  seq: 7
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/avaliacoes/b34613e7-9a30-49a4-ad9a-e33fa722736c/comentario
+
+  body:
+    type: json
+    data: |-
+      {
+        "comentario": "comentario da avaliacao atualizado"
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

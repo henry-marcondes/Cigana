@@ -1,0 +1,16 @@
+info:
+  name: 04-Buscar Comentario por ID
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:3001/api/comentarios/5b3cd270-a80f-4ca7-aa96-4704b7db9a2d
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

@@ -1,0 +1,16 @@
+info:
+  name: 02-Listar Comentarios por Livro
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: http://localhost:3001/api/comentarios/livro/2b681f24-69d3-49c1-b60a-b4097f31aa4b
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200
