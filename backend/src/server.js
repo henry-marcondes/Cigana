@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./middleware/errorHandler');
+const path = require('path');
 
 // routes
 const usuarioRoutes = require('./routes/usuarioRoutes');
@@ -34,6 +35,8 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));  // ✅ Correto: cors() é uma função
 app.use(express.json());
+
+app.use('/media', express.static(path.join(__dirname, '../../media')));
 
 // Health check
 app.get('/', (req, res) => {

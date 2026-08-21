@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg417"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="Capas-de-Livros.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview419"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.34016122"
+     inkscape:cx="-229.30304"
+     inkscape:cy="696.72846"
+     inkscape:window-width="1366"
+     inkscape:window-height="719"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs414" />
+  <g
+     inkscape:label="Camada 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#008000;stroke:#ff00ff;stroke-width:0.799999"
+       id="rect590"
+       width="167.96483"
+       height="228.5192"
+       x="24.440508"
+       y="30.100157"
+       inkscape:export-filename="capa_livro_teste_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <text
+       xml:space="preserve"
+       style="font-size:19.7556px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;fill:#800080;stroke:#800080;stroke-width:0.799999"
+       x="108.49543"
+       y="96.31871"
+       id="text646"><tspan
+         sodipodi:role="line"
+         id="tspan644"
+         style="font-size:19.7556px;fill:#800080;stroke:#800080;stroke-width:0.8"
+         x="108.49543"
+         y="96.31871">Capa de </tspan><tspan
+         sodipodi:role="line"
+         style="font-size:19.7556px;fill:#800080;stroke:#800080;stroke-width:0.8"
+         x="108.49543"
+         y="121.01321"
+         id="tspan1009">Livro</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:19.7556px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;fill:#800080;stroke:#800080;stroke-width:0.799999"
+       x="106.07536"
+       y="159.58017"
+       id="text1067"><tspan
+         sodipodi:role="line"
+         id="tspan1065"
+         style="stroke-width:0.8"
+         x="106.07536"
+         y="159.58017">Para teste</tspan></text>
+  </g>
+</svg>

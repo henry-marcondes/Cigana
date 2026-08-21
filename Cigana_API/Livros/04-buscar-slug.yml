@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/api/livros/slug/livro-de-teste-ciganas
+  url: http://localhost:3001/api/livros/slug/livro-de-teste-Assinantes
   auth: inherit
 
   settings:

@@ -5,7 +5,7 @@ info:
 
 http:
   method: PATCH
-  url: http://localhost:3001/api/livros/f50a9c1f-9bda-40a1-b8bc-06fe81371795/capa
+  url: http://localhost:3001/api/livros/695ec5b6-e4f3-4a67-93fc-ebd3a11146b9/capa
   auth: inherit
 
   headers:
@@ -16,7 +16,7 @@ http:
     type: json
     data: |
       {
-        "capa_url": "https://exemplo.com/capas/livro-de-teste-ciganas.jpg"
+        "capa_url": "http://localhost:3001/media/imagens/capa_livro_teste_1.png"
       }
 
   settings:
