@@ -1,0 +1,20 @@
+info:
+  name: 04-solicitar-recuperacao-senha
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:3001/api/usuarios/recuperacao-senha
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "email": "henryartesrobotica@gmail.com"
+      }
+
+runtime:
+  timeout: 10000

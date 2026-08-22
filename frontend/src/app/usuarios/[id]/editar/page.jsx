@@ -1,4 +1,5 @@
 import { apiFetch } from '../../../../services/api';
+import { redirect } from 'next/navigation';
 
 export default async function EditarUsuarioPage({ params }) {
   const { id } = await params;
@@ -17,6 +18,7 @@ export default async function EditarUsuarioPage({ params }) {
         email,
       }),
     });
+      redirect(`/usuarios/${id}`);
   }
 
   return (

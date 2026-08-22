@@ -1,0 +1,14 @@
+info:
+  name: 01-solicitar-alteracao-senha
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3001/api/usuarios/bf03c86c-de36-4409-9305-ba8752edd3b2/alteracao-senha
+  headers:
+    - name: Content-Type
+      value: application/json
+
+runtime:
+  timeout: 10000

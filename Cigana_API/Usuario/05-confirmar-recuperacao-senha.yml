@@ -1,0 +1,22 @@
+info:
+  name: 05-confirmar-recuperacao-senha
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:3001/api/usuarios/recuperacao-senha/confirmar
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "email": "henryartesrobotica@gmail.com",
+        "token": "779563",
+        "senha": "55631376"
+      }
+
+runtime:
+  timeout: 10000

@@ -1,0 +1,19 @@
+info:
+  name: 03-validar-token-ja-utilizado
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: http://localhost:3001/api/tokens-usuario/validar
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "usuario_id": "bf03c86c-de36-4409-9305-ba8752edd3b2",
+        "finalidade": "VERIFICACAO_EMAIL",
+        "token": "061248"
+      }

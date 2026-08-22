@@ -20,6 +20,7 @@ const marcadorRoutes = require('./routes/marcadorRoutes');
 const favoritoRoutes = require('./routes/favoritoRoutes');
 const avaliacaoRoutes = require('./routes/avaliacaoRoutes');
 const comentarioRoutes = require('./routes/comentarioRoutes');
+const tokenUsuarioRoutes = require('./routes/tokenUsuarioRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -59,6 +60,7 @@ app.use('/api/marcadores', marcadorRoutes);
 app.use('/api/favoritos', favoritoRoutes);
 app.use('/api/avaliacoes', avaliacaoRoutes);
 app.use('/api/comentarios', comentarioRoutes);
+app.use('/api/tokens-usuario', tokenUsuarioRoutes);
 
 
 // Error handling

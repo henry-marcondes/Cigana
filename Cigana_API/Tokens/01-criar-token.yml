@@ -1,0 +1,18 @@
+info:
+  name: 01-criar-token
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3001/api/tokens-usuario
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "usuario_id": "bf03c86c-de36-4409-9305-ba8752edd3b2",
+        "finalidade": "VERIFICACAO_EMAIL"
+      }

@@ -27,7 +27,7 @@ class UsuarioController {
         } catch(error){
             console.error(error);
             return error(res, 'Erro interno do servidor.', 500);
-        }
+       }
     }
 
     static async criar(req, res) {
@@ -79,6 +79,113 @@ class UsuarioController {
             return next(err);
         }
     }   
+
+   static async solicitarVerificacaoEmail(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.solicitarVerificacaoEmail(
+                req.params.id
+            );
+
+        return success(
+            res,
+            resultado,
+            'Código de verificação enviado com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+
+    static async verificarEmail(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.verificarEmail(
+                req.params.id,
+                req.body.token
+            );
+
+        return success(
+            res,
+            resultado,
+            'E-mail verificado com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+
+    static async solicitarAlteracaoSenha(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.solicitarAlteracaoSenha(
+                req.params.id
+            );
+
+        return success(
+            res,
+            resultado,
+            'Código para alteração de senha enviado com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+
+    static async alterarSenhaComToken(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.alterarSenhaComToken(
+                req.params.id,
+                req.body.token,
+                req.body.senha
+            );
+
+        return success(
+            res,
+            resultado,
+            'Senha alterada com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+
+    static async solicitarRecuperacaoSenha(req, res) {
+        try {
+        const resultado =
+            await UsuarioService.solicitarRecuperacaoSenha(
+                req.body.email
+            );
+
+        return success(
+            res,
+            resultado,
+            'Se o e-mail estiver cadastrado, um código de recuperação será enviado.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+     }
+  }
+
+    static async recuperarSenhaComToken(req, res) {
+      try {
+        const resultado =
+            await UsuarioService.recuperarSenhaComToken(
+                req.body.email,
+                req.body.token,
+                req.body.senha
+            );
+
+        return success(
+            res,
+            resultado,
+            'Senha recuperada com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+  }
 
     static async desativar(req, res, next) {
 
