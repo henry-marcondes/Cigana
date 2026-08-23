@@ -119,7 +119,8 @@ class UsuarioController {
     try {
         const resultado =
             await UsuarioService.solicitarAlteracaoSenha(
-                req.params.id
+                req.params.id,
+                req.body.senha
             );
 
         return success(

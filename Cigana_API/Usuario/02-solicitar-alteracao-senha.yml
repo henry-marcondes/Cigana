@@ -1,7 +1,7 @@
 info:
-  name: 01-solicitar-alteracao-senha
+  name: 02-solicitar-alteracao-senha
   type: http
-  seq: 1
+  seq: 2
 
 http:
   method: POST
@@ -9,6 +9,13 @@ http:
   headers:
     - name: Content-Type
       value: application/json
+
+  body:
+    type: json
+    data: |
+      {
+        "senha": "senha-errada"
+      }
 
 runtime:
   timeout: 10000

@@ -9,6 +9,7 @@ export default function Home() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
 
+
   useEffect(() => {
     async function carregarLivros() {
       try {
@@ -47,7 +48,6 @@ export default function Home() {
           <h1 className="text-3xl font-bold text-gray-900">
             Biblioteca
           </h1>
-
           <p className="mt-2 text-pink-600">
             Livros disponíveis na plataforma Ciganas.
           </p>

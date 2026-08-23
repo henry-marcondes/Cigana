@@ -10,6 +10,21 @@ const TODOS_CAMPOS = ` ${CAMPOS_PUBLICAS}, ${CAMPOS_PRIVADAS}`;
 
 class Usuario {
 
+    static async buscarCredenciaisPorId(id) {
+        const result = await pool.query(
+            `
+            SELECT
+                ${TODOS_CAMPOS}
+            FROM usuarios
+            WHERE id = $1
+            AND ativo = TRUE
+            `,
+            [id]
+        );
+
+        return result.rows[0];
+    }
+
     static async listar() {
         const result = await pool.query(`
             SELECT ${CAMPOS_PUBLICAS} FROM usuarios

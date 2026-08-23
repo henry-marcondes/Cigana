@@ -101,8 +101,8 @@ class UsuarioService {
         return usuarioAtualizado;
     }
     
-    static async solicitarAlteracaoSenha(id) {
-    const usuario = await Usuario.buscarPorId(id);
+    static async solicitarAlteracaoSenha(id, senha) {
+    const usuario = await Usuario.buscarCredenciaisPorId(id);
 
     if (!usuario) {
         throw new Error('USUARIO_NAO_ENCONTRADO');
@@ -112,12 +112,20 @@ class UsuarioService {
         throw new Error('EMAIL_NAO_VERIFICADO');
     }
 
+    const senhaCorreta = await bcrypt.compare(
+        senha,
+        usuario.senha_hash
+    );
+
+    if (!senhaCorreta) {
+        throw new Error('SENHA_ATUAL_INCORRETA');
+    }
+
     return await TokenUsuarioService.criar({
         usuario_id: id,
         finalidade: 'ALTERACAO_SENHA'
     });
 }
-
     static async alterarSenhaComToken(id, token, novaSenha) {
     const usuario = await Usuario.buscarPorId(id);
 

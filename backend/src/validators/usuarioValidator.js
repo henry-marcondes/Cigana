@@ -106,6 +106,7 @@ function validarAlteracaoSenha(req, res, next){
 function validarSolicitacaoAlteracaoSenha(req, res, next) {
 
     const { id } = req.params;
+    let { senha } = req.body;
 
     const uuid =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -117,6 +118,26 @@ function validarSolicitacaoAlteracaoSenha(req, res, next) {
     if (!uuid.test(id)) {
         return error(res, 'ID do usuário inválido.', 400);
     }
+
+    if (!senha) {
+        return error(res, 'Senha é obrigatória.', 400);
+    }
+
+    if (typeof senha !== 'string') {
+        return error(res, 'Senha deve ser um texto.', 400);
+    }
+
+    if (senha.length < 8) {
+        return error(
+            res,
+            'Senha deve possuir no mínimo 8 caracteres.',
+            400
+        );
+    }
+
+    req.body = {
+        senha: senha.trim()
+    };
 
     next();
 }
