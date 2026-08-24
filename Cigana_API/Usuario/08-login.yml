@@ -1,0 +1,21 @@
+info:
+  name: 08-login
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: http://localhost:3001/api/usuarios/login
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "email": "henryartesrobotica@gmail.com",
+        "senha": "12345678"
+      }
+
+runtime:
+  timeout: 10000

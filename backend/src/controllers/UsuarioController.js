@@ -188,6 +188,48 @@ class UsuarioController {
     }
   }
 
+    static async autenticar(req, res) {
+    try {
+        const usuario =
+            await UsuarioService.autenticarUsuario(
+                req.body.email,
+                req.body.senha
+            );
+
+        return success(
+            res,
+            usuario,
+            'Login realizado com sucesso.'
+        );
+
+    } catch (err) {
+
+        if (err.message === 'CREDENCIAIS_INVALIDAS') {
+            return error(
+                res,
+                'E-mail ou senha inválidos.',
+                401
+            );
+        }
+
+        if (err.message === 'EMAIL_NAO_VERIFICADO') {
+            return error(
+                res,
+                'E-mail não verificado.',
+                403
+            );
+        }
+
+        console.error(err);
+
+        return error(
+            res,
+            'Não foi possível realizar o login.',
+            500
+        );
+    }
+}
+
     static async desativar(req, res, next) {
 
         try {

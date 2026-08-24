@@ -112,3 +112,17 @@ export async function confirmarVerificacaoEmail(usuario_id, token) {
     }
   );
 }
+
+// ========================================
+// LOGIN
+// ========================================
+
+export async function login(email, senha) {
+  return apiFetch('/api/usuarios/login', {
+    method: 'POST',
+    body: JSON.stringify({
+      email,
+      senha,
+    }),
+  });
+}

@@ -10,10 +10,18 @@ const {
     validarSolicitacaoAlteracaoSenha,
     validarConfirmacaoAlteracaoSenha,
     validarSolicitacaoRecuperacaoSenha,
-    validarConfirmacaoRecuperacaoSenha
+    validarConfirmacaoRecuperacaoSenha,
+    validarLogin
 } = require('../validators/usuarioValidator');
 
 const router = express.Router();
+
+// Login
+router.post(
+    '/login',
+    validarLogin,
+    UsuarioController.autenticar
+);
 
 // CRUD
 router.get('/', UsuarioController.listar);

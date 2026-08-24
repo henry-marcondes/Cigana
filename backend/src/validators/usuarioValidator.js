@@ -266,6 +266,29 @@ function validarConfirmacaoRecuperacaoSenha(req, res, next) {
     next();
 }
 
+function validarLogin(req, res, next) {
+
+    let { email, senha } = req.body;
+
+    if (!email) {
+        return error(res, 'E-mail é obrigatório.', 400);
+    }
+
+    if (!senha) {
+        return error(res, 'Senha é obrigatória.', 400);
+    }
+
+    email = String(email).trim().toLowerCase();
+    senha = String(senha).trim();
+
+    req.body = {
+        email,
+        senha
+    };
+
+    next();
+}
+
 module.exports = {
     validarCriacaoUsuario,
     validarAtualizacaoUsuario,
@@ -275,5 +298,6 @@ module.exports = {
     validarSolicitacaoAlteracaoSenha,
     validarConfirmacaoAlteracaoSenha,
     validarSolicitacaoRecuperacaoSenha,
-    validarConfirmacaoRecuperacaoSenha
+    validarConfirmacaoRecuperacaoSenha,
+    validarLogin
 }

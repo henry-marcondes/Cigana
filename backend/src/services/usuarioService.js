@@ -199,6 +199,38 @@ class UsuarioService {
     return usuarioAtualizado;
 }
 
+    static async autenticarUsuario(email, senha) {
+
+    const usuario = await Usuario.buscarCredenciaisPorEmail(email);
+
+    if (!usuario) {
+        throw new Error('CREDENCIAIS_INVALIDAS');
+    }
+
+    const senhaCorreta = await bcrypt.compare(
+        senha,
+        usuario.senha_hash
+    );
+
+    if (!senhaCorreta) {
+        throw new Error('CREDENCIAIS_INVALIDAS');
+    }
+
+    if (!usuario.email_verificado_em) {
+        throw new Error('EMAIL_NAO_VERIFICADO');
+    }
+
+    const usuarioAtualizado = await Usuario.registrarLogin(
+        usuario.id
+    );
+
+    if (!usuarioAtualizado) {
+        throw new Error('NAO_FOI_POSSIVEL_REGISTRAR_LOGIN');
+    }
+
+    return usuarioAtualizado;
+}
+
     static async desativarUsuario(id) {
         const usuario = await Usuario.buscarPorId(id);
         if (!usuario) { throw new Error('USUARIO_NAO_ENCONTRADO');}
