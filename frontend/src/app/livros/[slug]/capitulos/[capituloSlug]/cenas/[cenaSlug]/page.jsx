@@ -85,7 +85,7 @@ export default async function CenaPage({ params }) {
                   <img
                     src={imagem.imagem_url}
                     alt={imagem.texto_alternativo || imagem.titulo}
-                    className="mx-auto max-h-[600px] w-auto rounded-lg object-contain"
+                    className="mx-auto max-h-[900px] w-auto rounded-lg object-contain"
                   />
 
                   {imagem.legenda && (

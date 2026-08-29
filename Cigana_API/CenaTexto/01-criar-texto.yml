@@ -1,11 +1,11 @@
 info:
-  name: 01-Criar Cena Imagem
+  name: 01-Criar CenaTexto
   type: http
   seq: 1
 
 http:
   method: POST
-  url: http://localhost:3001/api/cena-imagens
+  url: http://localhost:3001/api/cena-textos
   headers:
     - name: Content-Type
       value: application/json
@@ -14,12 +14,9 @@ http:
     data: |-
       {
         "cena_id": "04b9b4ff-0a48-4d26-bcaa-36b5041440c6",
-        "titulo": "Continua 2",
-        "legenda": "Elétrica MotorHomes",
-        "texto_alternativo": "pagina 2",
-        "imagem_url": "http://localhost:3001/media/textos/pagina-2.png",
-        "ordem_exibicao": 1
+        "texto_url": "/media/textos/capitulo-01/cena-01.md"
       }
+  auth: inherit
 
 settings:
   encodeUrl: true

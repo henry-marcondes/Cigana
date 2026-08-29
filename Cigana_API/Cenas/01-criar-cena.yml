@@ -13,10 +13,10 @@ http:
     type: json
     data: |
       {
-        "capitulo_id": "935c3672-43a9-43a7-8357-4bc9db7ef054",
-        "titulo": "Cena Inicial",
+        "capitulo_id": "8324dcf4-41c2-4477-a1fb-79b74c261001",
+        "titulo": "Apresentação",
         "slug": "cena-inicial",
-        "texto": "Esta é a primeira cena do capítulo utilizada para testar a API da Plataforma Ciganas.",
+        "texto": "Temas das Apostilas",
         "ordem_exibicao": 1,
         "cena_inicial": true
       }
@@ -27,3 +27,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

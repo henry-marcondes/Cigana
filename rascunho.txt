@@ -1,0 +1,90 @@
+    Livro:
+    {
+      "titulo": "Elétrica para MotorHomes",
+      "id": "695ec5b6-e4f3-4a67-93fc-ebd3a11146b9",
+      "categoria_id": "699436fb-ac29-43c5-8143-80bc1ef76f82",
+      "classificacao_indicativa_id": "faae24e1-6406-42d2-8cd2-0443fd4e1799",
+      "status_livro_id": "cbcacb5b-943e-4ed6-be3a-74e2003765c9",
+      "slug": "livro-para-Assinantes",
+      "resumo": "Livro utilizado para testes da API da Plataforma Ciganas.",
+      "capa_url": "http://localhost:3001/media/imagens/capa_livro_teste_1.png",
+      "ordem_exibicao": 2,
+    }
+  ]
+}
+ Capitulo:
+{
+    "id": "8324dcf4-41c2-4477-a1fb-79b74c261001",
+    "livro_id": "695ec5b6-e4f3-4a67-93fc-ebd3a11146b9",
+    "titulo": "Capítulo Introdução",
+    "slug": "capitulo-primeiro",
+    "resumo": "Apresentação do curso",
+    "texto_introdutorio": "As consultorias e outras informações uteis",
+    "capa_url": "http://localhost:3001/media/imagens/capa_introducao_eletrica.png",
+    "ordem_exibicao": 1,
+  }
+}
+
+Cena-1 
+{
+    "id": "501768dc-7161-478a-b8dc-2e0d1cfbc6bd",
+    "capitulo_id": "8324dcf4-41c2-4477-a1fb-79b74c261001",
+    "titulo": "Apresentação",
+    "slug": "cena-inicial",
+    "texto": "Temas das Apostilas",
+    "ordem_exibicao": 1,
+    "cena_inicial": true,
+  }
+  cena-imagem-1
+}
+
+cena-2
+{
+    "id": "04b9b4ff-0a48-4d26-bcaa-36b5041440c6",
+    "capitulo_id": "8324dcf4-41c2-4477-a1fb-79b74c261001",
+    "titulo": "Pagina 2",
+    "slug": "segunda-cena",
+    "texto": "Pagina dois",
+    "ordem_exibicao": 2,
+    "cena_inicial": false,
+    "ativo": true,
+    "criado_em": "2026-08-25T22:27:00.796Z",
+    "atualizado_em": "2026-08-25T22:27:00.796Z"
+  }
+  cena-imagem-1
+  {
+    "id": "4a954fce-831d-49a6-9add-eb702ea9d4d2",
+    "cena_id": "04b9b4ff-0a48-4d26-bcaa-36b5041440c6",
+    "titulo": "Continua 2",
+    "legenda": "Elétrica MotorHomes",
+    "texto_alternativo": "pagina 2",
+    "imagem_url": "http://localhost:3001/media/textos/pagina-2.png",
+    "ordem_exibicao": 1,
+  }
+}
+}
+
+cena-texto
+{
+  "data": {
+    "id": "40a9dd28-fdc3-4fcf-9904-9ae04b2aec0c",
+    "cena_id": "04b9b4ff-0a48-4d26-bcaa-36b5041440c6",
+    "texto_url": "/media/textos/capitulo-01/cena-01.md",
+    "ativo": true,
+    "criado_em": "2026-08-28T13:41:38.119Z",
+  }
+}
+
+Escolha da pagina-1 para pagina-2
+{
+  "data": {
+    "id": "8e79dd75-ff7c-42fb-8f73-f58f201c9f85",
+    "cena_origem_id": "501768dc-7161-478a-b8dc-2e0d1cfbc6bd",
+    "cena_destino_id": "04b9b4ff-0a48-4d26-bcaa-36b5041440c6",
+    "texto": "Ir para pagina 2",
+    "ordem_exibicao": 1,
+    "ativo": true,
+    "criado_em": "2026-08-25T22:46:06.631Z",
+    "atualizado_em": "2026-08-25T22:46:06.631Z"
+  }
+}

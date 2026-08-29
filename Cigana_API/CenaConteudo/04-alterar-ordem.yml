@@ -1,0 +1,23 @@
+info:
+  name: 04-Alterar Ordem Cena Conteudo
+  type: http
+  seq: 10
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/cena-conteudos/680392f1-8b2d-4371-8e54-1be44d2aacc3/ordem
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  body:
+    type: json
+    data: |
+      {
+        "ordem_exibicao": 2
+      }
+
+  assertions:
+    - type: status
+      value: 200

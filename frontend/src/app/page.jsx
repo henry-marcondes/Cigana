@@ -20,8 +20,7 @@ export default function Home() {
       } finally {
         setCarregando(false);
       }
-    }
-
+    } 
     carregarLivros();
   }, []);
 

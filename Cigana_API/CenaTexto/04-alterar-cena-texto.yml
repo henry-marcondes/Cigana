@@ -1,0 +1,23 @@
+info:
+  name: 04-Alterar Cena Texto
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/cena-textos/40a9dd28-fdc3-4fcf-9904-9ae04b2aec0c
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  body:
+    type: json
+    data: |
+      {
+        "texto_url": "/media/textos/capitulo-01/cena-02.md"
+      }
+
+  assertions:
+    - type: status
+      value: 200

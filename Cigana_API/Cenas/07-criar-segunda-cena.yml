@@ -13,11 +13,11 @@ http:
     type: json
     data: |
       {
-        "capitulo_id": "935c3672-43a9-43a7-8357-4bc9db7ef054",
-        "titulo": "Segunda Cena",
+        "capitulo_id": "8324dcf4-41c2-4477-a1fb-79b74c261001",
+        "titulo": "Pagina 2",
         "slug": "segunda-cena",
-        "texto": "Esta é a segunda cena criada para testar a alteração da cena inicial.",
-        "ordem_exibicao": 3,
+        "texto": "Pagina dois",
+        "ordem_exibicao": 2,
         "cena_inicial": false
       }
   auth: inherit
@@ -27,3 +27,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

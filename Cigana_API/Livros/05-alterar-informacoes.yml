@@ -5,28 +5,27 @@ info:
 
 http:
   method: PUT
-  url: http://localhost:3001/api/livros/f50a9c1f-9bda-40a1-b8bc-06fe81371795
-  auth: inherit
-
+  url: http://localhost:3001/api/livros/695ec5b6-e4f3-4a67-93fc-ebd3a11146b9
   headers:
     - name: Content-Type
       value: application/json
-
   body:
     type: json
     data: |
       {
-        "titulo": "Livro de Teste Ciganas - Atualizado",
-        "slug": "livro-de-teste-ciganas-atualizado",
-        "resumo": "Livro de teste atualizado pela API da Plataforma Ciganas.",
+        "titulo": "Eletrica para MotorHomes",
+        "slug": "eletrica-motorhomes",
+        "resumo": "7 Apostilas estruturadas com esquema simplificados e guias práticos para a sua total autonomia na estrada",
         "isbn": "9780000000000",
         "ano_publicacao": 2026,
         "data_publicacao": "2026-08-09T00:00:00Z",
         "ordem_exibicao": 2
       }
+  auth: inherit
 
-  settings:
-    encodeUrl: true
-    timeout: 0
-    followRedirects: true
-    maxRedirects: 5
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

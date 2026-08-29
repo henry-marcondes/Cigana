@@ -5,11 +5,12 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/api/livros/slug/livro-de-teste-Assinantes
+  url: http://localhost:3001/api/livros/slug/livro-para-Assinantes
   auth: inherit
 
-  settings:
-    encodeUrl: true
-    timeout: 0
-    followRedirects: true
-    maxRedirects: 5
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

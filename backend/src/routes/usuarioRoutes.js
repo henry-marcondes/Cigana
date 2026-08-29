@@ -1,5 +1,6 @@
 const express = require('express');
 const UsuarioController = require('../controllers/UsuarioController');
+const autenticar = require('../middleware/autenticar');
 
 const {
     validarCriacaoUsuario,
@@ -24,9 +25,9 @@ router.post(
 );
 
 // CRUD
-router.get('/', UsuarioController.listar);
+router.get('/', autenticar, UsuarioController.listar);
 
-router.get('/:id', UsuarioController.buscarPorId);
+router.get('/:id', autenticar, UsuarioController.buscarPorId);
 
 router.post(
     '/',
@@ -36,18 +37,20 @@ router.post(
 
 router.put(
     '/:id',
+    autenticar,
     validarAtualizacaoUsuario,
     UsuarioController.atualizar
 );
 
 router.delete(
-    '/:id',
+    '/:id', autenticar,
     UsuarioController.desativar
 );
 
 // Alteração direta de senha
 router.patch(
     '/:id/senha',
+    autenticar,
     validarAlteracaoSenha,
     UsuarioController.alterarSenha
 );
@@ -55,12 +58,14 @@ router.patch(
 // Alteração de senha com verificação por e-mail
 router.post(
     '/:id/alteracao-senha',
+    autenticar,
     validarSolicitacaoAlteracaoSenha,
     UsuarioController.solicitarAlteracaoSenha
 );
 
 router.post(
     '/:id/alteracao-senha/confirmar',
+    autenticar,
     validarConfirmacaoAlteracaoSenha,
     UsuarioController.alterarSenhaComToken
 );

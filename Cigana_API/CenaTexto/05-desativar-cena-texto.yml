@@ -1,0 +1,12 @@
+info:
+  name: 05-Desativar Cena Texto
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/cena-textos/40a9dd28-fdc3-4fcf-9904-9ae04b2aec0c
+
+  assertions:
+    - type: status
+      value: 200

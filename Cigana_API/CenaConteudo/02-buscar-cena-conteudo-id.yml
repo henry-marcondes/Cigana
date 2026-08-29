@@ -1,0 +1,12 @@
+info:
+  name: 02-Buscar Cena Conteudo por ID
+  type: http
+  seq: 8
+
+http:
+  method: GET
+  url: http://localhost:3001/api/cena-conteudos/680392f1-8b2d-4371-8e54-1be44d2aacc3
+
+  assertions:
+    - type: status
+      value: 200

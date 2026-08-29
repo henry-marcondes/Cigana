@@ -1,5 +1,6 @@
 const UsuarioService = require('../services/usuarioService');
 const { success, error } = require('../utils/apiResponse');
+const { gerarToken } = require('../utils/jwt');
 
 class UsuarioController {
 
@@ -196,9 +197,16 @@ class UsuarioController {
                 req.body.senha
             );
 
+        const token = gerarToken({
+            id: usuario.id
+        });
+
         return success(
             res,
-            usuario,
+            {
+                usuario,
+                token
+            },
             'Login realizado com sucesso.'
         );
 

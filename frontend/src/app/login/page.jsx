@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { login } from '../../services/autenticacao';
+import { useRouter } from 'next/navigation';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -10,6 +11,8 @@ export default function Login() {
   const [mensagem, setMensagem] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
+
+  const router = useRouter();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -21,9 +24,8 @@ export default function Login() {
     try {
       const resposta = await login(email, senha);
 
-      setMensagem(resposta.message);
-
       console.log('Login:', resposta.data);
+      router.push('/dashboard');
 
     } catch (error) {
       setErro(error.message);

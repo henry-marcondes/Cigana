@@ -13,12 +13,12 @@ http:
     type: json
     data: |
       {
-        "livro_id": "2b681f24-69d3-49c1-b60a-b4097f31aa4b",
+        "livro_id": "695ec5b6-e4f3-4a67-93fc-ebd3a11146b9",
         "titulo": "Capítulo Introdução",
         "slug": "capitulo-primeiro",
-        "resumo": " Capitulo de teste para API",
-        "texto_introdutorio": "Apenas um pequeno teste de texto",
-        "capa_url": "http://ciganas/capa_url/capa_01.png",
+        "resumo": "Apresentação do curso",
+        "texto_introdutorio": "As consultorias e outras informações uteis",
+        "capa_url": "http://localhost:3001/media/imagens/capa_introducao_eletrica.png",
         "ordem_exibicao": 1,
         "ativo": "true"
       }
@@ -29,3 +29,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

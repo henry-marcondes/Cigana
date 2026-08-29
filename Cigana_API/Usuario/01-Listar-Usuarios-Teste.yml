@@ -6,7 +6,10 @@ info:
 http:
   method: GET
   url: http://localhost:3001/api/usuarios
-  auth: inherit
+
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJmMDNjODZjLWRlMzYtNDQwOS05MzA1LWJhODc1MmVkZDNiMiIsImlhdCI6MTc4NzU3MjQzNCwiZXhwIjoxNzg3NjU4ODM0fQ._VfG1ro698zH39zEKJxcBUaczcwZWeMCX_anNF3aAEs
 
 settings:
   encodeUrl: true

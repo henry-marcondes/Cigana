@@ -62,6 +62,7 @@ export async function confirmarRecuperacaoSenha(
     }),
   });
 }
+
 // ========================================
 // ALTERAÇÃO DE SENHA
 // ========================================
@@ -83,18 +84,22 @@ export async function confirmarAlteracaoSenha(
   token,
   senha
 ) {
-  return apiFetch(`/api/usuarios/${usuario_id}/alteracao-senha/confirmar`, {
-    method: 'POST',
-    body: JSON.stringify({
-      token,
-      senha,
-    }),
-  });
+  return apiFetch(
+    `/api/usuarios/${usuario_id}/alteracao-senha/confirmar`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        token,
+        senha,
+      }),
+    }
+  );
 }
 
 // ========================================
 // VERIFICAÇÃO DE E-MAIL
 // ========================================
+
 export async function solicitarVerificacaoEmail(usuario_id) {
   return apiFetch(`/api/usuarios/${usuario_id}/verificacao-email`, {
     method: 'POST',
@@ -118,11 +123,43 @@ export async function confirmarVerificacaoEmail(usuario_id, token) {
 // ========================================
 
 export async function login(email, senha) {
-  return apiFetch('/api/usuarios/login', {
+  const resposta = await apiFetch('/api/usuarios/login', {
     method: 'POST',
     body: JSON.stringify({
       email,
       senha,
     }),
   });
+
+  localStorage.setItem('token', resposta.data.token);
+
+  localStorage.setItem(
+    'usuario',
+    JSON.stringify(resposta.data.usuario)
+  );
+
+  return resposta;
+}
+
+// ========================================
+// SESSÃO
+// ========================================
+
+export function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('usuario');
+}
+
+export function obterUsuario() {
+  const usuario = localStorage.getItem('usuario');
+
+  if (!usuario) {
+    return null;
+  }
+
+  return JSON.parse(usuario);
+}
+
+export function estaAutenticado() {
+  return !!localStorage.getItem('token');
 }

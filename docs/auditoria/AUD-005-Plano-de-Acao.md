@@ -129,3 +129,102 @@ useLibrary();
 useReader();
 useProgress();
 useAuthentication().
+
+## Deixar plataforma Preparada receber API Financeira
+
+1. Em reunião com a Comunidade foi fixado as seguintes
+estratégias na modelagem da plataforma.
+
+┌───────────────────────────────┐
+│          PostgreSQL           │
+│                               │
+│ Livro                         │
+│ Capítulo                      │
+│ Cena                          │
+│ Autor                         │
+│ Escolha                       │
+│ ...                           │
+│                               │
+│ referências aos arquivos      │
+└───────────────┬───────────────┘
+                │
+                ▼
+┌───────────────────────────────┐
+│            STORAGE            │
+│                               │
+│ texto                         │
+│ imagem                        │
+│ áudio                         │
+│ vídeo                         │
+│ capa                          │
+└───────────────┬───────────────┘
+                │
+                │ métricas de uso
+                ▼
+┌───────────────────────────────┐
+│       API FINANCEIRA          │
+│                               │
+│ planos                        │
+│ consumo                       │
+│ franquias                     │
+│ preços                        │
+│ cobrança                      │
+│ pagamentos                    │
+└───────────────────────────────┘
+
+2. uma decisão arquitetural importante PostgreSQL não será o 
+repositório do conteúdo literário.
+
+*PostgresSQL* : será o catálogo/índice/estrutura do livro.
+*STORAGE*     : será o repositório do conteúdo.
+
+O STORAGE será utilizado para contabilizar e estabelecer uma política por 
+autor/livro, do conteúdo.
+
+3. Entrada do conteúdo para plataforma:
+Criar um processo de preparação e importação do conteúdo que permita o autor trabalhar 
+desde já, mesmo antes de toda a Plataforma Leitura estar pronta.
+
+Ele pode preparar os livros no computador dele usando uma estrutura de diretórios simples
+
+Seguindo a estrutura definida no Projeto:
+
+RASCUNHOS/
+└── Cultura Cigana/
+    │
+    ├── livro/
+    │   ├── capa.jpg
+    │   ├── informacoes.txt
+    │   └── descricao.txt
+    │
+    ├── capitulos/
+    │   │
+    │   ├── 001 - Origem/
+    │   │   ├── texto.docx
+    │   │   ├── imagens/
+    │   │   ├── audios/
+    │   │   └── videos/
+    │   │
+    │   ├── 002 - Cultura/
+    │   │   ├── texto.docx
+    │   │   ├── imagens/
+    │   │   ├── audios/
+    │   │   └── videos/
+    │   │
+    │   └── 003 - Tradições/
+    │       ├── texto.docx
+    │       ├── imagens/
+    │       ├── audios/
+    │       └── videos/
+    │
+    └── observacoes.txt
+
+Ele pode estar usando:
+
+Word;
+LibreOffice;
+Google Docs;
+texto simples;
+eventualmente Markdown.
+
+A plataforma, posteriormente, faz a transformação.

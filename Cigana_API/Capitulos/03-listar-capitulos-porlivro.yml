@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/api/capitulos/livro/2b681f24-69d3-49c1-b60a-b4097f31aa4b
+  url: http://localhost:3001/api/capitulos/livro/695ec5b6-e4f3-4a67-93fc-ebd3a11146b9
   auth: inherit
 
 settings:
@@ -13,3 +13,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true
