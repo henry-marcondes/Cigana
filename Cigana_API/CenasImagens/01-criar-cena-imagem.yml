@@ -14,10 +14,10 @@ http:
     data: |-
       {
         "cena_id": "04b9b4ff-0a48-4d26-bcaa-36b5041440c6",
-        "titulo": "Continua 2",
+        "titulo": "capa_introducao_eletrica.png",
         "legenda": "Elétrica MotorHomes",
-        "texto_alternativo": "pagina 2",
-        "imagem_url": "http://localhost:3001/media/textos/pagina-2.png",
+        "texto_alternativo": "local:/media/imagens/",
+        "imagem_url": "http://localhost:3001/media/imagens/capa_introducao_eletrica.png",
         "ordem_exibicao": 1
       }
 

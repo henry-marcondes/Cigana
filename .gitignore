@@ -4,6 +4,8 @@ node_modules/
 # Env (NUNCA subir)
 .env
 Leiame.txt
+rascunho.txt
+textos/
 
 # Next.js
 .next/
