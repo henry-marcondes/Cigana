@@ -1,0 +1,26 @@
+info:
+  name: 02-criar-livro-autor
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3001/api/livro-autores
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "livro_id": "695ec5b6-e4f3-4a67-93fc-ebd3a11146b9",
+        "autor_id": "aba28c1d-4b0f-4aff-80a9-7c4119caeacb",
+        "ordem_exibicao": 1
+      }  
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

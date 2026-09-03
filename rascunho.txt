@@ -90,3 +90,139 @@ Escolha da pagina-1 para pagina-2
     "atualizado_em": "2026-08-25T22:46:06.631Z"
   }
 }
+
+
+TERMO DE AUTORIZAÇÃO PARA DISPONIBILIZAÇÃO DE OBRA LITERÁRIA EM PLATAFORMA DIGITAL
+
+Pelo presente instrumento, de um lado:
+
+AUTOR(A)/TITULAR DOS DIREITOS:
+Nome completo: __________________________________________
+CPF/CNPJ: ______________________________________________
+E-mail: _________________________________________________
+
+e, de outro:
+
+PLATAFORMA:
+Nome da plataforma: Plataforma de Literatura Interativa
+Responsável: Henry Frenando Espindola Marcondes
+CNPJ/CPF: 40.247.359/0001-82
+E-mail: raizmaker@gmail.com 
+
+têm entre si o presente Termo de Autorização para Disponibilização de Obra Literária em Plataforma Digital, mediante as seguintes condições:
+
+1. DA OBRA
+
+O(A) AUTOR(A) declara ser autor(a) ou legítimo(a) titular dos direitos patrimoniais sobre a seguinte obra:
+
+Título: _______________________________________________
+ISBN, se houver: ______________________________________
+Edição: _______________________________________________
+
+2. DA AUTORIZAÇÃO
+
+O(A) AUTOR(A) autoriza a PLATAFORMA a disponibilizar a obra acima identificada em seu ambiente digital, exclusivamente nas condições estabelecidas neste termo.
+
+A autorização compreende a reprodução digital necessária para armazenamento, processamento técnico, exibição e disponibilização da obra aos usuários da plataforma.
+
+3. DA FORMA DE DISPONIBILIZAÇÃO
+
+A obra será disponibilizada:
+
+[  ] gratuitamente aos usuários;
+
+[  ] mediante pagamento pelo usuário;
+
+[  ] por meio de assinatura da plataforma;
+
+[  ] outra modalidade: _____________________________________.
+
+A plataforma poderá disponibilizar a obra para leitura:
+
+[  ] exclusivamente online;
+
+[  ] mediante download;
+
+[  ] online e mediante download.
+
+4. DA REMUNERAÇÃO
+
+Pela disponibilização da obra, o(a) AUTOR(A):
+
+[  ] não receberá remuneração;
+
+[  ] receberá _______% do valor líquido arrecadado com a obra;
+
+[  ] receberá o valor fixo de R$ __________ por __________;
+
+[  ] outra forma: __________________________________________.
+
+Os pagamentos, quando aplicáveis, serão realizados da seguinte maneira:
+
+---
+
+5. DA NÃO EXCLUSIVIDADE
+
+Salvo se expressamente estabelecido em contrato específico, esta autorização será não exclusiva, podendo o(a) AUTOR(A) disponibilizar ou comercializar a mesma obra em outras plataformas e meios.
+
+6. DO PRAZO
+
+A autorização terá início em //________ e vigorará:
+
+[  ] por prazo indeterminado;
+
+[  ] até //________.
+
+O(A) AUTOR(A) poderá solicitar a retirada da obra da plataforma mediante comunicação por escrito com antecedência de ______ dias, observadas as condições eventualmente estabelecidas neste termo.
+
+7. DA DECLARAÇÃO DE TITULARIDADE
+
+O(A) AUTOR(A) declara que:
+
+a) é o(a) autor(a) ou legítimo(a) titular dos direitos patrimoniais necessários para conceder esta autorização;
+
+b) a disponibilização da obra na plataforma não viola direitos autorais, direitos de imagem ou quaisquer outros direitos de terceiros;
+
+c) caso existam coautores, tradutores, ilustradores, fotógrafos, editoras ou outros titulares de direitos envolvidos na obra, possui as respectivas autorizações necessárias;
+
+d) fornecerá à PLATAFORMA informações verdadeiras sobre a autoria e titularidade da obra.
+
+8. DA RESPONSABILIDADE POR DIREITOS DE TERCEIROS
+
+Caso terceiro apresente reclamação ou reivindicação relacionada aos direitos autorais da obra, o(a) AUTOR(A) compromete-se a colaborar com a PLATAFORMA na solução da questão e a apresentar, quando solicitado, documentos que comprovem sua autorização ou titularidade.
+
+A PLATAFORMA poderá suspender temporariamente a disponibilização da obra enquanto a situação estiver sendo esclarecida.
+
+9. DA RETIRADA DA OBRA
+
+A PLATAFORMA poderá retirar ou suspender a disponibilização da obra quando houver indícios razoáveis de violação de direitos autorais, determinação judicial ou reclamação fundamentada de terceiro.
+
+10. DA DIVULGAÇÃO
+
+O(A) AUTOR(A) autoriza a PLATAFORMA a utilizar o título da obra, nome artístico ou nome do autor, capa e breve descrição da obra para fins de divulgação da própria obra e da plataforma.
+
+Qualquer utilização diferente da finalidade prevista neste termo deverá ser previamente autorizada pelo(a) AUTOR(A), quando exigível.
+
+11. DA PROTEÇÃO DOS DADOS PESSOAIS
+
+Os dados pessoais fornecidos pelo(a) AUTOR(A) serão tratados de acordo com a legislação brasileira aplicável, especialmente a Lei Geral de Proteção de Dados Pessoais (LGPD).
+
+12. DA AUSÊNCIA DE TRANSFERÊNCIA DA AUTORIA
+
+Este termo não transfere a autoria da obra para a PLATAFORMA.
+
+O(A) AUTOR(A) continuará sendo reconhecido(a) como autor(a) da obra, permanecendo preservados seus direitos morais na forma da legislação aplicável.
+
+13. DA ACEITAÇÃO
+
+Ao assinar este termo, o(a) AUTOR(A) declara que leu e compreendeu todas as condições acima e concorda com a disponibilização da obra na PLATAFORMA nos termos aqui estabelecidos.
+
+Local e data: __________________________________________
+
+AUTOR(A)/TITULAR:
+Nome: _________________________________________________
+Assinatura: _____________________________________________
+
+PLATAFORMA:
+Nome do responsável: Henry Fernando Espindola Marcondes
+Assinatura: _____________________________________________

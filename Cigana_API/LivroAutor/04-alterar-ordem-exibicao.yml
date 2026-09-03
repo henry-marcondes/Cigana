@@ -1,0 +1,25 @@
+info:
+  name: 04-alterar-ordem-exibicao
+  type: http
+  seq: 4
+
+http:
+  method: PATCH 
+  url: http://localhost:3001/api/livro-autores/5dd9fb2d-ca82-465a-b0d0-654cf221cdb2/ordem
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "ordem_exibicao": 2
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

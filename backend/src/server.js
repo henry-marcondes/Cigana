@@ -23,6 +23,7 @@ const comentarioRoutes = require('./routes/comentarioRoutes');
 const tokenUsuarioRoutes = require('./routes/tokenUsuarioRoutes');
 const cenaTextoRoutes = require('./routes/cenaTextoRoutes');
 const cenaConteudoRoutes = require('./routes/cenaConteudoRoutes');
+const livroAutorRoutes = require('./routes/livroAutorRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -65,6 +66,7 @@ app.use('/api/comentarios', comentarioRoutes);
 app.use('/api/tokens-usuario', tokenUsuarioRoutes);
 app.use('/api/cena-textos', cenaTextoRoutes);
 app.use('/api/cena-conteudos', cenaConteudoRoutes);
+app.use('/api/livro-autores', livroAutorRoutes);
 
 
 // Error handling
