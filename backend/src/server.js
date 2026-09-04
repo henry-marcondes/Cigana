@@ -24,6 +24,11 @@ const tokenUsuarioRoutes = require('./routes/tokenUsuarioRoutes');
 const cenaTextoRoutes = require('./routes/cenaTextoRoutes');
 const cenaConteudoRoutes = require('./routes/cenaConteudoRoutes');
 const livroAutorRoutes = require('./routes/livroAutorRoutes');
+const statusLivroRoutes = require('./routes/statusLivroRoutes');
+const visibilidadeLivroRoutes = require('./routes/visibilidadeLivroRoutes');
+const categoriaRoutes = require('./routes/categoriaRoutes');
+const classificacaoIndicativaRoutes = require('./routes/classificacaoIndicativaRoutes');
+const idiomaRoutes = require('./routes/idiomaRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -67,6 +72,11 @@ app.use('/api/tokens-usuario', tokenUsuarioRoutes);
 app.use('/api/cena-textos', cenaTextoRoutes);
 app.use('/api/cena-conteudos', cenaConteudoRoutes);
 app.use('/api/livro-autores', livroAutorRoutes);
+app.use('/api/status-livro', statusLivroRoutes);
+app.use('/api/visibilidade-livro', visibilidadeLivroRoutes);
+app.use('/api/categorias', categoriaRoutes);
+app.use('/api/classificacoes-indicativas', classificacaoIndicativaRoutes);
+app.use('/api/idiomas', idiomaRoutes);
 
 
 // Error handling
