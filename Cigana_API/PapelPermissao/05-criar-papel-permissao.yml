@@ -1,0 +1,26 @@
+info:
+  name: 05-criar-Papel-Permissao
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:3001/api/papel-permissoes
+  body:
+    type: json
+    data: |-
+      {
+        "papel_id": "85212ead-87a0-4bea-8803-39b3ad157b62",
+        "permissao_id": "79599bd8-9e65-46bb-9b22-c186b0648773"
+      }
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

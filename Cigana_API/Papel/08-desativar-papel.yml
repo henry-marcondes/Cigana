@@ -1,0 +1,15 @@
+info:
+  name: 08-desativar-Papel
+  type: http
+  seq: 8
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/papeis/82c59097-13d8-4bff-8e41-f9521086258e
+  auth: inherit
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

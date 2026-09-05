@@ -1,0 +1,15 @@
+info:
+  name: 06-desativar-Usuario-Papel
+  type: http
+  seq: 6
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/usuario-papeis/"ID_DO_PAPEL_A_SER_DESATIVADO"
+  auth: inherit
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

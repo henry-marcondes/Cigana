@@ -1,0 +1,25 @@
+info:
+  name: 05-alterar-Nome-Permissao
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/permissoes/04cb2a2f-2202-42f7-b42b-a3567218ce05/nome
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Permissão de teste alterada"
+      }
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

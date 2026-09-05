@@ -1,0 +1,15 @@
+info:
+  name: 06-desativar-Papel-Permissao
+  type: http
+  seq: 6
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/papel-permissoes/67d75e53-2ea0-4196-9874-43b0c559584d
+  auth: inherit
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

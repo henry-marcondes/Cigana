@@ -1,0 +1,15 @@
+info:
+  name: 01-listar-Papeis-Usuario
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: http://localhost:3001/api/usuario-papeis/usuario/1ea366b4-dd2a-4ff5-a5a9-73cfcb63b00c
+  auth: inherit
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

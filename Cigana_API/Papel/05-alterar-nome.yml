@@ -1,0 +1,25 @@
+info:
+  name: 05-alterar-Nome-Papel
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/papeis/82c59097-13d8-4bff-8e41-f9521086258e/nome
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Papel de teste alterado"
+      }
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

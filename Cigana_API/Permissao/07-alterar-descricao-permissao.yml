@@ -1,0 +1,25 @@
+info:
+  name: 07-alterar-Descricao-Permissao
+  type: http
+  seq: 7
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/permissoes/04cb2a2f-2202-42f7-b42b-a3567218ce05/descricao
+  body:
+    type: json
+    data: |-
+      {
+        "descricao": "Descrição da permissão de teste alterada."
+      }
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

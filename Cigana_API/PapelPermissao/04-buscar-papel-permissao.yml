@@ -1,0 +1,15 @@
+info:
+  name: 04-buscar-Papel-Permissao
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:3001/api/papel-permissoes/papel/c92e456f-ee3b-4f67-9c9d-72a03772a73d/permissao/f7be226a-ce6d-4505-8e66-6baa3ef7c4fd
+  auth: inherit
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

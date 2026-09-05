@@ -1,0 +1,15 @@
+info:
+  name: 04-buscar-Usuario-Papel
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:3001/api/usuario-papeis/usuario/1ea366b4-dd2a-4ff5-a5a9-73cfcb63b00c/papel/85212ead-87a0-4bea-8803-39b3ad157b62
+  auth: inherit
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

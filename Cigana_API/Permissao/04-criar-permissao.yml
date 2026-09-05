@@ -1,0 +1,27 @@
+info:
+  name: 04-criar-Permissao
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:3001/api/permissoes
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Permissão de teste",
+        "codigo": "teste.permissao",
+        "descricao": "Permissão criada para teste do CRUD."
+      }
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5

@@ -1,0 +1,27 @@
+info:
+  name: 04-criar-Papel
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:3001/api/papeis
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Papel de teste",
+        "codigo": "TESTE_PAPEL",
+        "descricao": "Papel criado para teste do CRUD."
+      }
+  auth: inherit
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  settings:
+    encodeUrl: true
+    timeout: 0
+    followRedirects: true
+    maxRedirects: 5
