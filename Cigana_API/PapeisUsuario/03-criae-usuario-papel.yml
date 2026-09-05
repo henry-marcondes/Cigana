@@ -6,21 +6,21 @@ info:
 http:
   method: POST
   url: http://localhost:3001/api/usuario-papeis
+  headers:
+    - name: Content-Type
+      value: application/json
   body:
     type: json
     data: |-
       {
-        "usuario_id": "1ea366b4-dd2a-4ff5-a5a9-73cfcb63b00c",
-        "papel_id": "85212ead-87a0-4bea-8803-39b3ad157b62"
+        "usuario_id": "bf03c86c-de36-4409-9305-ba8752edd3b2",
+        "papel_id": "300efca4-e07c-4c9f-a683-5d0d5fa74291"
       }
   auth: inherit
 
-  headers:
-    - name: Content-Type
-      value: application/json
-
-  settings:
-    encodeUrl: true
-    timeout: 0
-    followRedirects: true
-    maxRedirects: 5
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

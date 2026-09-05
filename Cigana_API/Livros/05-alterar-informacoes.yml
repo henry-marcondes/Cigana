@@ -16,12 +16,14 @@ http:
         "titulo": "Eletrica para MotorHomes",
         "slug": "eletrica-motorhomes",
         "resumo": "7 Apostilas estruturadas com esquema simplificados e guias práticos para a sua total autonomia na estrada",
-        "isbn": "9780000000000",
+        "isbn": "9780000000001",
         "ano_publicacao": 2026,
         "data_publicacao": "2026-08-09T00:00:00Z",
         "ordem_exibicao": 2
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdiYjM5M2JkLWZkNmMtNDVjZS1iNTJjLTkyZTFmZjcyZTNkZCIsImlhdCI6MTc4ODYyNzk1NywiZXhwIjoxNzg4NzE0MzU3fQ.w8J7Q-MoBBcA5gCMM95oKEuuT1tduJqWM9iHWI0fcaA
 
 settings:
   encodeUrl: true

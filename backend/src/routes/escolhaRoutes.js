@@ -2,6 +2,9 @@ const express = require('express');
 
 const EscolhaController = require('../controllers/EscolhaController');
 
+const autenticar = require('../middleware/autenticar');
+const autorizar = require('../middleware/autorizacao');
+
 const {
     validarCriacaoEscolha,
     validarAlteracaoTexto,
@@ -31,6 +34,8 @@ router.get(
 // Criar escolha
 router.post(
     '/',
+    autenticar,
+    autorizar('obra.editar'),
     validarCriacaoEscolha,
     EscolhaController.criar
 );
@@ -38,6 +43,8 @@ router.post(
 // Alterar texto da escolha
 router.patch(
     '/:id/texto',
+    autenticar,
+    autorizar('obra.editar'),
     validarAlteracaoTexto,
     EscolhaController.alterarTexto
 );
@@ -45,6 +52,8 @@ router.patch(
 // Alterar destino da escolha
 router.patch(
     '/:id/destino',
+    autenticar,
+    autorizar('obra.editar'),
     validarAlteracaoDestino,
     EscolhaController.alterarDestino
 );
@@ -52,6 +61,8 @@ router.patch(
 // Alterar ordem de exibição
 router.patch(
     '/:id/ordem',
+    autenticar,
+    autorizar('obra.editar'),
     validarAlteracaoOrdemExibicao,
     EscolhaController.alterarOrdemExibicao
 );
@@ -59,6 +70,8 @@ router.patch(
 // Desativar escolha
 router.delete(
     '/:id',
+    autenticar,
+    autorizar('obra.excluir'),
     validarDesativacao,
     EscolhaController.desativar
 );

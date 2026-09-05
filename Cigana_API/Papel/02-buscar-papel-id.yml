@@ -5,11 +5,12 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/api/papeis/c92e456f-ee3b-4f67-9c9d-72a03772a73d
+  url: http://localhost:3001/api/papeis/300efca4-e07c-4c9f-a683-5d0d5fa74291
   auth: inherit
 
-  settings:
-    encodeUrl: true
-    timeout: 0
-    followRedirects: true
-    maxRedirects: 5
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const autenticar = require('./middleware/autenticar');
+const autorizar = require('./middleware/autorizacao');
 const errorHandler = require('./middleware/errorHandler');
 const path = require('path');
 

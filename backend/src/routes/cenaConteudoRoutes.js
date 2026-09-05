@@ -4,6 +4,9 @@ const router = express.Router();
 
 const CenaConteudoController = require('../controllers/cenaConteudoController');
 
+const autenticar = require('../middleware/autenticar');
+const autorizar = require('../middleware/autorizacao');
+
 const {
     validarCriacaoCenaConteudo,
     validarAlteracaoOrdem,
@@ -29,6 +32,8 @@ router.get(
 // Criar conteúdo na cena
 router.post(
     '/',
+    autenticar,
+    autorizar('obra.editar'),
     validarCriacaoCenaConteudo,
     CenaConteudoController.criar
 );
@@ -36,6 +41,8 @@ router.post(
 // Alterar ordem
 router.patch(
     '/:id/ordem',
+    autenticar,
+    autorizar('obra.editar'),
     validarAlteracaoOrdem,
     CenaConteudoController.alterarOrdem
 );
@@ -43,6 +50,8 @@ router.patch(
 // Alterar tipo de conteúdo
 router.patch(
     '/:id/tipo',
+    autenticar,
+    autorizar('obra.editar'),
     validarAlteracaoTipoConteudo,
     CenaConteudoController.alterarTipoConteudo
 );
@@ -50,6 +59,8 @@ router.patch(
 // Desativar conteúdo
 router.delete(
     '/:id',
+    autenticar,
+    autorizar('obra.excluir'),
     validarIdCenaConteudo,
     CenaConteudoController.desativar
 );

@@ -3,6 +3,9 @@ const express = require('express');
 const CenaAudioController =
     require('../controllers/CenaAudioController');
 
+const autenticar = require('../middleware/autenticar');
+const autorizar = require('../middleware/autorizacao');
+
 const {
     validarCenaId,
     validarCriacao,
@@ -30,6 +33,8 @@ router.get(
 
 router.post(
     '/',
+    autenticar,
+    autorizar('obra.editar'),
     validarCriacao,
     CenaAudioController.criar
 );
@@ -37,6 +42,8 @@ router.post(
 
 router.patch(
     '/:id',
+    autenticar,
+    autorizar('obra.editar'),
     validarAlteracaoInformacoes,
     CenaAudioController.alterarInformacoes
 );
@@ -44,6 +51,8 @@ router.patch(
 
 router.patch(
     '/:id/audio',
+    autenticar,
+    autorizar('obra.editar'),
     validarAlteracaoAudio,
     CenaAudioController.alterarAudio
 );
@@ -51,6 +60,8 @@ router.patch(
 
 router.delete(
     '/:id',
+    autenticar,
+    autorizar('obra.excluir'),
     validarDesativacao,
     CenaAudioController.desativar
 );

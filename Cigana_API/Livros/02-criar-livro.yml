@@ -18,17 +18,20 @@ http:
         "idioma_id": "eec257d6-39b3-481e-a698-fe8c2ba84f15",
         "status_livro_id": "cbcacb5b-943e-4ed6-be3a-74e2003765c9",
         "visibilidade_livro_id": "265ad467-d0f8-4ca7-b93b-69cb7c23a4b3",
-        "titulo": "Livro de Contos Romanticos",
-        "slug": "livro-de-teste-Assinantes",
-        "resumo": "Livro utilizado para testes da API da Plataforma Ciganas.",
+        "titulo": "Livro de texte",
+        "slug": "livro-de-teste-Autenticacao-sem-papel-criar-livro",
+        "resumo": "Teste de autenticação de Papeis -> usuario -> Autor",
         "isbn": "9780000000000",
         "ano_publicacao": 2026,
         "ordem_exibicao": 1
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJmMDNjODZjLWRlMzYtNDQwOS05MzA1LWJhODc1MmVkZDNiMiIsImlhdCI6MTc4ODYyNTM5NCwiZXhwIjoxNzg4NzExNzk0fQ.O7fdf4LzCtyXk9Z58vz4Kvm_v7-NcSqh_ESORniVPc4
 
 settings:
   encodeUrl: true
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true
