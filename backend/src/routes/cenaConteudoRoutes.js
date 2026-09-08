@@ -6,13 +6,17 @@ const CenaConteudoController = require('../controllers/cenaConteudoController');
 
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
+const autorizarObra = require('../middleware/autorizarObra');
+
+const EscopoObraService = require('../services/escopoObraService');
 
 const {
     validarCriacaoCenaConteudo,
     validarAlteracaoOrdem,
     validarAlteracaoTipoConteudo,
     validarIdCenaConteudo,
-    validarIdCena
+    validarIdCena,
+    validarReordenacao
 } = require('../validators/cenaConteudoValidator');
 
 // Listar conteúdos de uma cena
@@ -33,16 +37,25 @@ router.get(
 router.post(
     '/',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porCenaConteudoBody),
     validarCriacaoCenaConteudo,
     CenaConteudoController.criar
+);
+
+// Reordenar conteúdos da cena
+router.patch(
+    '/reordenar',
+    autenticar,
+    autorizarObra(EscopoObraService.porCenaConteudoBody),
+    validarReordenacao,
+    CenaConteudoController.reordenar
 );
 
 // Alterar ordem
 router.patch(
     '/:id/ordem',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porCenaConteudoParam),
     validarAlteracaoOrdem,
     CenaConteudoController.alterarOrdem
 );
@@ -51,7 +64,7 @@ router.patch(
 router.patch(
     '/:id/tipo',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porCenaConteudoParam),
     validarAlteracaoTipoConteudo,
     CenaConteudoController.alterarTipoConteudo
 );
@@ -60,7 +73,7 @@ router.patch(
 router.delete(
     '/:id',
     autenticar,
-    autorizar('obra.excluir'),
+    autorizarObra(EscopoObraService.porCenaConteudoParam),
     validarIdCenaConteudo,
     CenaConteudoController.desativar
 );

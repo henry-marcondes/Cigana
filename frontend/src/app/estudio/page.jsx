@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -143,7 +142,7 @@ return ( <main className="min-h-screen bg-gray-100 p-6">
 
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
-          Editor
+          Estúdio
         </h1>
 
         <p className="mt-2 text-gray-600">
@@ -209,7 +208,7 @@ return ( <main className="min-h-screen bg-gray-100 p-6">
         </div>
 
        <button
-         onClick={() => router.push('/editor/nova-obra')}
+         onClick={() => router.push('/estudio/nova-obra')}
          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
             + Nova obra
@@ -261,14 +260,27 @@ return ( <main className="min-h-screen bg-gray-100 p-6">
                   </p>
                 )}
 
-                <button
-                  onClick={() =>
-                    router.push(`/livros/${livro.slug}`)
-                  }
-                  className="mt-4 rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-                >
-                  Visualizar obra
-                </button>
+        <div className="mt-4 flex gap-2">
+
+            <button
+                onClick={() =>
+                router.push(`/estudio/obras/${livro.id}`)
+                }
+              className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+            >
+                Editar obra
+            </button>
+
+            <button
+                onClick={() =>
+                  router.push(`/livros/${livro.slug}`)
+                }
+              className="rounded bg-gray-600 px-4 py-2 text-sm text-white hover:bg-gray-700"
+            >
+                Visualizar
+            </button>
+
+        </div>
 
               </div>
 

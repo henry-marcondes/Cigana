@@ -13,8 +13,8 @@ const CAMPOS_PUBLICOS = `
 
 class CenaConteudo {
 
-    static async listarPorCena(cena_id) {
-        const result = await pool.query(`
+    static async listarPorCena(cena_id, client = pool) {
+        const result = await client.query(`
             SELECT ${CAMPOS_PUBLICOS}
               FROM cena_conteudos
              WHERE cena_id = $1
@@ -81,6 +81,49 @@ class CenaConteudo {
         ]);
 
         return result.rows[0];
+    }
+
+    static async reordenar(cena_id, ordem, client = pool) {
+
+    const quantidade = ordem.length;
+    const baseTemporaria = quantidade + 1;
+
+    // 1. Remove temporariamente os conteúdos da faixa
+    //    normal de ordenação, mantendo valores positivos.
+    for (let i = 0; i < ordem.length; i++) {
+
+        await client.query(`
+            UPDATE cena_conteudos
+               SET ordem_exibicao = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND cena_id = $3
+               AND ativo = TRUE
+        `, [
+            baseTemporaria + i,
+            ordem[i].id,
+            cena_id
+        ]);
+    }
+
+    // 2. Aplica a nova ordem definitiva.
+    for (let i = 0; i < ordem.length; i++) {
+
+        await client.query(`
+            UPDATE cena_conteudos
+               SET ordem_exibicao = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND cena_id = $3
+               AND ativo = TRUE
+        `, [
+            i + 1,
+            ordem[i].id,
+            cena_id
+        ]);
+    }
+
+    return await this.listarPorCena(cena_id, client);
     }
 
     static async alterarTipoConteudo(id, tipo_conteudo, client = pool) {

@@ -6,6 +6,8 @@ const CenaTextoController = require('../controllers/cenaTextoController');
 
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
+const autorizarObra = require('../middleware/autorizarObra');
+const EscopoObraService = require('../services/escopoObraService');
 
 const {
     validarCriacaoCenaTexto,
@@ -29,7 +31,7 @@ router.get(
 router.post(
     '/',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porCenaBody),
     validarCriacaoCenaTexto,
     CenaTextoController.criar
 );
@@ -37,11 +39,10 @@ router.post(
 router.patch(
     '/:id',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porCenaTextoParam),
     validarAlteracaoCenaTexto,
     CenaTextoController.alterar
 );
-
 router.delete(
     '/:id',
     autenticar,

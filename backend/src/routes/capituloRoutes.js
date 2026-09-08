@@ -5,6 +5,8 @@ const router = express.Router();
 const CapituloController = require('../controllers/CapituloController');
 const autorizar = require('../middleware/autorizacao')
 const autenticar = require('../middleware/autenticar')
+const autorizarObra = require('../middleware/autorizarObra');
+const EscopoObraService = require('../services/escopoObraService');
 
 const {
     validarCriacaoCapitulo,
@@ -34,7 +36,7 @@ router.get(
 router.post(
     '/',
     autenticar,
-    autorizar('obra.criar'),
+    autorizarObra(EscopoObraService.porLivroBody),
     validarCriacaoCapitulo,
     CapituloController.criar
 );
@@ -43,7 +45,7 @@ router.post(
 router.put(
     '/:id',
     autenticar,
-    autorizar('obra.criar'),
+    autorizarObra(EscopoObraService.porCapituloParam),
     validarAlteracaoInformacoesCapitulo,
     CapituloController.alterarInformacoes
 );
@@ -52,7 +54,7 @@ router.put(
 router.patch(
     '/:id/capa',
     autenticar,
-    autorizar('obra.criar'),
+    autorizarObra(EscopoObraService.porCapituloParam),
     validarAlteracaoCapaCapitulo,
     CapituloController.alterarCapa
 );
@@ -61,7 +63,7 @@ router.patch(
 router.patch(
     '/:id/desativar',
     autenticar,
-    autorizar('obra.criar'),
+    autorizar('obra.excluir'),
     CapituloController.desativar
 );
 

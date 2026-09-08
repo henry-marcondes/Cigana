@@ -13,13 +13,16 @@ http:
     type: json
     data: |-
       {
-        "cena_id": "04b9b4ff-0a48-4d26-bcaa-36b5041440c6",
-        "titulo": "capa_introducao_eletrica.png",
-        "legenda": "Elétrica MotorHomes",
+        "cena_id": "501768dc-7161-478a-b8dc-2e0d1cfbc6bd",
+        "titulo": "teste de cena imagem.png",
+        "legenda": "Teste novo ",
         "texto_alternativo": "local:/media/imagens/",
-        "imagem_url": "http://localhost:3001/media/imagens/capa_introducao_eletrica.png",
-        "ordem_exibicao": 1
+        "imagem_url": "http://localhost:3001/media/imagens/cigana_Andreia_2.png",
+        "ordem_exibicao": 2
       }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFlYTM2NmI0LWRkMmEtNGZmNS1hNWE5LTczY2ZjYjYzYjAwYyIsImlhdCI6MTc4ODg2OTE1NywiZXhwIjoxNzg4OTU1NTU3fQ.20YJy1AcuxQX4z_Rt0GaX34UvRKqC_oTFRf5ljv6ofs
 
 settings:
   encodeUrl: true

@@ -10,6 +10,16 @@ class CapituloService {
         return await Capitulo.buscarPorId(id);
     }
 
+    static async buscarLivroIdPorCapitulo(capitulo_id) {
+        const capitulo = await Capitulo.buscarPorId(capitulo_id);
+
+        if (!capitulo) {
+            throw new Error('Capítulo não encontrado.');
+        }
+
+        return capitulo.livro_id;
+    }
+
     static async buscarPorSlug(livro_id, slug) {
         return await Capitulo.buscarPorSlug(livro_id, slug);
     }

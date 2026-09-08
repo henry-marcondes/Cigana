@@ -5,8 +5,11 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/api/cena-conteudos/cena/04b9b4ff-0a48-4d26-bcaa-36b5041440c6
+  url: http://localhost:3001/api/cena-conteudos/cena/501768dc-7161-478a-b8dc-2e0d1cfbc6bd
 
-  assertions:
-    - type: status
-      value: 200
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

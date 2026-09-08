@@ -36,6 +36,25 @@ class LivroAutor {
         return result.rows;
     }
 
+    static async usuarioEhAutorDaObra(usuario_id, livro_id) {
+        const result = await pool.query(`
+            SELECT 1
+            FROM autores a
+             INNER JOIN livro_autores la
+                ON la.autor_id = a.id
+            AND la.ativo = TRUE
+            WHERE a.usuario_id = $1
+            AND la.livro_id = $2
+             AND a.ativo = TRUE
+            LIMIT 1
+        `, [
+            usuario_id,
+            livro_id
+        ]);
+
+        return result.rowCount > 0;
+    }
+
     static async criar(livroAutor, client = pool) {
 
         const {

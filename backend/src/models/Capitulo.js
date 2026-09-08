@@ -105,7 +105,7 @@ class Capitulo {
                    slug = $2,
                    resumo = $3,
                    texto_introdutorio = $4,
-                   ordem_exibicao = $5,
+                   ordem_exibicao = COALESCE($5, ordem_exibicao),
                    atualizado_em = NOW()
              WHERE id = $6
                AND ativo = TRUE

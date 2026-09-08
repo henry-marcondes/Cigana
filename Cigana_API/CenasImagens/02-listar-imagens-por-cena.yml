@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/api/cena-imagens/cena/ed1e8e6a-dd88-48a2-8161-0e7ce3841e05
+  url: http://localhost:3001/api/cena-imagens/cena/501768dc-7161-478a-b8dc-2e0d1cfbc6bd
 
 settings:
   encodeUrl: true

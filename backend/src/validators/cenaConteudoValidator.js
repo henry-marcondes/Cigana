@@ -65,10 +65,29 @@ const validarIdCena = [
     validarUUID('cena_id')
 ];
 
+const validarReordenacao = [
+    body('cena_id')
+        .notEmpty()
+        .withMessage('ID da cena é obrigatório.')
+        .isUUID()
+        .withMessage('ID da cena inválido.'),
+
+    body('ordem')
+        .isArray({ min: 1 })
+        .withMessage('Ordem deve ser um array com pelo menos um conteúdo.'),
+
+    body('ordem.*.id')
+        .notEmpty()
+        .withMessage('ID do conteúdo é obrigatório.')
+        .isUUID()
+        .withMessage('ID do conteúdo inválido.')
+];
+
 module.exports = {
     validarCriacaoCenaConteudo,
     validarAlteracaoOrdem,
     validarAlteracaoTipoConteudo,
     validarIdCenaConteudo,
-    validarIdCena
+    validarIdCena,
+    validarReordenacao
 };

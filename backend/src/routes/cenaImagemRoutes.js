@@ -1,3 +1,4 @@
+
 const express = require('express');
 
 const router = express.Router();
@@ -6,6 +7,8 @@ const CenaImagemController = require('../controllers/CenaImagemController');
 
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
+const autorizarObra = require('../middleware/autorizarObra');
+const EscopoObraService = require('../services/escopoObraService');
 
 const {
     validarCriacaoCenaImagem,
@@ -34,7 +37,7 @@ router.get(
 router.post(
     '/',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porCenaBody),
     validarCriacaoCenaImagem,
     CenaImagemController.criar
 );
@@ -43,7 +46,7 @@ router.post(
 router.patch(
     '/:id/informacoes',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porCenaImagemParam),
     validarAlteracaoInformacoes,
     CenaImagemController.alterarInformacoes
 );
@@ -52,7 +55,7 @@ router.patch(
 router.patch(
     '/:id/imagem',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porCenaImagemParam),
     validarAlteracaoImagem,
     CenaImagemController.alterarImagem
 );
@@ -61,6 +64,7 @@ router.patch(
 router.delete(
     '/:id',
     autenticar,
+    autorizarObra(EscopoObraService.porCenaImagemParam),
     autorizar('obra.excluir'),
     validarDesativacao,
     CenaImagemController.desativar

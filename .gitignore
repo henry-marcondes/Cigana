@@ -5,7 +5,9 @@ node_modules/
 .env
 Leiame.txt
 rascunho.txt
-textos/
+nvim.txt 
+Textos/
+media/
 
 # Next.js
 .next/

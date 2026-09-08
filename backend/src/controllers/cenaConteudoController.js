@@ -82,6 +82,31 @@ class CenaConteudoController {
         }
     }
 
+    static async reordenar(req, res) {
+        try {
+            const { cena_id, ordem } = req.body;
+
+            const dados = await CenaConteudoService.reordenar(
+                cena_id,
+                ordem
+            );
+
+            return apiResponse.success(
+                res,
+                dados,
+                'Conteúdos da cena reordenados com sucesso.'
+            );
+
+        } catch (error) {
+            return apiResponse.error(
+                res,
+                error.message,
+                error.status || 500
+            );
+        }
+    }
+
+
     static async alterarTipoConteudo(req, res) {
         try {
             const { id } = req.params;

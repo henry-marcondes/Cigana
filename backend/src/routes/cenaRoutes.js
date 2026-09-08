@@ -3,6 +3,8 @@ const router = express.Router();
 const CenaController = require('../controllers/CenaController');
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
+const autorizarObra = require('../middleware/autorizarObra');
+const EscopoObraService = require('../services/escopoObraService');
 const {
     validarCriacaoCena,
     validarAlteracaoCena,
@@ -10,6 +12,43 @@ const {
     validarCapituloCena,
     validarSlugCena
 } = require('../validators/cenaValidator');
+
+// =====================================================
+// CENAS DE UM CAPÍTULO POR LIVRO EDITAR
+// GET /api/cenas/capitulo/:capitulo_id
+// =====================================================
+router.post(
+    '/',
+    autenticar,
+    autorizarObra(EscopoObraService.porCapituloBody),
+    validarCriacaoCena,
+    CenaController.criar
+);
+
+router.put(
+    '/:id',
+    autenticar,
+    autorizarObra(EscopoObraService.porCenaParam),
+    validarAlteracaoCena,
+    CenaController.alterarInformacoes
+);
+
+router.patch(
+    '/:id/inicial',
+    autenticar,
+    autorizarObra(EscopoObraService.porCenaParam),
+    validarIdCena,
+    CenaController.definirCenaInicial
+);
+
+router.delete(
+    '/:id',
+    autenticar,
+    autorizar('obra.excluir'),
+    validarIdCena,
+    CenaController.desativar
+);
+
 
 // =====================================================
 // LISTAR CENAS DE UM CAPÍTULO
@@ -49,54 +88,6 @@ router.get(
     '/:id',
     validarIdCena,
     CenaController.buscarPorId
-);
-
-// =====================================================
-// CRIAR CENA
-// POST /api/cenas
-// =====================================================
-router.post(
-    '/',
-    autenticar,
-    autorizar('obra.editar'),
-    validarCriacaoCena,
-    CenaController.criar
-);
-
-// =====================================================
-// ALTERAR INFORMAÇÕES DA CENA
-// PUT /api/cenas/:id
-// =====================================================
-router.put(
-    '/:id',
-    autenticar,
-    autorizar('obra.editar'),
-    validarAlteracaoCena,
-    CenaController.alterarInformacoes
-);
-
-// =====================================================
-// DEFINIR CENA INICIAL
-// PATCH /api/cenas/:id/inicial
-// =====================================================
-router.patch(
-    '/:id/inicial',
-    autenticar,
-    autorizar('obra.editar'),
-    validarIdCena,
-    CenaController.definirCenaInicial
-);
-
-// =====================================================
-// DESATIVAR CENA
-// DELETE /api/cenas/:id
-// =====================================================
-router.delete(
-    '/:id',
-    autenticar,
-    autorizar('obra.excluir'),
-    validarIdCena,
-    CenaController.desativar
 );
 
 module.exports = router;
