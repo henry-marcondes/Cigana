@@ -1,9 +1,9 @@
 const express = require('express');
-
 const EscolhaController = require('../controllers/EscolhaController');
-
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
+const autorizarObra = require('../middleware/autorizarObra');
+const EscopoObraService = require('../services/escopoObraService');
 
 const {
     validarCriacaoEscolha,
@@ -12,6 +12,7 @@ const {
     validarAlteracaoOrdemExibicao,
     validarBuscaPorId,
     validarListagemPorCenaOrigem,
+    validarReordenacao,
     validarDesativacao
 } = require('../validators/escolhaValidator');
 
@@ -40,11 +41,22 @@ router.post(
     EscolhaController.criar
 );
 
+//reordenar ordem de exibição
+router.patch(
+    '/reordenar',
+    autenticar,
+    autorizarObra(
+        EscopoObraService.porEscolhaCenaOrigemBody
+    ),
+    validarReordenacao,
+    EscolhaController.reordenar
+);
+
 // Alterar texto da escolha
 router.patch(
     '/:id/texto',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porEscolhaParam),
     validarAlteracaoTexto,
     EscolhaController.alterarTexto
 );
@@ -53,7 +65,7 @@ router.patch(
 router.patch(
     '/:id/destino',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porEscolhaParam),
     validarAlteracaoDestino,
     EscolhaController.alterarDestino
 );
@@ -62,10 +74,11 @@ router.patch(
 router.patch(
     '/:id/ordem',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porEscolhaParam),
     validarAlteracaoOrdemExibicao,
     EscolhaController.alterarOrdemExibicao
 );
+
 
 // Desativar escolha
 router.delete(

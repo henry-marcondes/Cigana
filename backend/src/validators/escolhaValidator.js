@@ -35,7 +35,9 @@ const validarCriacaoEscolha = [
 
     body('ordem_exibicao')
         .isInt({ min: 1 })
-        .withMessage('ordem_exibicao deve ser um número inteiro maior ou igual a 1.'),
+        .withMessage(
+            'ordem_exibicao deve ser um número inteiro maior ou igual a 1.'
+        ),
 
     tratarErrosValidacao
 ];
@@ -69,7 +71,32 @@ const validarAlteracaoOrdemExibicao = [
 
     body('ordem_exibicao')
         .isInt({ min: 1 })
-        .withMessage('ordem_exibicao deve ser um número inteiro maior ou igual a 1.'),
+        .withMessage(
+            'ordem_exibicao deve ser um número inteiro maior ou igual a 1.'
+        ),
+
+    tratarErrosValidacao
+];
+
+// Validação para reordenação das escolhas
+const validarReordenacao = [
+    body('cena_origem_id')
+        .isUUID()
+        .withMessage(
+            'cena_origem_id deve ser um UUID válido.'
+        ),
+
+    body('ordem')
+        .isArray({ min: 1 })
+        .withMessage(
+            'ordem deve ser um array contendo as escolhas.'
+        ),
+
+    body('ordem.*.id')
+        .isUUID()
+        .withMessage(
+            'Cada escolha da ordem deve possuir um id UUID válido.'
+        ),
 
     tratarErrosValidacao
 ];
@@ -100,6 +127,7 @@ module.exports = {
     validarAlteracaoTexto,
     validarAlteracaoDestino,
     validarAlteracaoOrdemExibicao,
+    validarReordenacao,
     validarBuscaPorId,
     validarListagemPorCenaOrigem,
     validarDesativacao

@@ -6,6 +6,7 @@ const CenaImagem = require('../models/CenaImagem');
 const CenaConteudo = require('../models/CenaConteudo');
 const CenaAudio = require('../models/CenaAudio');
 const CenaVideo = require('../models/CenaVideo');
+const Escolha = require('../models/Escolha');
 
 
 class EscopoObraService {
@@ -230,7 +231,7 @@ class EscopoObraService {
     }
 
 
-    // CenaConteudo identificado pelo cena_id enviado no body
+    // CenaAudio identificado pelo cena_id enviado no body
     static async porCenaAudioBody(req) {
         const cena = await Cena.buscarPorId(
             req.body.cena_id
@@ -315,6 +316,56 @@ class EscopoObraService {
 
         const cena = await Cena.buscarPorId(
             cenaVideo.cena_id
+        );
+
+        if (!cena) {
+            throw new Error('Cena não encontrada.');
+        }
+
+        const capitulo = await Capitulo.buscarPorId(
+            cena.capitulo_id
+        );
+
+        if (!capitulo) {
+            throw new Error('Capítulo não encontrado.');
+        }
+
+        return capitulo.livro_id;
+    }
+
+    // Escolha identificada pelo parâmetro :id
+    static async porEscolhaParam(req) {
+        const escolha = await Escolha.buscarPorId(
+            req.params.id
+        );
+
+        if (!escolha) {
+            throw new Error('Escolha não encontrada.');
+        }
+
+        const cena = await Cena.buscarPorId(
+            escolha.cena_origem_id
+        );
+
+        if (!cena) {
+            throw new Error('Cena não encontrada.');
+        }
+
+        const capitulo = await Capitulo.buscarPorId(
+            cena.capitulo_id
+        );
+
+        if (!capitulo) {
+            throw new Error('Capítulo não encontrado.');
+        }
+
+        return capitulo.livro_id;
+    }
+
+    // Escolha identificada pelo cena_origem_id enviado no body
+    static async porEscolhaCenaOrigemBody(req) {
+        const cena = await Cena.buscarPorId(
+            req.body.cena_origem_id
         );
 
         if (!cena) {

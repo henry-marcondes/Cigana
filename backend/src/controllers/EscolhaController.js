@@ -138,6 +138,25 @@ class EscolhaController {
         }
     }
 
+    static async reordenar(req, res, next) {
+        try {
+            const { cena_origem_id, ordem } = req.body;
+
+            const escolhas = await EscolhaService.reordenar(
+                cena_origem_id,
+                ordem
+            );
+
+            return res.json({
+                success: true,
+                data: escolhas
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async desativar(req, res, next) {
         try {
             const { id } = req.params;

@@ -13,8 +13,8 @@ const CAMPOS_PUBLICOS = `
 
 class Escolha {
 
-    static async listarPorCenaOrigem(cena_origem_id) {
-        const result = await pool.query(`
+    static async listarPorCenaOrigem(cena_origem_id, client = pool) {
+        const result = await client.query(`
             SELECT ${CAMPOS_PUBLICOS}
               FROM escolhas
              WHERE cena_origem_id = $1
@@ -108,6 +108,64 @@ class Escolha {
         `, [ordem_exibicao, id]);
 
         return result.rows[0];
+    }
+
+    static async reordenar(cena_origem_id, ordem, client = pool) {
+
+        const escolhasAtuais = await this.listarPorCenaOrigem(
+            cena_origem_id,
+            client
+        );
+
+        const maiorOrdem = escolhasAtuais.reduce(
+            (maior, escolha) =>
+                Math.max(maior, escolha.ordem_exibicao),
+            0
+        );
+
+        const baseTemporaria =
+            maiorOrdem + escolhasAtuais.length + 1;
+
+        // 1. Retira temporariamente as escolhas
+        //    da faixa normal de ordenação.
+        //    Os valores continuam positivos.
+        for (let i = 0; i < ordem.length; i++) {
+
+            await client.query(`
+                UPDATE escolhas
+                   SET ordem_exibicao = $1,
+                       atualizado_em = NOW()
+                 WHERE id = $2
+                   AND cena_origem_id = $3
+                   AND ativo = TRUE
+            `, [
+                baseTemporaria + i,
+                ordem[i].id,
+                cena_origem_id
+            ]);
+        }
+
+        // 2. Aplica a nova ordem definitiva.
+        for (let i = 0; i < ordem.length; i++) {
+
+            await client.query(`
+                UPDATE escolhas
+                   SET ordem_exibicao = $1,
+                       atualizado_em = NOW()
+                 WHERE id = $2
+                   AND cena_origem_id = $3
+                   AND ativo = TRUE
+            `, [
+                i + 1,
+                ordem[i].id,
+                cena_origem_id
+            ]);
+        }
+
+        return await this.listarPorCenaOrigem(
+            cena_origem_id,
+            client
+        );
     }
 
     static async desativar(id, client = pool) {
