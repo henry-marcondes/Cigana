@@ -5,11 +5,12 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/api/autores/f5847c4a-c902-40b8-b828-8ab1525e9aba
+  url: http://localhost:3001/api/autores/aba28c1d-4b0f-4aff-80a9-7c4119caeacb
   auth: inherit
-  headers: []
-  settings:
-    encodeUrl: true
-    timeout: 0
-    followRedirects: true
-    maxRedirects: 5
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

@@ -5,9 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/api/cenas/ed1e8e6a-dd88-48a2-8161-0e7ce3841e05
-  headers: []
-  body: {}
+  url: http://localhost:3001/api/cenas/049c40e6-ef1b-46b5-9b5c-5bd74acaa680
   auth: inherit
 
 settings:
@@ -15,3 +13,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

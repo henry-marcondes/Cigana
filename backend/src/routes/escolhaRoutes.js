@@ -36,7 +36,10 @@ router.get(
 router.post(
     '/',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(
+        EscopoObraService.porEscolhaCenaOrigemBody,
+        'obra.editar'
+    ),
     validarCriacaoEscolha,
     EscolhaController.criar
 );
@@ -84,7 +87,10 @@ router.patch(
 router.delete(
     '/:id',
     autenticar,
-    autorizar('obra.excluir'),
+    autorizarObra(
+        EscopoObraService.porEscolhaParam,
+        'obra.excluir'
+    ),
     validarDesativacao,
     EscolhaController.desativar
 );

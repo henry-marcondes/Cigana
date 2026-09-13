@@ -13,11 +13,14 @@ http:
     type: json
     data: |-
       {
-        "cena_origem_id": "501768dc-7161-478a-b8dc-2e0d1cfbc6bd",
-        "cena_destino_id": "04b9b4ff-0a48-4d26-bcaa-36b5041440c6",
-        "texto": "Ir para pagina 2",
+        "cena_origem_id": "97168540-b972-4c6b-b91b-bbbbad867e4d",
+        "cena_destino_id": "049c40e6-ef1b-46b5-9b5c-5bd74acaa680",
+        "texto": "Ir para pagina Cena-1 Cap-2",
         "ordem_exibicao": 1
       }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFlYTM2NmI0LWRkMmEtNGZmNS1hNWE5LTczY2ZjYjYzYjAwYyIsImlhdCI6MTc4OTMwNzIxMiwiZXhwIjoxNzg5MzkzNjEyfQ.SoTvQVcgsCo0PtyO8XefrcdddFgDSiEBf035DUyqxKI
 
 settings:
   encodeUrl: true

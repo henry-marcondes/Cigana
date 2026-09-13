@@ -5,10 +5,11 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/api/escolhas/47bbbcf9-2e94-454c-b34d-508f31dbdc28
+  url: http://localhost:3001/api/escolhas/37df0836-794a-49d4-9d63-6e7ba2370153
 
-  assertions:
-    - type: status
-      value: 200
-      
-
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

@@ -226,18 +226,25 @@ export default async function CenaPage({ params }) {
    * ============================================================
    */
 
-  const escolhasComDestino = await Promise.all(
+    const escolhasComDestino = await Promise.all(
     escolhas.map(async (escolha) => {
-      const respostaDestino = await apiFetch(
+        const respostaDestino = await apiFetch(
         `/api/cenas/${escolha.cena_destino_id}`
-      );
+        );
 
-      return {
-        ...escolha,
-        cenaDestino: respostaDestino.data,
-      };
-    })
-  );
+        const cenaDestino = respostaDestino.data;
+
+        const respostaCapituloDestino = await apiFetch(
+        `/api/capitulos/${cenaDestino.capitulo_id}`
+        );
+
+        const capituloDestino = respostaCapituloDestino.data;
+
+        return {
+        ...escolha, cenaDestino, capituloDestino,
+        };
+      })
+    );
 
   /*
    * ============================================================
@@ -313,7 +320,7 @@ export default async function CenaPage({ params }) {
                   {escolhasComDestino.map((escolha) => (
                     <Link
                       key={escolha.id}
-                      href={`/livros/${slug}/capitulos/${capituloSlug}/cenas/${escolha.cenaDestino.slug}`}
+                      href={`/livros/${slug}/capitulos/${escolha.capituloDestino.slug}/cenas/${escolha.cenaDestino.slug}`}
                       className="rounded-lg bg-primary px-5 py-3 text-center font-medium text-white transition hover:opacity-90"
                     >
                       {escolha.texto}

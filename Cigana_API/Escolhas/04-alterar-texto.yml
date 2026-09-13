@@ -5,17 +5,23 @@ info:
 
 http:
   method: PATCH
-  url: http://localhost:3001/api/escolhas/47bbbcf9-2e94-454c-b34d-508f31dbdc28/texto
+  url: http://localhost:3001/api/escolhas/8e79dd75-ff7c-42fb-8f73-f58f201c9f85/texto
+  headers:
+    - name: Content-Type
+      value: application/json
   body:
     type: json
     data: |-
       {
-        "texto": "Continuar para a segunda cena"
+        "texto": "alterei o texto"
       }
-  headers:
-    - name: Content-Type
-      value: application/json
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJmMDNjODZjLWRlMzYtNDQwOS05MzA1LWJhODc1MmVkZDNiMiIsImlhdCI6MTc4ODk1NDAxMywiZXhwIjoxNzg5MDQwNDEzfQ.ptwQCOR3YRSxJ46qiWhtyx7EoI6VIAwdWbPd_AuvW-4
 
-  assertions:
-    - type: status
-      value: 200
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

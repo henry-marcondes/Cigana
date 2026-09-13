@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3001/api/usuario-papeis/papel/300efca4-e07c-4c9f-a683-5d0d5fa74291
+  url: http://localhost:3001/api/usuario-papeis/papel/1ea366b4-dd2a-4ff5-a5a9-73cfcb63b00c
   auth: inherit
 
 settings:

@@ -13,8 +13,8 @@ http:
     type: json
     data: |-
       {
-        "usuario_id": "bf03c86c-de36-4409-9305-ba8752edd3b2",
-        "papel_id": "300efca4-e07c-4c9f-a683-5d0d5fa74291"
+        "usuario_id": "1ea366b4-dd2a-4ff5-a5a9-73cfcb63b00c",
+        "papel_id": "3fa95638-d7f4-419f-b7ad-ec6e46754f0d"
       }
   auth: inherit
 

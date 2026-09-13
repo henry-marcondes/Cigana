@@ -26,20 +26,28 @@ class AutorizacaoService {
         return result.rowCount > 0;
     }
 
-    static async podeEditarObra(usuario_id, livro_id) {
+    static async podeEditarObra(
+        usuario_id,
+        livro_id,
+        codigoPermissao = 'obra.editar'
+    ) {
         const possuiPermissao = await this.temPermissao(
             usuario_id,
-            'obra.editar'
+            codigoPermissao
         );
 
         if (possuiPermissao) {
             return true;
         }
 
-        return LivroAutor.usuarioEhAutorDaObra(
-            usuario_id,
-            livro_id
-        );
+        if (codigoPermissao === 'obra.editar') {
+            return LivroAutor.usuarioEhAutorDaObra(
+                usuario_id,
+                livro_id
+            );
+        }
+
+        return false;
     }
 }
 
