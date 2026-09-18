@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import LivroCard from '../components/LivroCard';
 import { apiFetch } from '../services/api';
@@ -8,7 +9,6 @@ export default function Home() {
   const [livros, setLivros] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
-
 
   useEffect(() => {
     async function carregarLivros() {
@@ -20,7 +20,8 @@ export default function Home() {
       } finally {
         setCarregando(false);
       }
-    } 
+    }
+
     carregarLivros();
   }, []);
 
@@ -43,13 +44,24 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-600 p-6">
       <div className="mx-auto max-w-6xl">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Biblioteca
-          </h1>
-          <p className="mt-2 text-pink-600">
-            Livros disponíveis na plataforma Ciganas.
-          </p>
+
+        <header className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Biblioteca
+            </h1>
+
+            <p className="mt-2 text-pink-600">
+              Livros disponíveis na plataforma Ciganas.
+            </p>
+          </div>
+
+          <Link
+            href="/dashboard"
+            className="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-900"
+          >
+            Dashboard
+          </Link>
         </header>
 
         {livros.length === 0 ? (
@@ -63,6 +75,7 @@ export default function Home() {
             ))}
           </section>
         )}
+
       </div>
     </main>
   );

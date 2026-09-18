@@ -2,6 +2,7 @@
 
 # ==========================================
 # Executa migrations PostgreSQL
+# A partir do diretório Ciganas:
 #
 # Uso:
 #   ./database/migrar.sh

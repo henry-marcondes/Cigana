@@ -15,6 +15,24 @@ class CategoriaController {
         }
     }
 
+    static async listarPorBiblioteca(req, res, next) {
+        try {
+            const { bibliotecaSlug } = req.params;
+
+            const categorias =
+                await CategoriaService.listarPorBiblioteca(
+                    bibliotecaSlug
+                );
+
+            return res.json({
+                success: true,
+                data: categorias
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
 }
 
 module.exports = CategoriaController;

@@ -3,6 +3,7 @@ node_modules/
 
 # Env (NUNCA subir)
 .env
+copiar.sh
 Leiame.txt
 rascunho.txt
 nvim.txt 

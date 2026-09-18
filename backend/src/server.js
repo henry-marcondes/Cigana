@@ -35,6 +35,7 @@ const permissaoRoutes = require('./routes/permissaoRoutes');
 const papelRoutes = require('./routes/papelRoutes');
 const papelPermissaoRoutes = require('./routes/papelPermissaoRoutes');
 const usuarioPapelRoutes = require('./routes/usuarioPapelRoutes');
+const solicitacaoAutorRoutes = require('./routes/solicitacaoAutorRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -83,11 +84,11 @@ app.use('/api/visibilidade-livro', visibilidadeLivroRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/classificacoes-indicativas', classificacaoIndicativaRoutes);
 app.use('/api/idiomas', idiomaRoutes);
-app.use('/api/idiomas', idiomaRoutes);
 app.use('/api/permissoes', permissaoRoutes);
 app.use('/api/papeis', papelRoutes);
 app.use('/api/papel-permissoes', papelPermissaoRoutes);
 app.use('/api/usuario-papeis', usuarioPapelRoutes);
+app.use('/api/solicitacoes-autor', solicitacaoAutorRoutes);
 
 
 // Error handling
