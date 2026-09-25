@@ -36,6 +36,8 @@ const papelRoutes = require('./routes/papelRoutes');
 const papelPermissaoRoutes = require('./routes/papelPermissaoRoutes');
 const usuarioPapelRoutes = require('./routes/usuarioPapelRoutes');
 const solicitacaoAutorRoutes = require('./routes/solicitacaoAutorRoutes');
+const contratoRoutes = require('./routes/ContratoRoutes');
+const contratoAceiteRoutes = require('./routes/ContratoAceiteRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -89,6 +91,8 @@ app.use('/api/papeis', papelRoutes);
 app.use('/api/papel-permissoes', papelPermissaoRoutes);
 app.use('/api/usuario-papeis', usuarioPapelRoutes);
 app.use('/api/solicitacoes-autor', solicitacaoAutorRoutes);
+app.use('/api/contratos', contratoRoutes);
+app.use('/api/contratos-aceites', contratoAceiteRoutes);
 
 
 // Error handling

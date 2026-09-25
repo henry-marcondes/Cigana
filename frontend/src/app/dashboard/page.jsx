@@ -10,6 +10,7 @@ estaAutenticado,
 logout,
 } from '../../services/autenticacao';
 import { buscarAutorPorUsuario } from '../../services/autor';
+import { listarPapeisDoUsuario } from '../../services/usuarioPapel';
 
 import { listarMinhasSolicitacoesAutor } from '../../services/solicitacaoAutor';
 
@@ -19,51 +20,74 @@ const router = useRouter();
 const [usuario, setUsuario] = useState(null);
 const [autor, setAutor] = useState(null);
 const [solicitacaoAutor, setSolicitacaoAutor] = useState(null);
+const [podeAdministrar, setPodeAdministrar] = useState(false);
+
 
 useEffect(() => {
-if (!estaAutenticado()) {
-router.push('/login');
-return;
-}
-
-const usuarioLogado = obterUsuario();
-
-setUsuario(usuarioLogado);
-
-async function carregarAutor() {
-  try {
-    const resposta = await buscarAutorPorUsuario(usuarioLogado.id);
-    setAutor(resposta.data);
-  } catch (error) {
-    // Usuário pode não possuir uma entidade Autor.
-    setAutor(null);
-  }
-}
-
-async function carregarSolicitacaoAutor() {
-  try {
-    const resposta = await listarMinhasSolicitacoesAutor();
-
-    const solicitacoes = resposta.data || [];
-
-    if (solicitacoes.length > 0) {
-      setSolicitacaoAutor(solicitacoes[0]);
-    } else {
-      setSolicitacaoAutor(null);
+    if (!estaAutenticado()) {
+        router.push('/login');
+        return;
     }
-  } catch (error) {
-    console.error(
-      'Erro ao carregar solicitações de Autor:',
-      error
-    );
 
-    setSolicitacaoAutor(null);
-  }
-}
+    async function carregarDados() {
+        try {
+            const usuarioAtual = obterUsuario();
 
-carregarAutor();
-carregarSolicitacaoAutor();
+            if (!usuarioAtual) {
+                router.push('/login');
+                return;
+            }
 
+            setUsuario(usuarioAtual);
+
+            // Carrega os papéis do usuário
+            const respostaPapeis = await listarPapeisDoUsuario(usuarioAtual.id);
+
+            const papeis = respostaPapeis.data || [];
+
+            const possuiPapelAdministrativo = papeis.some(
+                (papel) =>
+                    papel.papel_codigo === 'ADMINISTRADOR' ||
+                    papel.papel_codigo === 'GERENTE'
+            );
+
+            setPodeAdministrar(possuiPapelAdministrativo);
+
+            // Carrega Autor
+            try {
+                const respostaAutor = await buscarAutorPorUsuario(usuarioAtual.id);
+                setAutor(respostaAutor.data);
+            } catch (error) {
+                // Usuário pode não possuir uma entidade Autor.
+                setAutor(null);
+            }
+
+            // Carrega solicitações de Autor
+            try {
+                const respostaSolicitacoes =
+                    await listarMinhasSolicitacoesAutor();
+
+                const solicitacoes = respostaSolicitacoes.data || [];
+
+                if (solicitacoes.length > 0) {
+                    setSolicitacaoAutor(solicitacoes[0]);
+                } else {
+                    setSolicitacaoAutor(null);
+                }
+            } catch (error) {
+                console.error(
+                    'Erro ao carregar solicitações de Autor:',
+                    error
+                );
+
+                setSolicitacaoAutor(null);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados do Dashboard:', error);
+        }
+    }
+
+    carregarDados();
 }, [router]);
 
 function handleLogout() {
@@ -96,6 +120,14 @@ return ( <main className="min-h-screen bg-gray-100 p-6"> <div className="mx-auto
       >
         Sair
       </button>
+      {podeAdministrar && (
+      <Link
+          href="/admin"
+          className="rounded bg-red-700 px-4 py-2 text-white hover:bg-red-800"
+      >
+        ADMIN
+      </Link>
+    )}
     </header>
 
     {/* Minha conta */}
@@ -192,12 +224,6 @@ return ( <main className="min-h-screen bg-gray-100 p-6"> <div className="mx-auto
             Estúdio
           </Link>
 
-          <Link
-            href={`/usuarios/${usuario.id}`}
-            className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-700"
-          >
-            Meu perfil de Autor
-          </Link>
         </div>
       </section>
     )}

@@ -1,0 +1,15 @@
+info:
+  name: 01-listar-Aceites-Versao
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: http://localhost:3001/api/contratos-aceites/versao/d5c62830-22e9-406b-b288-592802a4ca52
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

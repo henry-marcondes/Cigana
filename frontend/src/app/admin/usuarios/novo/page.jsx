@@ -1,33 +1,29 @@
+
 import { apiFetch } from '../../../../services/api';
-import { redirect } from 'next/navigation';
 
-export default async function EditarUsuarioPage({ params }) {
-  const { id } = await params;
-
-  const resposta = await apiFetch(`/api/usuarios/${id}`);
-  const usuario = resposta.data;
-
-  async function atualizarUsuario(formData) {
+export default function NovoUsuarioPage() {
+  async function criarUsuario(formData) {
     'use server';
 
     const email = formData.get('email');
+    const senha = formData.get('senha');
 
-    await apiFetch(`/api/usuarios/${id}`, {
-      method: 'PUT',
+    await apiFetch('/api/usuarios', {
+      method: 'POST',
       body: JSON.stringify({
         email,
+        senha,
       }),
     });
-      redirect(`/usuarios/${id}`);
   }
 
   return (
     <main className="mx-auto max-w-2xl p-6">
       <h1 className="mb-6 text-2xl font-bold">
-        Alterar Usuário
+        Novo Usuário
       </h1>
 
-      <form action={atualizarUsuario} className="space-y-4">
+      <form action={criarUsuario} className="space-y-4">
         <div>
           <label
             htmlFor="email"
@@ -40,7 +36,23 @@ export default async function EditarUsuarioPage({ params }) {
             id="email"
             name="email"
             type="email"
-            defaultValue={usuario.email}
+            required
+            className="w-full rounded-lg border border-gray-300 p-2"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="senha"
+            className="mb-1 block font-medium"
+          >
+            Senha
+          </label>
+
+          <input
+            id="senha"
+            name="senha"
+            type="password"
             required
             className="w-full rounded-lg border border-gray-300 p-2"
           />
@@ -50,7 +62,7 @@ export default async function EditarUsuarioPage({ params }) {
           type="submit"
           className="rounded-lg bg-primary px-5 py-2 font-medium text-white"
         >
-          Salvar alterações
+          Criar usuário
         </button>
       </form>
     </main>

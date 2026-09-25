@@ -1,0 +1,28 @@
+info:
+  name: 05-criar-Aceite
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:3001/api/contratos-aceites/
+  body:
+    type: json
+    data: |
+      {
+              "contrato_versao_id": "d5c62830-22e9-406b-b288-592802a4ca52",
+              "usuario_id": "7bb393bd-fd6c-45ce-b52c-92e1ff72e3dd",
+              "ip_origem": "127.0.0.1",
+              "user_agent": "Bruno",
+              "dados_tecnicos": {
+                "origem": "teste-bruno"
+              }
+            }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

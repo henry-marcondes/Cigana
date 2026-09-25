@@ -1,0 +1,15 @@
+info:
+  name: 02-listar-Contratos-Obra
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: http://localhost:3001/api/contratos/obra/COLOQUE_ID_DO_LIVRO_AQUI
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

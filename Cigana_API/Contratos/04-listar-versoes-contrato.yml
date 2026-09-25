@@ -1,0 +1,15 @@
+info:
+  name: 04-listar-Versoes-Contrato
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:3001/api/contratos/6fe282b9-98ad-4e3c-9edd-29e24cfe9f40/versoes
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,1463 @@
+-- =====================================================
+-- Migration: 0009_create_usuarios.sql
+-- Descrição : Criação da tabela de usuários
+-- Projeto   : Plataforma Ciganas
+-- PostgreSQL: 16+
+-- =====================================================
+
+CREATE TABLE usuarios (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    email TEXT NOT NULL,
+    senha_hash TEXT NOT NULL,
+
+    email_verificado_em TIMESTAMPTZ,
+    ultimo_login_em TIMESTAMPTZ,
+
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT uq_usuarios_email
+        UNIQUE (email)
+);
+const pool = require('../db/connection');
+
+const CAMPOS_PUBLICAS = `id, email, email_verificado_em, ultimo_login_em, ativo, criado_em, atualizado_em`;
+
+const CAMPOS_RETORNO = `id, email, email_verificado_em, ultimo_login_em, ativo, criado_em, atualizado_em`;
+
+const CAMPOS_PRIVADAS = `senha_hash`;
+
+const TODOS_CAMPOS = ` ${CAMPOS_PUBLICAS}, ${CAMPOS_PRIVADAS}`;
+
+class Usuario {
+
+    static async buscarCredenciaisPorId(id) {
+        const result = await pool.query(
+            `
+            SELECT
+                ${TODOS_CAMPOS}
+            FROM usuarios
+            WHERE id = $1
+            AND ativo = TRUE
+            `,
+            [id]
+        );
+
+        return result.rows[0];
+    }
+
+    static async listar() {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICAS} FROM usuarios
+            WHERE ativo = TRUE
+            ORDER BY criado_em DESC`);
+
+        return result.rows;
+    }
+
+    static async buscarPorId(id) {
+        const result = await pool.query(
+            `
+            SELECT ${CAMPOS_PUBLICAS}
+              FROM usuarios
+             WHERE id = $1
+             AND ativo = TRUE`,
+            [id]);
+
+        return result.rows[0];
+    }
+
+    static async buscarPorEmail(email) {
+        const result = await pool.query(
+            `
+            SELECT ${TODOS_CAMPOS}
+            FROM usuarios
+            WHERE LOWER(email) = LOWER($1)
+            AND ativo = TRUE`,
+           [email] );
+
+        return result.rows[0];
+    }
+
+    static async buscarCredenciaisPorEmail(email) {
+
+        const result = await pool.query(
+        `
+        SELECT
+            ${TODOS_CAMPOS}
+        FROM usuarios
+        WHERE LOWER(email) = LOWER($1)
+          AND ativo = TRUE `,
+        [email] );
+
+    return result.rows[0];
+}
+
+    static async criar(usuario, client = pool) {
+        const {
+            email,
+            senha_hash
+        } = usuario;
+
+        const result = await client.query(
+            `
+            INSERT INTO usuarios (
+                email,
+                senha_hash
+            )
+            VALUES ($1, $2)
+            RETURNING ${CAMPOS_RETORNO} `,
+            [ email, senha_hash ] );
+
+        return result.rows[0];
+    }
+
+    static async atualizar(id, usuario, client = pool) {
+        const {
+            email
+        } = usuario;
+
+        const result = await client.query(
+            `
+            UPDATE usuarios
+               SET email = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING ${CAMPOS_RETORNO} `,
+            [ email, id ] );
+
+        return result.rows[0];
+    }
+
+    static async alterarSenha(id, novaSenhaHash, client = pool) {
+        const result = await client.query(
+            `
+            UPDATE usuarios
+               SET senha_hash = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING ${CAMPOS_RETORNO} `,
+            [ novaSenhaHash,id] );
+
+        return result.rows[0];
+    }
+
+    static async registrarLogin(id, client = pool) {
+        const result = await client.query(
+            `
+            UPDATE usuarios
+               SET ultimo_login_em = NOW(),
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING ${CAMPOS_RETORNO} `,
+            [id] );
+
+        return result.rows[0];
+    }
+
+    static async verificarEmail(id, client = pool) {
+        const result = await client.query(
+            `
+            UPDATE usuarios
+               SET email_verificado_em = NOW(),
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING ${CAMPOS_RETORNO} `,
+            [id] );
+
+        return result.rows[0];
+    }
+
+    static async desativar(id, client = pool) {
+        const result = await client.query(
+            `
+            UPDATE usuarios
+               SET ativo = FALSE,
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING ${CAMPOS_RETORNO} `,
+            [id] );
+
+        return result.rows[0];
+    }
+
+}
+
+module.exports = Usuario;
+const pool = require('../db/connection');
+
+const CAMPOS_PUBLICOS = `
+    id,
+    usuario_id,
+    papel_id,
+    ativo,
+    criado_em,
+    atualizado_em
+`;
+
+class UsuarioPapel {
+
+    static async listarPorUsuario(usuarioId) {
+        const result = await pool.query(`
+            SELECT
+                up.id,
+                up.usuario_id,
+                up.papel_id,
+                p.nome AS papel_nome,
+                p.codigo AS papel_codigo,
+                p.descricao AS papel_descricao,
+                up.ativo,
+                up.criado_em,
+                up.atualizado_em
+              FROM usuario_papeis up
+              INNER JOIN papeis p
+                ON p.id = up.papel_id
+             WHERE up.usuario_id = $1
+               AND up.ativo = TRUE
+               AND p.ativo = TRUE
+             ORDER BY p.nome ASC
+        `, [usuarioId]);
+
+        return result.rows;
+    }
+
+    static async listarPorPapel(papelId) {
+        const result = await pool.query(`
+            SELECT
+                up.id,
+                up.usuario_id,
+                up.papel_id,
+                u.email AS usuario_email,
+                up.ativo,
+                up.criado_em,
+                up.atualizado_em
+              FROM usuario_papeis up
+              INNER JOIN usuarios u
+                ON u.id = up.usuario_id
+             WHERE up.papel_id = $1
+               AND up.ativo = TRUE
+             ORDER BY u.email ASC
+        `, [papelId]);
+
+        return result.rows;
+    }
+
+    static async buscarPorId(id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM usuario_papeis
+             WHERE id = $1
+               AND ativo = TRUE
+        `, [id]);
+
+        return result.rows[0];
+    }
+
+    static async buscarPorUsuarioEPapel(usuarioId, papelId) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM usuario_papeis
+             WHERE usuario_id = $1
+               AND papel_id = $2
+               AND ativo = TRUE
+        `, [usuarioId, papelId]);
+
+        return result.rows[0];
+    }
+
+    static async criar(usuarioId, papelId, client = pool) {
+        const result = await client.query(`
+            INSERT INTO usuario_papeis (
+                usuario_id,
+                papel_id
+            )
+            VALUES ($1, $2)
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [usuarioId, papelId]);
+
+        return result.rows[0];
+    }
+
+    static async desativar(id, client = pool) {
+        const result = await client.query(`
+            UPDATE usuario_papeis
+               SET ativo = FALSE,
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [id]);
+
+        return result.rows[0];
+    }
+}
+
+module.exports = UsuarioPapel;
+const Usuario = require('../models/Usuario');
+const { TokenUsuarioService } = require('./tokenUsuarioService');
+const bcrypt = require('bcrypt');
+
+class UsuarioService {
+
+    static async listarUsuarios() {
+        return await Usuario.listar();
+    }
+
+    static async buscarUsuarioPorId(id) {
+        return await Usuario.buscarPorId(id);
+    }
+
+    static async buscarUsuarioPorEmail(email) {
+        return await Usuario.buscarPorEmail(email);
+    }
+
+    static async criarUsuario(usuario) {
+        const usuarioExixtente = await Usuario.buscarPorEmail(usuario.email);
+        if(usuarioExixtente){
+        throw new Error('EMAIL_JA_CADASTRADO');
+        }
+        const senhaHash = await bcrypt.hash(usuario.senha, 10);
+        return await Usuario.criar({
+            email: usuario.email,
+            senha_hash: senhaHash 
+        });
+    }
+
+    static async atualizarUsuario(id, usuario) {
+        const usuarioAtual = await Usuario.buscarPorId(id);
+        if (!usuarioAtual) {
+            throw new Error('USUARIO_NAO_ENCONTRADO');
+        }
+        const usuarioComMesmoEmail = await Usuario.buscarPorEmail(usuario.email);
+
+        if (
+            usuarioComMesmoEmail &&
+            usuarioComMesmoEmail.id !== id
+        ) {
+        throw new Error('EMAIL_JA_CADASTRADO');
+        }
+        return await Usuario.atualizar(id, {
+        email: usuario.email
+        });
+    }
+
+    static async alterarSenhaUsuario(id, novaSenha) {
+        const usuario = await Usuario.buscarPorId(id);
+        if (!usuario) {
+            throw new Error('USUARIO_NAO_ENCONTRADO');
+        }
+
+        const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+
+        return await Usuario.alterarSenha(id, novaSenhaHash );
+
+    }
+
+    static async solicitarVerificacaoEmail(id) {
+        const usuario = await Usuario.buscarPorId(id);
+
+        if (!usuario) {
+            throw new Error('USUARIO_NAO_ENCONTRADO');
+        }
+
+        if (usuario.email_verificado_em) {
+            throw new Error('EMAIL_JA_VERIFICADO');
+        }
+
+        return await TokenUsuarioService.criar({
+            usuario_id: id,
+            finalidade: 'VERIFICACAO_EMAIL'
+        });
+    }
+
+    static async verificarEmail(id, token) {
+        const usuario = await Usuario.buscarPorId(id);
+
+        if (!usuario) {
+            throw new Error('USUARIO_NAO_ENCONTRADO');
+        }
+
+        if (usuario.email_verificado_em) {
+            throw new Error('EMAIL_JA_VERIFICADO');
+        }
+
+        await TokenUsuarioService.validar({
+            usuario_id: id,
+            finalidade: 'VERIFICACAO_EMAIL',
+            token
+        });
+
+        const usuarioAtualizado = await Usuario.verificarEmail(id);
+
+        if (!usuarioAtualizado) {
+            throw new Error('NAO_FOI_POSSIVEL_VERIFICAR_EMAIL');
+        }
+
+        return usuarioAtualizado;
+    }
+    
+    static async solicitarAlteracaoSenha(id, senha) {
+    const usuario = await Usuario.buscarCredenciaisPorId(id);
+
+    if (!usuario) {
+        throw new Error('USUARIO_NAO_ENCONTRADO');
+    }
+
+    if (!usuario.email_verificado_em) {
+        throw new Error('EMAIL_NAO_VERIFICADO');
+    }
+
+    const senhaCorreta = await bcrypt.compare(
+        senha,
+        usuario.senha_hash
+    );
+
+    if (!senhaCorreta) {
+        throw new Error('SENHA_ATUAL_INCORRETA');
+    }
+
+    return await TokenUsuarioService.criar({
+        usuario_id: id,
+        finalidade: 'ALTERACAO_SENHA'
+    });
+}
+    static async alterarSenhaComToken(id, token, novaSenha) {
+    const usuario = await Usuario.buscarPorId(id);
+
+    if (!usuario) {
+        throw new Error('USUARIO_NAO_ENCONTRADO');
+    }
+
+    if (!usuario.email_verificado_em) {
+        throw new Error('EMAIL_NAO_VERIFICADO');
+    }
+
+    await TokenUsuarioService.validar({
+        usuario_id: id,
+        finalidade: 'ALTERACAO_SENHA',
+        token
+    });
+
+    const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+
+    const usuarioAtualizado = await Usuario.alterarSenha(
+        id,
+        novaSenhaHash
+    );
+
+    if (!usuarioAtualizado) {
+        throw new Error('NAO_FOI_POSSIVEL_ALTERAR_SENHA');
+    }
+
+    return usuarioAtualizado;
+}
+
+    static async solicitarRecuperacaoSenha(email) {
+    const usuario = await Usuario.buscarPorEmail(email);
+
+    if (!usuario) {
+        return {
+            solicitado: true
+        };
+    }
+
+    return await TokenUsuarioService.criar({
+        usuario_id: usuario.id,
+        finalidade: 'RECUPERACAO_SENHA'
+    });
+}
+
+    static async recuperarSenhaComToken(email, token, novaSenha) {
+    const usuario = await Usuario.buscarPorEmail(email);
+
+    if (!usuario) {
+        throw new Error('TOKEN_INVALIDO');
+    }
+
+    await TokenUsuarioService.validar({
+        usuario_id: usuario.id,
+        finalidade: 'RECUPERACAO_SENHA',
+        token
+    });
+
+    const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+
+    const usuarioAtualizado = await Usuario.alterarSenha(
+        usuario.id,
+        novaSenhaHash
+    );
+
+    if (!usuarioAtualizado) {
+        throw new Error('NAO_FOI_POSSIVEL_ALTERAR_SENHA');
+    }
+
+    return usuarioAtualizado;
+}
+
+    static async autenticarUsuario(email, senha) {
+
+    const usuario = await Usuario.buscarCredenciaisPorEmail(email);
+
+    if (!usuario) {
+        throw new Error('CREDENCIAIS_INVALIDAS');
+    }
+
+    const senhaCorreta = await bcrypt.compare(
+        senha,
+        usuario.senha_hash
+    );
+
+    if (!senhaCorreta) {
+        throw new Error('CREDENCIAIS_INVALIDAS');
+    }
+
+    if (!usuario.email_verificado_em) {
+        throw new Error('EMAIL_NAO_VERIFICADO');
+    }
+
+    const usuarioAtualizado = await Usuario.registrarLogin(
+        usuario.id
+    );
+
+    if (!usuarioAtualizado) {
+        throw new Error('NAO_FOI_POSSIVEL_REGISTRAR_LOGIN');
+    }
+
+    return usuarioAtualizado;
+}
+
+    static async desativarUsuario(id) {
+        const usuario = await Usuario.buscarPorId(id);
+        if (!usuario) { throw new Error('USUARIO_NAO_ENCONTRADO');}
+
+        return await Usuario.desativar(id);
+    }
+}
+
+module.exports = UsuarioService;
+const UsuarioPapel = require('../models/UsuarioPapel');
+
+class UsuarioPapelService {
+
+    static async listarPorUsuario(usuarioId) {
+        return await UsuarioPapel.listarPorUsuario(usuarioId);
+    }
+
+    static async listarPorPapel(papelId) {
+        return await UsuarioPapel.listarPorPapel(papelId);
+    }
+
+    static async buscarPorId(id) {
+        return await UsuarioPapel.buscarPorId(id);
+    }
+
+    static async buscarPorUsuarioEPapel(usuarioId, papelId) {
+        return await UsuarioPapel.buscarPorUsuarioEPapel(
+            usuarioId,
+            papelId
+        );
+    }
+
+    static async criar(usuarioId, papelId) {
+        return await UsuarioPapel.criar(
+            usuarioId,
+            papelId
+        );
+    }
+
+    static async desativar(id) {
+        return await UsuarioPapel.desativar(id);
+    }
+}
+
+module.exports = UsuarioPapelService;
+const UsuarioService = require('../services/usuarioService');
+const { success, error } = require('../utils/apiResponse');
+const { gerarToken } = require('../utils/jwt');
+
+class UsuarioController {
+
+    static async listar(req, res) {
+
+        try {
+            const usuarios = await UsuarioService.listarUsuarios();
+            return success(res, usuarios);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                erro: 'Erro interno do servidor'
+            });
+        }
+    }
+
+    static async buscarPorId(req, res){
+        try{
+            const { id } = req.params;
+            const usuario = await UsuarioService.buscarUsuarioPorId(id);
+            if(!usuario) {
+                return error(res,'Usuario não Encontrado.', 404);
+            } 
+            return success(res, usuario);
+        } catch(error){
+            console.error(error);
+            return error(res, 'Erro interno do servidor.', 500);
+       }
+    }
+
+    static async criar(req, res) {
+        try {
+            const usuario = await UsuarioService.criarUsuario(req.body);
+            return success(res, usuario, 'Usuário criado com sucesso.', 201);
+        } catch (err) {
+            if (err.message === 'EMAIL_JA_CADASTRADO') {
+                return error(res, 'E-mail já cadastrado.', 409);
+            }
+        console.error(err);
+            return error(res, 'Erro interno do servidor.', 500);
+            }
+    }
+
+    static async atualizar(req, res, next) {
+        try {
+            const usuario = await UsuarioService.atualizarUsuario(
+                req.params.id, req.body );
+
+            return success(res, usuario,'Usuário atualizado com sucesso.');
+
+        } catch (err) {
+            if (err.message === 'USUARIO_NAO_ENCONTRADO') {
+                return error(res, 'Usuário não encontrado.', 404);
+            }
+
+            if (err.message === 'EMAIL_JA_CADASTRADO') {
+                return error(res, 'E-mail já cadastrado.', 409);
+            }
+
+            next(err);
+        }
+    }
+
+    static async alterarSenha(req, res, next) {
+        try {
+            const usuario = await UsuarioService.alterarSenhaUsuario(
+                req.params.id,  req.body.senha
+        );
+        return success( res, usuario, 'Senha alterada com sucesso.' );
+
+        } catch (err) {
+            if (err.message === 'USUARIO_NAO_ENCONTRADO') {
+                return error( res,    'Usuário não encontrado.', 404 );
+            }
+        
+            console.error(err);
+            return next(err);
+        }
+    }   
+
+   static async solicitarVerificacaoEmail(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.solicitarVerificacaoEmail(
+                req.params.id
+            );
+
+        return success(
+            res,
+            resultado,
+            'Código de verificação enviado com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+
+    static async verificarEmail(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.verificarEmail(
+                req.params.id,
+                req.body.token
+            );
+
+        return success(
+            res,
+            resultado,
+            'E-mail verificado com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+
+    static async solicitarAlteracaoSenha(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.solicitarAlteracaoSenha(
+                req.params.id,
+                req.body.senha
+            );
+
+        return success(
+            res,
+            resultado,
+            'Código para alteração de senha enviado com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+
+    static async alterarSenhaComToken(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.alterarSenhaComToken(
+                req.params.id,
+                req.body.token,
+                req.body.senha
+            );
+
+        return success(
+            res,
+            resultado,
+            'Senha alterada com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+
+    static async solicitarRecuperacaoSenha(req, res) {
+        try {
+        const resultado =
+            await UsuarioService.solicitarRecuperacaoSenha(
+                req.body.email
+            );
+
+        return success(
+            res,
+            resultado,
+            'Se o e-mail estiver cadastrado, um código de recuperação será enviado.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+     }
+  }
+
+    static async recuperarSenhaComToken(req, res) {
+      try {
+        const resultado =
+            await UsuarioService.recuperarSenhaComToken(
+                req.body.email,
+                req.body.token,
+                req.body.senha
+            );
+
+        return success(
+            res,
+            resultado,
+            'Senha recuperada com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+  }
+
+    static async autenticar(req, res) {
+    try {
+        const usuario =
+            await UsuarioService.autenticarUsuario(
+                req.body.email,
+                req.body.senha
+            );
+
+        const token = gerarToken({
+            id: usuario.id
+        });
+
+        return success(
+            res,
+            {
+                usuario,
+                token
+            },
+            'Login realizado com sucesso.'
+        );
+
+    } catch (err) {
+
+        if (err.message === 'CREDENCIAIS_INVALIDAS') {
+            return error(
+                res,
+                'E-mail ou senha inválidos.',
+                401
+            );
+        }
+
+        if (err.message === 'EMAIL_NAO_VERIFICADO') {
+            return error(
+                res,
+                'E-mail não verificado.',
+                403
+            );
+        }
+
+        console.error(err);
+
+        return error(
+            res,
+            'Não foi possível realizar o login.',
+            500
+        );
+    }
+}
+
+    static async desativar(req, res, next) {
+
+        try {
+            await UsuarioService.desativarUsuario(req.params.id);
+            return success( res,    null,   'Usuário desativado com sucesso.');
+        } catch (err) {
+            if (err.message === 'USUARIO_NAO_ENCONTRADO') {
+                return error( res, 'Usuário não encontrado.', 404 );}
+
+            console.error(err);
+            next(err);
+        }
+    }
+
+
+}
+
+module.exports = UsuarioController;
+const UsuarioPapelService =
+    require('../services/usuarioPapelService');
+
+class UsuarioPapelController {
+
+    static async listarPorUsuario(req, res, next) {
+        try {
+            const papeis =
+                await UsuarioPapelService.listarPorUsuario(
+                    req.params.usuarioId
+                );
+
+            return res.json({
+                success: true,
+                data: papeis
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async listarPorPapel(req, res, next) {
+        try {
+            const usuarios =
+                await UsuarioPapelService.listarPorPapel(
+                    req.params.papelId
+                );
+
+            return res.json({
+                success: true,
+                data: usuarios
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async buscarPorId(req, res, next) {
+        try {
+            const vinculo =
+                await UsuarioPapelService.buscarPorId(
+                    req.params.id
+                );
+
+            if (!vinculo) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Vínculo entre usuário e papel não encontrado.'
+                });
+            }
+
+            return res.json({
+                success: true,
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async buscarPorUsuarioEPapel(req, res, next) {
+        try {
+            const vinculo =
+                await UsuarioPapelService.buscarPorUsuarioEPapel(
+                    req.params.usuarioId,
+                    req.params.papelId
+                );
+
+            if (!vinculo) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Vínculo entre usuário e papel não encontrado.'
+                });
+            }
+
+            return res.json({
+                success: true,
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async criar(req, res, next) {
+        try {
+            const vinculo =
+                await UsuarioPapelService.criar(
+                    req.body.usuario_id,
+                    req.body.papel_id
+                );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Papel vinculado ao usuário com sucesso.',
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async desativar(req, res, next) {
+        try {
+            const vinculo =
+                await UsuarioPapelService.desativar(
+                    req.params.id
+                );
+
+            if (!vinculo) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Vínculo entre usuário e papel não encontrado.'
+                });
+            }
+
+            return res.json({
+                success: true,
+                message: 'Vínculo entre usuário e papel desativado com sucesso.',
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+}
+
+module.exports = UsuarioPapelController;
+const { error } = require('../utils/apiResponse');
+
+function validarSolicitacaoVerificacaoEmail(req, res, next) {
+
+    const { id } = req.params;
+
+    if (!id) {
+        return error(res, 'ID do usuário é obrigatório.', 400);
+    }
+
+    const uuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    if (!uuid.test(id)) {
+        return error(res, 'ID do usuário inválido.', 400);
+    }
+
+    next();
+}
+
+function validarConfirmacaoVerificacaoEmail(req, res, next) {
+
+    const { id } = req.params;
+    const { token } = req.body;
+
+    const uuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    if (!id) {
+        return error(res, 'ID do usuário é obrigatório.', 400);
+    }
+
+    if (!uuid.test(id)) {
+        return error(res, 'ID do usuário inválido.', 400);
+    }
+
+    if (!token) {
+        return error(res, 'Token é obrigatório.', 400);
+    }
+
+    if (typeof token !== 'string') {
+        return error(res, 'Token deve ser um texto.', 400);
+    }
+
+    if (!/^\d{6}$/.test(token)) {
+        return error(
+            res,
+            'Token deve conter exatamente 6 dígitos.',
+            400
+        );
+    }
+
+    req.body = {
+        token: token.trim()
+    };
+
+    next();
+}
+
+function validarCriacaoUsuario(req, res, next) {
+
+    let { email, senha } = req.body;
+    if (!email) {
+        return error(res,'E-mail é obrigatório.', 400);
+    }
+    if (!senha) {
+        return error(res, 'Senha é obrigatória', 400);
+    }
+    // Sanitização
+    email = String(email).trim().toLowerCase();
+    senha = String(senha);
+    // Atualiza o body com dados sanitizados
+    req.body = {email, senha};
+    next();
+}
+
+function validarAtualizacaoUsuario(req, res, next) {
+
+    let { email } = req.body;
+    if (!email) {
+        return error(res, 'E-mail é obrigatório.', 400);
+    }
+    email = String(email).trim().toLowerCase();
+    req.body = {email};
+    next();
+}
+
+function validarAlteracaoSenha(req, res, next){
+
+    const { senha } = req.body;
+    if(!senha){ return error(res,'Senha é obrigatória',400);} 
+
+    if(typeof senha !== 'string'){
+    return error(res,'Senha deve ser um texto.');
+    }
+    if(senha.length < 8){
+        return error(res,'Senha deve possuir no mínimo 8 caracteres.',400);
+    }
+
+    req.body = {senha: senha.trim()
+    };
+
+    next();
+}
+
+function validarSolicitacaoAlteracaoSenha(req, res, next) {
+
+    const { id } = req.params;
+    let { senha } = req.body;
+
+    const uuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    if (!id) {
+        return error(res, 'ID do usuário é obrigatório.', 400);
+    }
+
+    if (!uuid.test(id)) {
+        return error(res, 'ID do usuário inválido.', 400);
+    }
+
+    if (!senha) {
+        return error(res, 'Senha é obrigatória.', 400);
+    }
+
+    if (typeof senha !== 'string') {
+        return error(res, 'Senha deve ser um texto.', 400);
+    }
+
+    if (senha.length < 8) {
+        return error(
+            res,
+            'Senha deve possuir no mínimo 8 caracteres.',
+            400
+        );
+    }
+
+    req.body = {
+        senha: senha.trim()
+    };
+
+    next();
+}
+
+function validarConfirmacaoAlteracaoSenha(req, res, next) {
+
+    const { id } = req.params;
+    const { token, senha } = req.body;
+
+    const uuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    if (!id) {
+        return error(res, 'ID do usuário é obrigatório.', 400);
+    }
+
+    if (!uuid.test(id)) {
+        return error(res, 'ID do usuário inválido.', 400);
+    }
+
+    if (!token) {
+        return error(res, 'Token é obrigatório.', 400);
+    }
+
+    if (typeof token !== 'string') {
+        return error(res, 'Token deve ser um texto.', 400);
+    }
+
+    if (!/^\d{6}$/.test(token)) {
+        return error(
+            res,
+            'Token deve conter exatamente 6 dígitos.',
+            400
+        );
+    }
+
+    if (!senha) {
+        return error(res, 'Senha é obrigatória.', 400);
+    }
+
+    if (typeof senha !== 'string') {
+        return error(res, 'Senha deve ser um texto.', 400);
+    }
+
+    if (senha.length < 8) {
+        return error(
+            res,
+            'Senha deve possuir no mínimo 8 caracteres.',
+            400
+        );
+    }
+
+    req.body = {
+        token: token.trim(),
+        senha: senha.trim()
+    };
+
+    next();
+}
+
+function validarSolicitacaoRecuperacaoSenha(req, res, next) {
+
+    let { email } = req.body;
+
+    if (!email) {
+        return error(res, 'E-mail é obrigatório.', 400);
+    }
+
+    email = String(email).trim().toLowerCase();
+
+    req.body = { email };
+
+    next();
+}
+
+function validarConfirmacaoRecuperacaoSenha(req, res, next) {
+
+    let { email, token, senha } = req.body;
+
+    if (!email) {
+        return error(res, 'E-mail é obrigatório.', 400);
+    }
+
+    if (!token) {
+        return error(res, 'Token é obrigatório.', 400);
+    }
+
+    if (typeof token !== 'string') {
+        return error(res, 'Token deve ser um texto.', 400);
+    }
+
+    if (!/^\d{6}$/.test(token)) {
+        return error(
+            res,
+            'Token deve conter exatamente 6 dígitos.',
+            400
+        );
+    }
+
+    if (!senha) {
+        return error(res, 'Senha é obrigatória.', 400);
+    }
+
+    if (typeof senha !== 'string') {
+        return error(res, 'Senha deve ser um texto.', 400);
+    }
+
+    if (senha.length < 8) {
+        return error(
+            res,
+            'Senha deve possuir no mínimo 8 caracteres.',
+            400
+        );
+    }
+
+    email = String(email).trim().toLowerCase();
+    token = token.trim();
+    senha = senha.trim();
+
+    req.body = {
+        email,
+        token,
+        senha
+    };
+
+    next();
+}
+
+function validarLogin(req, res, next) {
+
+    let { email, senha } = req.body;
+
+    if (!email) {
+        return error(res, 'E-mail é obrigatório.', 400);
+    }
+
+    if (!senha) {
+        return error(res, 'Senha é obrigatória.', 400);
+    }
+
+    email = String(email).trim().toLowerCase();
+    senha = String(senha).trim();
+
+    req.body = {
+        email,
+        senha
+    };
+
+    next();
+}
+
+module.exports = {
+    validarCriacaoUsuario,
+    validarAtualizacaoUsuario,
+    validarAlteracaoSenha,
+    validarSolicitacaoVerificacaoEmail,
+    validarConfirmacaoVerificacaoEmail,
+    validarSolicitacaoAlteracaoSenha,
+    validarConfirmacaoAlteracaoSenha,
+    validarSolicitacaoRecuperacaoSenha,
+    validarConfirmacaoRecuperacaoSenha,
+    validarLogin
+}
+const { validate: validarUUID } = require('uuid');
+
+function validarCriacaoUsuarioPapel(req, res, next) {
+
+    const {
+        usuario_id,
+        papel_id
+    } = req.body;
+
+    if (!usuario_id || typeof usuario_id !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'usuario_id é obrigatório e deve ser um UUID válido.'
+        });
+    }
+
+    if (!validarUUID(usuario_id)) {
+        return res.status(400).json({
+            success: false,
+            message: 'usuario_id deve ser um UUID válido.'
+        });
+    }
+
+    if (!papel_id || typeof papel_id !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'papel_id é obrigatório e deve ser um UUID válido.'
+        });
+    }
+
+    if (!validarUUID(papel_id)) {
+        return res.status(400).json({
+            success: false,
+            message: 'papel_id deve ser um UUID válido.'
+        });
+    }
+
+    next();
+}
+
+module.exports = {
+    validarCriacaoUsuarioPapel
+};
+const express = require('express');
+const UsuarioController = require('../controllers/UsuarioController');
+const autenticar = require('../middleware/autenticar');
+
+const {
+    validarCriacaoUsuario,
+    validarAlteracaoSenha,
+    validarAtualizacaoUsuario,
+    validarSolicitacaoVerificacaoEmail,
+    validarConfirmacaoVerificacaoEmail,
+    validarSolicitacaoAlteracaoSenha,
+    validarConfirmacaoAlteracaoSenha,
+    validarSolicitacaoRecuperacaoSenha,
+    validarConfirmacaoRecuperacaoSenha,
+    validarLogin
+} = require('../validators/usuarioValidator');
+
+const router = express.Router();
+
+// Login
+router.post(
+    '/login',
+    validarLogin,
+    UsuarioController.autenticar
+);
+
+// CRUD
+router.get('/', autenticar, UsuarioController.listar);
+
+router.get('/:id', autenticar, UsuarioController.buscarPorId);
+
+router.post(
+    '/',
+    validarCriacaoUsuario,
+    UsuarioController.criar
+);
+
+router.put(
+    '/:id',
+    autenticar,
+    validarAtualizacaoUsuario,
+    UsuarioController.atualizar
+);
+
+router.delete(
+    '/:id', autenticar,
+    UsuarioController.desativar
+);
+
+// Alteração direta de senha
+router.patch(
+    '/:id/senha',
+    autenticar,
+    validarAlteracaoSenha,
+    UsuarioController.alterarSenha
+);
+
+// Alteração de senha com verificação por e-mail
+router.post(
+    '/:id/alteracao-senha',
+    autenticar,
+    validarSolicitacaoAlteracaoSenha,
+    UsuarioController.solicitarAlteracaoSenha
+);
+
+router.post(
+    '/:id/alteracao-senha/confirmar',
+    autenticar,
+    validarConfirmacaoAlteracaoSenha,
+    UsuarioController.alterarSenhaComToken
+);
+
+// Verificação de e-mail
+router.post(
+    '/:id/verificacao-email',
+    validarSolicitacaoVerificacaoEmail,
+    UsuarioController.solicitarVerificacaoEmail
+);
+
+router.post(
+    '/:id/verificacao-email/confirmar',
+    validarConfirmacaoVerificacaoEmail,
+    UsuarioController.verificarEmail
+);
+
+// Recuperação de senha
+router.post(
+    '/recuperacao-senha',
+    validarSolicitacaoRecuperacaoSenha,
+    UsuarioController.solicitarRecuperacaoSenha
+);
+
+router.post(
+    '/recuperacao-senha/confirmar',
+    validarConfirmacaoRecuperacaoSenha,
+    UsuarioController.recuperarSenhaComToken
+);
+
+module.exports = router;
+const express = require('express');
+
+const router = express.Router();
+
+const UsuarioPapelController =
+    require('../controllers/UsuarioPapelController');
+
+const {
+    validarCriacaoUsuarioPapel
+} = require('../validators/usuarioPapelValidator');
+
+// Listar papéis de um usuário
+router.get(
+    '/usuario/:usuarioId',
+    UsuarioPapelController.listarPorUsuario
+);
+
+// Listar usuários de um papel
+router.get(
+    '/papel/:papelId',
+    UsuarioPapelController.listarPorPapel
+);
+
+// Buscar vínculo por usuário e papel
+router.get(
+    '/usuario/:usuarioId/papel/:papelId',
+    UsuarioPapelController.buscarPorUsuarioEPapel
+);
+
+// Buscar vínculo por ID
+router.get(
+    '/:id',
+    UsuarioPapelController.buscarPorId
+);
+
+// Criar vínculo
+router.post(
+    '/',
+    validarCriacaoUsuarioPapel,
+    UsuarioPapelController.criar
+);
+
+// Desativar vínculo
+router.delete(
+    '/:id',
+    UsuarioPapelController.desativar
+);
+
+module.exports = router;

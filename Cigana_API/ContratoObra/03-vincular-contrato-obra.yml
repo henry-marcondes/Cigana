@@ -1,11 +1,11 @@
 info:
-  name: 08-login
+  name: 03-vincular-Contrato-Obra
   type: http
-  seq: 8
+  seq: 3
 
 http:
   method: POST
-  url: http://localhost:3001/api/usuarios/login
+  url: http://localhost:3001/api/contratos/vincular-obra
   headers:
     - name: Content-Type
       value: application/json
@@ -13,13 +13,13 @@ http:
     type: json
     data: |
       {
-        "email": "raizmaker@gmail.com",
-        "senha": "55631376"
+        "contrato_id": "6fe282b9-98ad-4e3c-9edd-29e24cfe9f40",
+        "livro_id": "695ec5b6-e4f3-4a67-93fc-ebd3a11146b9"
       }
+  auth: inherit
 
 settings:
   encodeUrl: true
   timeout: 0
   followRedirects: true
   maxRedirects: 5
-  forwardAuthorizationHeader: true
