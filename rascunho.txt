@@ -1,3 +1,4 @@
+    https://chatgpt.com/share/6ab6e9eb-c73c-83e9-99a5-75baa6fe8c66
     Livro:
     {
       "titulo": "Elétrica para MotorHomes",
