@@ -26,7 +26,7 @@
 
 - As migrations em `database/migrations/` são a fonte de verdade da estrutura do banco de dados.
 - Antes de alterar persistência, consulte a migration e os models relacionados; crie uma nova migration para evolução de esquema, sem reescrever migrations já aplicadas.
-- Há um `database/schema_atual.sql` com estrutura legada e limitada (`books`, `chapters`, `choices` e `user_progress`). Não o use como referência primária quando divergir das migrations ou dos models atuais em português.
+
 - Use os scripts existentes (`database/migrar.sh` e `database/seed.sh`) de acordo com a necessidade da tarefa; não presuma que seeds ou dados locais possam ser apagados.
 
 ## API, contratos e validação

@@ -3,7 +3,18 @@
 🟢 1. Clonar o repositório
 git clone https://github.com/henry-marcondes/Cigana.git
 
-# cd Cigana
+## cd Cigana
+Verificar as versões e se já estão instaladas na máquina:
+
+´´´ bach
+node --version 
+ v22.22.1
+npm  --version 
+ 10.9.4
+psql --version
+ 16.04
+´´´
+ 
 
 🟢 2. Backend
 

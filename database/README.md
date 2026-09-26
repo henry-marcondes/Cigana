@@ -17,12 +17,12 @@
 3. $ ./seeds.sh 0001_seed_idiomas.sql
 
 
-## scrits : usados para manipular dados
+## scripts : usados para manipular dados
 
 1. usado para manutenção do banco durante a fase de desenvolvimento
 2. específico para limpar os dados de teste. 
 3. na raiz do projeto 9usuario:~/Cigana$) executar:
-4. psql -d cigana_db -f database/scripts/limpar_dados_teste.sql
+4. psql -d ciganas_db -f database/scripts/limpar_dados_teste.sql
 5. O que permanece
     Essas tabelas não seriam apagadas:
         idiomas

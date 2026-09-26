@@ -1,3 +1,13 @@
+CREATE TABLE permissoes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome VARCHAR(100) NOT NULL UNIQUE,
+    codigo VARCHAR(100) NOT NULL UNIQUE,
+    descricao VARCHAR(255),
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 INSERT INTO permissoes (
     nome,
     codigo,
