@@ -1,0 +1,5630 @@
+INSPEÇÃO DO BACKEND ADMINISTRATIVO — V2
+Projeto: Plataforma de Livros Cigana
+Gerado em: Fri Sep 18 17:32:35 -03 2026
+
+
+============================================================
+1. ESTRUTURA DOS ARQUIVOS ADMINISTRATIVOS
+============================================================
+backend/src/controllers/AutorController.js
+backend/src/controllers/LivroAutorController.js
+backend/src/controllers/PapelController.js
+backend/src/controllers/PapelPermissaoController.js
+backend/src/controllers/PerfilUsuarioController.js
+backend/src/controllers/PermissaoController.js
+backend/src/controllers/SolicitacaoAutorController.js
+backend/src/controllers/TokenUsuarioController.js
+backend/src/controllers/UsuarioController.js
+backend/src/controllers/UsuarioPapelController.js
+backend/src/middleware/autenticar.js
+backend/src/middleware/autorizacao.js
+backend/src/middleware/autorizarObra.js
+backend/src/middleware/errorHandler.js
+backend/src/models/Autor.js
+backend/src/models/LivroAutor.js
+backend/src/models/Papel.js
+backend/src/models/PapelPermissao.js
+backend/src/models/PerfilUsuario.js
+backend/src/models/Permissao.js
+backend/src/models/SolicitacaoAutor.js
+backend/src/models/TokenUsuario.js
+backend/src/models/Usuario.js
+backend/src/models/UsuarioPapel.js
+backend/src/routes/autorRoutes.js
+backend/src/routes/livroAutorRoutes.js
+backend/src/routes/papelPermissaoRoutes.js
+backend/src/routes/papelRoutes.js
+backend/src/routes/perfilUsuarioRoutes.js
+backend/src/routes/permissaoRoutes.js
+backend/src/routes/solicitacaoAutorRoutes.js
+backend/src/routes/tokenUsuarioRoutes.js
+backend/src/routes/usuarioPapelRoutes.js
+backend/src/routes/usuarioRoutes.js
+backend/src/services/autorizacaoService.js
+backend/src/services/autorService.js
+backend/src/services/livroAutorService.js
+backend/src/services/papelPermissaoService.js
+backend/src/services/papelService.js
+backend/src/services/PerfilUsuarioService.js
+backend/src/services/permissaoService.js
+backend/src/services/solicitacaoAutorService.js
+backend/src/services/tokenUsuarioService.js
+backend/src/services/usuarioPapelService.js
+backend/src/services/usuarioService.js
+backend/src/validators/autorValidator.js
+backend/src/validators/livroAutorValidator.js
+backend/src/validators/papelPermissaoValidator.js
+backend/src/validators/papelValidator.js
+backend/src/validators/perfilUsuarioValidator.js
+backend/src/validators/permissaoValidator.js
+backend/src/validators/solicitacaoAutorValidator.js
+backend/src/validators/tokenUsuarioValidator.js
+backend/src/validators/usuarioPapelValidator.js
+backend/src/validators/usuarioValidator.js
+
+============================================================
+2. MODELS
+============================================================
+
+------------------------------------------------------------
+ARQUIVO: backend/src/models/Usuario.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+const CAMPOS_PUBLICAS = `id, email, email_verificado_em, ultimo_login_em, ativo, criado_em, atualizado_em`;
+const CAMPOS_RETORNO = `id, email, email_verificado_em, ultimo_login_em, ativo, criado_em, atualizado_em`;
+const CAMPOS_PRIVADAS = `senha_hash`;
+const TODOS_CAMPOS = ` ${CAMPOS_PUBLICAS}, ${CAMPOS_PRIVADAS}`;
+class Usuario {
+    static async buscarCredenciaisPorId(id) {
+        const result = await pool.query(
+            `
+            SELECT
+                ${TODOS_CAMPOS}
+            FROM usuarios
+            WHERE id = $1
+            AND ativo = TRUE
+            `,
+            [id]
+        );
+        return result.rows[0];
+    }
+    static async listar() {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICAS} FROM usuarios
+            WHERE ativo = TRUE
+            ORDER BY criado_em DESC`);
+        return result.rows;
+    }
+    static async buscarPorId(id) {
+        const result = await pool.query(
+            `
+            SELECT ${CAMPOS_PUBLICAS}
+              FROM usuarios
+             WHERE id = $1
+             AND ativo = TRUE`,
+            [id]);
+        return result.rows[0];
+    }
+    static async buscarPorEmail(email) {
+        const result = await pool.query(
+            `
+            SELECT ${TODOS_CAMPOS}
+            FROM usuarios
+            WHERE LOWER(email) = LOWER($1)
+            AND ativo = TRUE`,
+           [email] );
+        return result.rows[0];
+    }
+    static async buscarCredenciaisPorEmail(email) {
+        const result = await pool.query(
+        `
+        SELECT
+            ${TODOS_CAMPOS}
+        FROM usuarios
+        WHERE LOWER(email) = LOWER($1)
+          AND ativo = TRUE `,
+        [email] );
+    return result.rows[0];
+}
+    static async criar(usuario, client = pool) {
+        const {
+            email,
+            senha_hash
+        } = usuario;
+        const result = await client.query(
+            `
+            INSERT INTO usuarios (
+                email,
+                senha_hash
+            )
+            VALUES ($1, $2)
+            RETURNING ${CAMPOS_RETORNO} `,
+            [ email, senha_hash ] );
+        return result.rows[0];
+    }
+    static async atualizar(id, usuario, client = pool) {
+        const {
+            email
+        } = usuario;
+        const result = await client.query(
+            `
+            UPDATE usuarios
+               SET email = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING ${CAMPOS_RETORNO} `,
+            [ email, id ] );
+        return result.rows[0];
+    }
+    static async alterarSenha(id, novaSenhaHash, client = pool) {
+        const result = await client.query(
+            `
+            UPDATE usuarios
+               SET senha_hash = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING ${CAMPOS_RETORNO} `,
+            [ novaSenhaHash,id] );
+        return result.rows[0];
+    }
+    static async registrarLogin(id, client = pool) {
+        const result = await client.query(
+            `
+            UPDATE usuarios
+               SET ultimo_login_em = NOW(),
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING ${CAMPOS_RETORNO} `,
+            [id] );
+        return result.rows[0];
+    }
+    static async verificarEmail(id, client = pool) {
+        const result = await client.query(
+            `
+            UPDATE usuarios
+               SET email_verificado_em = NOW(),
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING ${CAMPOS_RETORNO} `,
+            [id] );
+        return result.rows[0];
+    }
+    static async desativar(id, client = pool) {
+        const result = await client.query(
+            `
+            UPDATE usuarios
+               SET ativo = FALSE,
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING ${CAMPOS_RETORNO} `,
+            [id] );
+        return result.rows[0];
+    }
+}
+module.exports = Usuario;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/models/PerfilUsuario.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+const CAMPOS_PUBLICOS = `
+    id,
+    usuario_id,
+    nome,
+    sobrenome,
+    nome_usuario,
+    avatar_url,
+    biografia,
+    idioma_id,
+    ativo,
+    criado_em,
+    atualizado_em
+`;
+class PerfilUsuario {
+    static async listar() {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM perfis_usuario
+             WHERE ativo = TRUE
+             ORDER BY criado_em DESC
+        `);
+        return result.rows;
+    }
+    static async buscarPorId(id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM perfis_usuario
+             WHERE id = $1
+               AND ativo = TRUE
+        `, [id]);
+        return result.rows[0];
+    }
+    static async buscarPorUsuarioId(usuario_id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM perfis_usuario
+             WHERE usuario_id = $1
+               AND ativo = TRUE
+        `, [usuario_id]);
+        return result.rows[0];
+    }
+    static async buscarPorNomeUsuario(nome_usuario) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM perfis_usuario
+             WHERE LOWER(nome_usuario) = LOWER($1)
+               AND ativo = TRUE
+        `, [nome_usuario]);
+        return result.rows[0];
+    }
+    static async criar(perfil, client = pool) {
+        const {
+            usuario_id,
+            nome,
+            sobrenome,
+            nome_usuario,
+            avatar_url,
+            biografia,
+            idioma_id
+        } = perfil;
+        const result = await client.query(
+            `
+            INSERT INTO perfis_usuario (
+            usuario_id,
+            nome,
+            sobrenome,
+            nome_usuario,
+            avatar_url,
+            biografia,
+            idioma_id
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING
+            ${CAMPOS_PUBLICOS}
+            `,
+        [
+            usuario_id,
+            nome,
+            sobrenome,
+            nome_usuario,
+            avatar_url,
+            biografia,
+            idioma_id
+        ]
+    );
+    return result.rows[0];
+  }
+    static async alterarDadosPessoais(id, perfil, client = pool) {
+        const {
+            nome,
+            sobrenome
+        } = perfil;
+        const result = await client.query(
+            `
+            UPDATE perfis_usuario
+           SET nome = $1,
+               sobrenome = $2,
+               atualizado_em = NOW()
+            WHERE id = $3
+            AND ativo = TRUE
+            RETURNING ${CAMPOS_PUBLICOS} `,
+        [nome, sobrenome, id]
+    );
+    return result.rows[0];
+  }
+    static async alterarNomeUsuario(id, nome_usuario, client = pool) {
+        const result = await client.query(
+            `
+            UPDATE perfis_usuario
+            SET nome_usuario = $1,
+               atualizado_em = NOW()
+            WHERE id = $2
+            AND ativo = TRUE
+            RETURNING ${CAMPOS_PUBLICOS} `,
+        [nome_usuario, id] );
+    return result.rows[0];
+  }
+    static async alterarAvatar(id, avatar_url, client = pool) {
+        const result = await client.query(
+            `
+            UPDATE perfis_usuario
+            SET avatar_url = $1,
+               atualizado_em = NOW()
+            WHERE id = $2
+            AND ativo = TRUE
+            RETURNING ${CAMPOS_PUBLICOS} `,
+        [avatar_url, id]
+     );
+    return result.rows[0];
+  }
+    static async alterarBiografia(id, biografia, client = pool) {
+    const result = await client.query(
+        `
+        UPDATE perfis_usuario
+           SET biografia = $1,
+               atualizado_em = NOW()
+         WHERE id = $2
+           AND ativo = TRUE
+        RETURNING
+            ${CAMPOS_PUBLICOS}
+        `,
+        [biografia, id]
+    );
+    return result.rows[0];
+  }
+    static async alterarIdioma(id, idioma_id, client = pool) {
+    const result = await client.query(
+        `
+        UPDATE perfis_usuario
+           SET idioma_id = $1,
+               atualizado_em = NOW()
+         WHERE id = $2
+           AND ativo = TRUE
+        RETURNING
+            ${CAMPOS_PUBLICOS}
+        `,
+        [idioma_id, id]
+    );
+    return result.rows[0];
+  }
+    static async desativar(id, client = pool) {
+    const result = await client.query(
+        `
+        UPDATE perfis_usuario
+           SET ativo = FALSE,
+               atualizado_em = NOW()
+         WHERE id = $1
+           AND ativo = TRUE
+        RETURNING
+            ${CAMPOS_PUBLICOS}
+        `,
+        [id]
+    );
+    return result.rows[0];
+  }
+}
+module.exports = PerfilUsuario;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/models/Autor.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+const CAMPOS_PUBLICOS = `
+    id,
+    usuario_id,
+    nome_publico,
+    biografia,
+    foto_url,
+    ativo,
+    criado_em,
+    atualizado_em
+`;
+class Autor {
+    static async listar() {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM autores
+             WHERE ativo = TRUE
+             ORDER BY criado_em DESC
+        `);
+        return result.rows;
+    }
+    static async buscarPorId(id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM autores
+             WHERE id = $1
+               AND ativo = TRUE
+        `, [id]);
+        return result.rows[0];
+    }
+    static async buscarPorUsuarioId(usuario_id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM autores
+             WHERE usuario_id = $1
+               AND ativo = TRUE
+        `, [usuario_id]);
+        return result.rows[0];
+    }
+    static async criar(autor, client = pool) {
+        const {
+            usuario_id,
+            nome_publico,
+            biografia,
+            foto_url
+        } = autor;
+        const result = await client.query(`
+            INSERT INTO autores (
+                usuario_id,
+                nome_publico,
+                biografia,
+                foto_url
+            )
+            VALUES ($1, $2, $3, $4)
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [
+            usuario_id,
+            nome_publico,
+            biografia,
+            foto_url
+        ]);
+        return result.rows[0];
+    }
+    static async alterarNomePublico(id, nome_publico, client = pool) {
+        const result = await client.query(`
+            UPDATE autores
+               SET nome_publico = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [nome_publico, id]);
+        return result.rows[0];
+    }
+    static async alterarBiografia(id, biografia, client = pool) {
+        const result = await client.query(`
+            UPDATE autores
+               SET biografia = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [biografia, id]);
+        return result.rows[0];
+    }
+    static async alterarFoto(id, foto_url, client = pool) {
+        const result = await client.query(`
+            UPDATE autores
+               SET foto_url = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [foto_url, id]);
+        return result.rows[0];
+    }
+    static async desativar(id, client = pool) {
+        const result = await client.query(`
+            UPDATE autores
+               SET ativo = FALSE,
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [id]);
+        return result.rows[0];
+    }
+}
+module.exports = Autor;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/models/LivroAutor.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+const CAMPOS_PUBLICOS = `
+    id,
+    livro_id,
+    autor_id,
+    ordem_exibicao,
+    ativo,
+    criado_em,
+    atualizado_em
+`;
+class LivroAutor {
+    static async listarPorLivro(livro_id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM livro_autores
+             WHERE livro_id = $1
+               AND ativo = TRUE
+             ORDER BY ordem_exibicao
+        `, [livro_id]);
+        return result.rows;
+    }
+    static async listarPorAutor(autor_id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM livro_autores
+             WHERE autor_id = $1
+               AND ativo = TRUE
+             ORDER BY ordem_exibicao
+        `, [autor_id]);
+        return result.rows;
+    }
+    static async usuarioEhAutorDaObra(usuario_id, livro_id) {
+        const result = await pool.query(`
+            SELECT 1
+            FROM autores a
+             INNER JOIN livro_autores la
+                ON la.autor_id = a.id
+            AND la.ativo = TRUE
+            WHERE a.usuario_id = $1
+            AND la.livro_id = $2
+             AND a.ativo = TRUE
+            LIMIT 1
+        `, [
+            usuario_id,
+            livro_id
+        ]);
+        return result.rowCount > 0;
+    }
+    static async criar(livroAutor, client = pool) {
+        const {
+            livro_id,
+            autor_id,
+            ordem_exibicao
+        } = livroAutor;
+        const result = await client.query(`
+            INSERT INTO livro_autores (
+                livro_id,
+                autor_id,
+                ordem_exibicao
+            )
+            VALUES ($1, $2, $3)
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [
+            livro_id,
+            autor_id,
+            ordem_exibicao
+        ]);
+        return result.rows[0];
+    }
+    static async alterarOrdemExibicao(id, ordem_exibicao, client = pool) {
+        const result = await client.query(`
+            UPDATE livro_autores
+               SET ordem_exibicao = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [ordem_exibicao, id]);
+        return result.rows[0];
+    }
+    static async desativar(id, client = pool) {
+        const result = await client.query(`
+            UPDATE livro_autores
+               SET ativo = FALSE,
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [id]);
+        return result.rows[0];
+    }
+}
+module.exports = LivroAutor;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/models/SolicitacaoAutor.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+const CAMPOS_PUBLICOS = `
+    id,
+    usuario_id,
+    nome_publico,
+    biografia,
+    foto_url,
+    titulo_provisorio,
+    resumo,
+    categoria_id,
+    classificacao_indicativa_id,
+    idioma_id,
+    status,
+    avaliado_por,
+    avaliado_em,
+    motivo_recusa,
+    criado_em,
+    atualizado_em
+`;
+class SolicitacaoAutor {
+    static async criar(dados) {
+        const {
+            usuario_id,
+            nome_publico,
+            biografia,
+            foto_url,
+            titulo_provisorio,
+            resumo,
+            categoria_id,
+            classificacao_indicativa_id,
+            idioma_id
+        } = dados;
+        const query = `
+            INSERT INTO solicitacoes_autor (
+                usuario_id,
+                nome_publico,
+                biografia,
+                foto_url,
+                titulo_provisorio,
+                resumo,
+                categoria_id,
+                classificacao_indicativa_id,
+                idioma_id
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING ${CAMPOS_PUBLICOS}
+        `;
+        const values = [
+            usuario_id,
+            nome_publico,
+            biografia ?? null,
+            foto_url ?? null,
+            titulo_provisorio,
+            resumo ?? null,
+            categoria_id,
+            classificacao_indicativa_id,
+            idioma_id
+        ];
+        const result = await pool.query(query, values);
+        return result.rows[0];
+    }
+    static async buscarPorId(id) {
+        const query = `
+            SELECT ${CAMPOS_PUBLICOS}
+            FROM solicitacoes_autor
+            WHERE id = $1
+        `;
+        const result = await pool.query(query, [id]);
+        return result.rows[0] || null;
+    }
+    static async listarPorUsuario(usuario_id) {
+        const query = `
+            SELECT ${CAMPOS_PUBLICOS}
+            FROM solicitacoes_autor
+            WHERE usuario_id = $1
+            ORDER BY criado_em DESC
+        `;
+        const result = await pool.query(query, [usuario_id]);
+        return result.rows;
+    }
+    static async buscarPendentePorUsuario(usuario_id) {
+        const query = `
+            SELECT ${CAMPOS_PUBLICOS}
+            FROM solicitacoes_autor
+            WHERE usuario_id = $1
+              AND status = 'PENDENTE'
+            LIMIT 1
+        `;
+        const result = await pool.query(query, [usuario_id]);
+        return result.rows[0] || null;
+    }
+    static async listarPendentes() {
+        const query = `
+            SELECT ${CAMPOS_PUBLICOS}
+            FROM solicitacoes_autor
+            WHERE status = 'PENDENTE'
+            ORDER BY criado_em ASC
+        `;
+        const result = await pool.query(query);
+        return result.rows;
+    }
+    static async listarPorStatus(status) {
+        const query = `
+            SELECT ${CAMPOS_PUBLICOS}
+            FROM solicitacoes_autor
+            WHERE status = $1
+            ORDER BY criado_em DESC
+        `;
+        const result = await pool.query(query, [status]);
+        return result.rows;
+    }
+    static async listarTodas() {
+        const query = `
+            SELECT ${CAMPOS_PUBLICOS}
+            FROM solicitacoes_autor
+            ORDER BY criado_em DESC
+        `;
+        const result = await pool.query(query);
+        return result.rows;
+    }
+    static async aprovar(id, avaliado_por) {
+        const query = `
+            UPDATE solicitacoes_autor
+            SET
+                status = 'APROVADA',
+                avaliado_por = $2,
+                avaliado_em = NOW(),
+                motivo_recusa = NULL,
+                atualizado_em = NOW()
+            WHERE id = $1
+              AND status = 'PENDENTE'
+            RETURNING ${CAMPOS_PUBLICOS}
+        `;
+        const result = await pool.query(query, [id, avaliado_por]);
+        return result.rows[0] || null;
+    }
+    static async recusar(id, avaliado_por, motivo_recusa) {
+        const query = `
+            UPDATE solicitacoes_autor
+            SET
+                status = 'RECUSADA',
+                avaliado_por = $2,
+                avaliado_em = NOW(),
+                motivo_recusa = $3,
+                atualizado_em = NOW()
+            WHERE id = $1
+              AND status = 'PENDENTE'
+            RETURNING ${CAMPOS_PUBLICOS}
+        `;
+        const result = await pool.query(
+            query,
+            [id, avaliado_por, motivo_recusa]
+        );
+        return result.rows[0] || null;
+    }
+}
+module.exports = SolicitacaoAutor;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/models/Papel.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+const CAMPOS_PUBLICOS = `
+    id,
+    nome,
+    codigo,
+    descricao,
+    ativo,
+    criado_em,
+    atualizado_em
+`;
+class Papel {
+    static async listar() {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM papeis
+             WHERE ativo = TRUE
+             ORDER BY nome ASC
+        `);
+        return result.rows;
+    }
+    static async buscarPorId(id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM papeis
+             WHERE id = $1
+               AND ativo = TRUE
+        `, [id]);
+        return result.rows[0];
+    }
+    static async buscarPorCodigo(codigo) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM papeis
+             WHERE codigo = $1
+               AND ativo = TRUE
+        `, [codigo]);
+        return result.rows[0];
+    }
+    static async criar(papel, client = pool) {
+        const {
+            nome,
+            codigo,
+            descricao
+        } = papel;
+        const result = await client.query(`
+            INSERT INTO papeis (
+                nome,
+                codigo,
+                descricao
+            )
+            VALUES ($1, $2, $3)
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [
+            nome,
+            codigo,
+            descricao
+        ]);
+        return result.rows[0];
+    }
+    static async alterarNome(id, nome, client = pool) {
+        const result = await client.query(`
+            UPDATE papeis
+               SET nome = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [nome, id]);
+        return result.rows[0];
+    }
+    static async alterarCodigo(id, codigo, client = pool) {
+        const result = await client.query(`
+            UPDATE papeis
+               SET codigo = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [codigo, id]);
+        return result.rows[0];
+    }
+    static async alterarDescricao(id, descricao, client = pool) {
+        const result = await client.query(`
+            UPDATE papeis
+               SET descricao = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [descricao, id]);
+        return result.rows[0];
+    }
+    static async desativar(id, client = pool) {
+        const result = await client.query(`
+            UPDATE papeis
+               SET ativo = FALSE,
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [id]);
+        return result.rows[0];
+    }
+}
+module.exports = Papel;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/models/Permissao.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+const CAMPOS_PUBLICOS = `
+    id,
+    nome,
+    codigo,
+    descricao,
+    ativo,
+    criado_em,
+    atualizado_em
+`;
+class Permissao {
+    static async listar() {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM permissoes
+             WHERE ativo = TRUE
+             ORDER BY nome ASC
+        `);
+        return result.rows;
+    }
+    static async buscarPorId(id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM permissoes
+             WHERE id = $1
+               AND ativo = TRUE
+        `, [id]);
+        return result.rows[0];
+    }
+    static async buscarPorCodigo(codigo) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM permissoes
+             WHERE codigo = $1
+               AND ativo = TRUE
+        `, [codigo]);
+        return result.rows[0];
+    }
+    static async criar(permissao, client = pool) {
+        const {
+            nome,
+            codigo,
+            descricao
+        } = permissao;
+        const result = await client.query(`
+            INSERT INTO permissoes (
+                nome,
+                codigo,
+                descricao
+            )
+            VALUES ($1, $2, $3)
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [
+            nome,
+            codigo,
+            descricao
+        ]);
+        return result.rows[0];
+    }
+    static async alterarNome(id, nome, client = pool) {
+        const result = await client.query(`
+            UPDATE permissoes
+               SET nome = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [nome, id]);
+        return result.rows[0];
+    }
+    static async alterarCodigo(id, codigo, client = pool) {
+        const result = await client.query(`
+            UPDATE permissoes
+               SET codigo = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [codigo, id]);
+        return result.rows[0];
+    }
+    static async alterarDescricao(id, descricao, client = pool) {
+        const result = await client.query(`
+            UPDATE permissoes
+               SET descricao = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [descricao, id]);
+        return result.rows[0];
+    }
+    static async desativar(id, client = pool) {
+        const result = await client.query(`
+            UPDATE permissoes
+               SET ativo = FALSE,
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [id]);
+        return result.rows[0];
+    }
+}
+module.exports = Permissao;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/models/UsuarioPapel.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+const CAMPOS_PUBLICOS = `
+    id,
+    usuario_id,
+    papel_id,
+    ativo,
+    criado_em,
+    atualizado_em
+`;
+class UsuarioPapel {
+    static async listarPorUsuario(usuarioId) {
+        const result = await pool.query(`
+            SELECT
+                up.id,
+                up.usuario_id,
+                up.papel_id,
+                p.nome AS papel_nome,
+                p.codigo AS papel_codigo,
+                p.descricao AS papel_descricao,
+                up.ativo,
+                up.criado_em,
+                up.atualizado_em
+              FROM usuario_papeis up
+              INNER JOIN papeis p
+                ON p.id = up.papel_id
+             WHERE up.usuario_id = $1
+               AND up.ativo = TRUE
+               AND p.ativo = TRUE
+             ORDER BY p.nome ASC
+        `, [usuarioId]);
+        return result.rows;
+    }
+    static async listarPorPapel(papelId) {
+        const result = await pool.query(`
+            SELECT
+                up.id,
+                up.usuario_id,
+                up.papel_id,
+                u.email AS usuario_email,
+                up.ativo,
+                up.criado_em,
+                up.atualizado_em
+              FROM usuario_papeis up
+              INNER JOIN usuarios u
+                ON u.id = up.usuario_id
+             WHERE up.papel_id = $1
+               AND up.ativo = TRUE
+             ORDER BY u.email ASC
+        `, [papelId]);
+        return result.rows;
+    }
+    static async buscarPorId(id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM usuario_papeis
+             WHERE id = $1
+               AND ativo = TRUE
+        `, [id]);
+        return result.rows[0];
+    }
+    static async buscarPorUsuarioEPapel(usuarioId, papelId) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM usuario_papeis
+             WHERE usuario_id = $1
+               AND papel_id = $2
+               AND ativo = TRUE
+        `, [usuarioId, papelId]);
+        return result.rows[0];
+    }
+    static async criar(usuarioId, papelId, client = pool) {
+        const result = await client.query(`
+            INSERT INTO usuario_papeis (
+                usuario_id,
+                papel_id
+            )
+            VALUES ($1, $2)
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [usuarioId, papelId]);
+        return result.rows[0];
+    }
+    static async desativar(id, client = pool) {
+        const result = await client.query(`
+            UPDATE usuario_papeis
+               SET ativo = FALSE,
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [id]);
+        return result.rows[0];
+    }
+}
+module.exports = UsuarioPapel;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/models/PapelPermissao.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+const CAMPOS_PUBLICOS = `
+    id,
+    papel_id,
+    permissao_id,
+    ativo,
+    criado_em,
+    atualizado_em
+`;
+class PapelPermissao {
+    static async listarPorPapel(papelId) {
+        const result = await pool.query(`
+            SELECT
+                pp.id,
+                pp.papel_id,
+                pp.permissao_id,
+                p.nome AS permissao_nome,
+                p.codigo AS permissao_codigo,
+                p.descricao AS permissao_descricao,
+                pp.ativo,
+                pp.criado_em,
+                pp.atualizado_em
+              FROM papel_permissoes pp
+              INNER JOIN permissoes p
+                ON p.id = pp.permissao_id
+             WHERE pp.papel_id = $1
+               AND pp.ativo = TRUE
+               AND p.ativo = TRUE
+             ORDER BY p.nome ASC
+        `, [papelId]);
+        return result.rows;
+    }
+    static async listarPorPermissao(permissaoId) {
+        const result = await pool.query(`
+            SELECT
+                pp.id,
+                pp.papel_id,
+                pp.permissao_id,
+                p.nome AS papel_nome,
+                p.codigo AS papel_codigo,
+                p.descricao AS papel_descricao,
+                pp.ativo,
+                pp.criado_em,
+                pp.atualizado_em
+              FROM papel_permissoes pp
+              INNER JOIN papeis p
+                ON p.id = pp.papel_id
+             WHERE pp.permissao_id = $1
+               AND pp.ativo = TRUE
+               AND p.ativo = TRUE
+             ORDER BY p.nome ASC
+        `, [permissaoId]);
+        return result.rows;
+    }
+    static async buscarPorId(id) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM papel_permissoes
+             WHERE id = $1
+               AND ativo = TRUE
+        `, [id]);
+        return result.rows[0];
+    }
+    static async buscarPorPapelEPermissao(papelId, permissaoId) {
+        const result = await pool.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM papel_permissoes
+             WHERE papel_id = $1
+               AND permissao_id = $2
+               AND ativo = TRUE
+        `, [papelId, permissaoId]);
+        return result.rows[0];
+    }
+    static async criar(papelId, permissaoId, client = pool) {
+        const result = await client.query(`
+            INSERT INTO papel_permissoes (
+                papel_id,
+                permissao_id
+            )
+            VALUES ($1, $2)
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [papelId, permissaoId]);
+        return result.rows[0];
+    }
+    static async desativar(id, client = pool) {
+        const result = await client.query(`
+            UPDATE papel_permissoes
+               SET ativo = FALSE,
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = TRUE
+            RETURNING
+                ${CAMPOS_PUBLICOS}
+        `, [id]);
+        return result.rows[0];
+    }
+}
+module.exports = PapelPermissao;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/models/TokenUsuario.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+class TokenUsuario {
+    static async criar({
+        usuario_id,
+        finalidade,
+        token_hash,
+        expira_em
+    }) {
+        const query = `
+            INSERT INTO tokens_usuario (
+                usuario_id,
+                finalidade,
+                token_hash,
+                expira_em
+            )
+            VALUES ($1, $2, $3, $4)
+            RETURNING *;
+        `;
+        const values = [
+            usuario_id,
+            finalidade,
+            token_hash,
+            expira_em
+        ];
+        const { rows } = await pool.query(query, values);
+        return rows[0];
+    }
+    static async buscarPorId(id) {
+        const query = `
+            SELECT *
+            FROM tokens_usuario
+            WHERE id = $1;
+        `;
+        const { rows } = await pool.query(query, [id]);
+        return rows[0] || null;
+    }
+    static async buscarAtivo(usuario_id, finalidade) {
+        const query = `
+            SELECT *
+            FROM tokens_usuario
+            WHERE usuario_id = $1
+              AND finalidade = $2
+              AND ativo = TRUE
+              AND usado_em IS NULL
+            ORDER BY criado_em DESC
+            LIMIT 1;
+        `;
+        const { rows } = await pool.query(query, [
+            usuario_id,
+            finalidade
+        ]);
+        return rows[0] || null;
+    }
+    static async incrementarTentativas(id) {
+        const query = `
+            UPDATE tokens_usuario
+            SET
+                tentativas = tentativas + 1,
+                atualizado_em = NOW()
+            WHERE id = $1
+            RETURNING *;
+        `;
+        const { rows } = await pool.query(query, [id]);
+        return rows[0] || null;
+    }
+    static async marcarComoUsado(id) {
+        const query = `
+            UPDATE tokens_usuario
+            SET
+                usado_em = NOW(),
+                ativo = FALSE,
+                atualizado_em = NOW()
+            WHERE id = $1
+            RETURNING *;
+        `;
+        const { rows } = await pool.query(query, [id]);
+        return rows[0] || null;
+    }
+    static async desativar(id) {
+        const query = `
+            UPDATE tokens_usuario
+            SET
+                ativo = FALSE,
+                atualizado_em = NOW()
+            WHERE id = $1
+            RETURNING *;
+        `;
+        const { rows } = await pool.query(query, [id]);
+        return rows[0] || null;
+    }
+}
+module.exports = TokenUsuario;
+
+============================================================
+3. SERVICES
+============================================================
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/usuarioService.js
+------------------------------------------------------------
+const Usuario = require('../models/Usuario');
+const { TokenUsuarioService } = require('./tokenUsuarioService');
+const bcrypt = require('bcrypt');
+class UsuarioService {
+    static async listarUsuarios() {
+        return await Usuario.listar();
+    }
+    static async buscarUsuarioPorId(id) {
+        return await Usuario.buscarPorId(id);
+    }
+    static async buscarUsuarioPorEmail(email) {
+        return await Usuario.buscarPorEmail(email);
+    }
+    static async criarUsuario(usuario) {
+        const usuarioExixtente = await Usuario.buscarPorEmail(usuario.email);
+        if(usuarioExixtente){
+        throw new Error('EMAIL_JA_CADASTRADO');
+        }
+        const senhaHash = await bcrypt.hash(usuario.senha, 10);
+        return await Usuario.criar({
+            email: usuario.email,
+            senha_hash: senhaHash 
+        });
+    }
+    static async atualizarUsuario(id, usuario) {
+        const usuarioAtual = await Usuario.buscarPorId(id);
+        if (!usuarioAtual) {
+            throw new Error('USUARIO_NAO_ENCONTRADO');
+        }
+        const usuarioComMesmoEmail = await Usuario.buscarPorEmail(usuario.email);
+        if (
+            usuarioComMesmoEmail &&
+            usuarioComMesmoEmail.id !== id
+        ) {
+        throw new Error('EMAIL_JA_CADASTRADO');
+        }
+        return await Usuario.atualizar(id, {
+        email: usuario.email
+        });
+    }
+    static async alterarSenhaUsuario(id, novaSenha) {
+        const usuario = await Usuario.buscarPorId(id);
+        if (!usuario) {
+            throw new Error('USUARIO_NAO_ENCONTRADO');
+        }
+        const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+        return await Usuario.alterarSenha(id, novaSenhaHash );
+    }
+    static async solicitarVerificacaoEmail(id) {
+        const usuario = await Usuario.buscarPorId(id);
+        if (!usuario) {
+            throw new Error('USUARIO_NAO_ENCONTRADO');
+        }
+        if (usuario.email_verificado_em) {
+            throw new Error('EMAIL_JA_VERIFICADO');
+        }
+        return await TokenUsuarioService.criar({
+            usuario_id: id,
+            finalidade: 'VERIFICACAO_EMAIL'
+        });
+    }
+    static async verificarEmail(id, token) {
+        const usuario = await Usuario.buscarPorId(id);
+        if (!usuario) {
+            throw new Error('USUARIO_NAO_ENCONTRADO');
+        }
+        if (usuario.email_verificado_em) {
+            throw new Error('EMAIL_JA_VERIFICADO');
+        }
+        await TokenUsuarioService.validar({
+            usuario_id: id,
+            finalidade: 'VERIFICACAO_EMAIL',
+            token
+        });
+        const usuarioAtualizado = await Usuario.verificarEmail(id);
+        if (!usuarioAtualizado) {
+            throw new Error('NAO_FOI_POSSIVEL_VERIFICAR_EMAIL');
+        }
+        return usuarioAtualizado;
+    }
+    static async solicitarAlteracaoSenha(id, senha) {
+    const usuario = await Usuario.buscarCredenciaisPorId(id);
+    if (!usuario) {
+        throw new Error('USUARIO_NAO_ENCONTRADO');
+    }
+    if (!usuario.email_verificado_em) {
+        throw new Error('EMAIL_NAO_VERIFICADO');
+    }
+    const senhaCorreta = await bcrypt.compare(
+        senha,
+        usuario.senha_hash
+    );
+    if (!senhaCorreta) {
+        throw new Error('SENHA_ATUAL_INCORRETA');
+    }
+    return await TokenUsuarioService.criar({
+        usuario_id: id,
+        finalidade: 'ALTERACAO_SENHA'
+    });
+}
+    static async alterarSenhaComToken(id, token, novaSenha) {
+    const usuario = await Usuario.buscarPorId(id);
+    if (!usuario) {
+        throw new Error('USUARIO_NAO_ENCONTRADO');
+    }
+    if (!usuario.email_verificado_em) {
+        throw new Error('EMAIL_NAO_VERIFICADO');
+    }
+    await TokenUsuarioService.validar({
+        usuario_id: id,
+        finalidade: 'ALTERACAO_SENHA',
+        token
+    });
+    const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+    const usuarioAtualizado = await Usuario.alterarSenha(
+        id,
+        novaSenhaHash
+    );
+    if (!usuarioAtualizado) {
+        throw new Error('NAO_FOI_POSSIVEL_ALTERAR_SENHA');
+    }
+    return usuarioAtualizado;
+}
+    static async solicitarRecuperacaoSenha(email) {
+    const usuario = await Usuario.buscarPorEmail(email);
+    if (!usuario) {
+        return {
+            solicitado: true
+        };
+    }
+    return await TokenUsuarioService.criar({
+        usuario_id: usuario.id,
+        finalidade: 'RECUPERACAO_SENHA'
+    });
+}
+    static async recuperarSenhaComToken(email, token, novaSenha) {
+    const usuario = await Usuario.buscarPorEmail(email);
+    if (!usuario) {
+        throw new Error('TOKEN_INVALIDO');
+    }
+    await TokenUsuarioService.validar({
+        usuario_id: usuario.id,
+        finalidade: 'RECUPERACAO_SENHA',
+        token
+    });
+    const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+    const usuarioAtualizado = await Usuario.alterarSenha(
+        usuario.id,
+        novaSenhaHash
+    );
+    if (!usuarioAtualizado) {
+        throw new Error('NAO_FOI_POSSIVEL_ALTERAR_SENHA');
+    }
+    return usuarioAtualizado;
+}
+    static async autenticarUsuario(email, senha) {
+    const usuario = await Usuario.buscarCredenciaisPorEmail(email);
+    if (!usuario) {
+        throw new Error('CREDENCIAIS_INVALIDAS');
+    }
+    const senhaCorreta = await bcrypt.compare(
+        senha,
+        usuario.senha_hash
+    );
+    if (!senhaCorreta) {
+        throw new Error('CREDENCIAIS_INVALIDAS');
+    }
+    if (!usuario.email_verificado_em) {
+        throw new Error('EMAIL_NAO_VERIFICADO');
+    }
+    const usuarioAtualizado = await Usuario.registrarLogin(
+        usuario.id
+    );
+    if (!usuarioAtualizado) {
+        throw new Error('NAO_FOI_POSSIVEL_REGISTRAR_LOGIN');
+    }
+    return usuarioAtualizado;
+}
+    static async desativarUsuario(id) {
+        const usuario = await Usuario.buscarPorId(id);
+        if (!usuario) { throw new Error('USUARIO_NAO_ENCONTRADO');}
+        return await Usuario.desativar(id);
+    }
+}
+module.exports = UsuarioService;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/PerfilUsuarioService.js
+------------------------------------------------------------
+const PerfilUsuario = require('../models/PerfilUsuario');
+const Usuario = require('../models/Usuario');
+class PerfilUsuarioService {
+    async listarPerfis() {
+        return await PerfilUsuario.listar();
+    }
+    async buscarPerfilPorId(id) {
+        const perfil = await PerfilUsuario.buscarPorId(id);
+        if (!perfil) {
+            throw new Error('Perfil de usuário não encontrado');
+        }
+        return perfil;
+    }
+    async buscarPerfilPorUsuario(usuario_id) {
+        const perfil = await PerfilUsuario.buscarPorUsuarioId(usuario_id);
+        if (!perfil) {
+            throw new Error('Perfil do usuário não encontrado');
+        }
+        return perfil;
+    }
+    async criarPerfil(dados) {
+        const usuario = await Usuario.buscarPorId(dados.usuario_id);
+        if (!usuario) {
+            throw new Error('Usuário não encontrado');
+        }
+        const perfilExistente =
+            await PerfilUsuario.buscarPorUsuarioId(dados.usuario_id);
+        if (perfilExistente) {
+            throw new Error('Usuário já possui perfil cadastrado');
+        }
+        const nomeExistente =
+            await PerfilUsuario.buscarPorNomeUsuario(dados.nome_usuario);
+        if (nomeExistente) {
+            throw new Error('Nome de usuário já utilizado');
+        }
+        return await PerfilUsuario.criar(dados);
+    }
+    async alterarDadosPessoais(id, dados) {
+        const perfil = await this.buscarPerfilPorId(id);
+        return await PerfilUsuario.alterarDadosPessoais(
+            perfil.id,
+            dados
+        );
+    }
+    async alterarNomeUsuario(id, nome_usuario) {
+        const existente =
+            await PerfilUsuario.buscarPorNomeUsuario(nome_usuario);
+        if (existente && existente.id !== id) {
+            throw new Error('Nome de usuário já utilizado');
+        }
+        return await PerfilUsuario.alterarNomeUsuario(
+            id,
+            nome_usuario
+        );
+    }
+    async alterarAvatar(id, avatar_url) {
+        await this.buscarPerfilPorId(id);
+        return await PerfilUsuario.alterarAvatar(
+            id,
+            avatar_url
+        );
+    }
+    async alterarBiografia(id, biografia) {
+        await this.buscarPerfilPorId(id);
+        return await PerfilUsuario.alterarBiografia(
+            id,
+            biografia
+        );
+    }
+    async alterarIdioma(id, idioma_id) {
+        await this.buscarPerfilPorId(id);
+        return await PerfilUsuario.alterarIdioma(
+            id,
+            idioma_id
+        );
+    }
+    async excluirPerfil(id) {
+        await this.buscarPerfilPorId(id);
+        return await PerfilUsuario.desativar(id);
+    }
+}
+module.exports = new PerfilUsuarioService();
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/autorService.js
+------------------------------------------------------------
+const Autor = require('../models/Autor');
+class AutorService {
+    static async listarAutores() {
+        return await Autor.listar();
+    }
+    static async buscarAutorPorId(id) {
+        return await Autor.buscarPorId(id);
+    }
+    static async buscarAutorPorUsuarioId(usuario_id) {
+        return await Autor.buscarPorUsuarioId(usuario_id);
+    }
+    static async criarAutor(autor) {
+        return await Autor.criar(autor);
+    }
+    static async alterarNomePublico(id, nome_publico) {
+        return await Autor.alterarNomePublico(id, nome_publico);
+    }
+    static async alterarBiografia(id, biografia) {
+        return await Autor.alterarBiografia(id, biografia);
+    }
+    static async alterarFoto(id, foto_url) {
+        return await Autor.alterarFoto(id, foto_url);
+    }
+    static async desativarAutor(id) {
+        return await Autor.desativar(id);
+    }
+}
+module.exports = AutorService;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/livroAutorService.js
+------------------------------------------------------------
+const LivroAutor = require('../models/LivroAutor');
+class LivroAutorService {
+    static async listarPorLivro(livro_id) {
+        return await LivroAutor.listarPorLivro(livro_id);
+    }
+    static async listarPorAutor(autor_id) {
+        return await LivroAutor.listarPorAutor(autor_id);
+    }
+    static async criarLivroAutor(livroAutor) {
+        return await LivroAutor.criar(livroAutor);
+    }
+    static async alterarOrdemExibicao(id, ordem_exibicao) {
+        return await LivroAutor.alterarOrdemExibicao(
+            id,
+            ordem_exibicao
+        );
+    }
+    static async desativarLivroAutor(id) {
+        return await LivroAutor.desativar(id);
+    }
+}
+module.exports = LivroAutorService;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/solicitacaoAutorService.js
+------------------------------------------------------------
+const SolicitacaoAutor = require('../models/SolicitacaoAutor');
+const Usuario = require('../models/Usuario');
+const AutorizacaoService = require('./autorizacaoService');
+class SolicitacaoAutorService {
+    static async criar(usuario_id, dados) {
+        const usuario = await Usuario.buscarPorId(usuario_id);
+        if (!usuario) {
+            const erro = new Error('Usuário não encontrado.');
+            erro.statusCode = 404;
+            throw erro;
+        }
+        if (!usuario.email_verificado_em) {
+            const erro = new Error(
+                'É necessário verificar o e-mail antes de solicitar atuação como Autor.'
+            );
+            erro.statusCode = 400;
+            throw erro;
+        }
+        const pendente =
+            await SolicitacaoAutor.buscarPendentePorUsuario(usuario_id);
+        if (pendente) {
+            const erro = new Error(
+                'Já existe uma solicitação para atuação como Autor pendente.'
+            );
+            erro.statusCode = 409;
+            throw erro;
+        }
+        return SolicitacaoAutor.criar({
+            usuario_id,
+            ...dados
+        });
+    }
+    static async buscarMinhaPorId(usuario_id, id) {
+        const solicitacao =
+            await SolicitacaoAutor.buscarPorId(id);
+        if (!solicitacao) {
+            const erro = new Error(
+                'Solicitação de Autor não encontrada.'
+            );
+            erro.statusCode = 404;
+            throw erro;
+        }
+        if (solicitacao.usuario_id !== usuario_id) {
+            const erro = new Error(
+                'Solicitação de Autor não encontrada.'
+            );
+            erro.statusCode = 404;
+            throw erro;
+        }
+        return solicitacao;
+    }
+    static async listarPorUsuario(usuario_id) {
+        return SolicitacaoAutor.listarPorUsuario(usuario_id);
+    }
+    static async buscarParaAvaliacao(avaliador_id, id) {
+        await this._validarPermissaoAvaliacao(avaliador_id);
+        const solicitacao =
+            await SolicitacaoAutor.buscarPorId(id);
+        if (!solicitacao) {
+            const erro = new Error(
+                'Solicitação de Autor não encontrada.'
+            );
+            erro.statusCode = 404;
+            throw erro;
+        }
+        return solicitacao;
+    }
+    static async listarPorAvaliacao(avaliador_id, status = null) {
+        await this._validarPermissaoAvaliacao(avaliador_id);
+        if (status) {
+            return SolicitacaoAutor.listarPorStatus(status);
+        }
+        return SolicitacaoAutor.listarTodas();
+    }
+    static async listarPendentes(avaliador_id) {
+        await this._validarPermissaoAvaliacao(avaliador_id);
+        return SolicitacaoAutor.listarPendentes();
+    }
+    static async aprovar(id, avaliador_id) {
+        await this._validarPermissaoAvaliacao(avaliador_id);
+        const solicitacao =
+            await SolicitacaoAutor.buscarPorId(id);
+        if (!solicitacao) {
+            const erro = new Error(
+                'Solicitação de Autor não encontrada.'
+            );
+            erro.statusCode = 404;
+            throw erro;
+        }
+        if (solicitacao.status !== 'PENDENTE') {
+            const erro = new Error(
+                'Somente solicitações pendentes podem ser aprovadas.'
+            );
+            erro.statusCode = 409;
+            throw erro;
+        }
+        return SolicitacaoAutor.aprovar(
+            id,
+            avaliador_id
+        );
+    }
+    static async recusar(id, avaliador_id, motivo_recusa) {
+        await this._validarPermissaoAvaliacao(avaliador_id);
+        const solicitacao =
+            await SolicitacaoAutor.buscarPorId(id);
+        if (!solicitacao) {
+            const erro = new Error(
+                'Solicitação de Autor não encontrada.'
+            );
+            erro.statusCode = 404;
+            throw erro;
+        }
+        if (solicitacao.status !== 'PENDENTE') {
+            const erro = new Error(
+                'Somente solicitações pendentes podem ser recusadas.'
+            );
+            erro.statusCode = 409;
+            throw erro;
+        }
+        if (!motivo_recusa || !motivo_recusa.trim()) {
+            const erro = new Error(
+                'O motivo da recusa é obrigatório.'
+            );
+            erro.statusCode = 400;
+            throw erro;
+        }
+        return SolicitacaoAutor.recusar(
+            id,
+            avaliador_id,
+            motivo_recusa.trim()
+        );
+    }
+    static async _validarPermissaoAvaliacao(usuario_id) {
+        const podeAvaliar =
+            await AutorizacaoService.temPermissao(
+                usuario_id,
+                'autor.editar'
+            );
+        if (!podeAvaliar) {
+            const erro = new Error(
+                'Usuário não possui permissão para avaliar solicitações de Autor.'
+            );
+            erro.statusCode = 403;
+            throw erro;
+        }
+    }
+}
+module.exports = SolicitacaoAutorService;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/papelService.js
+------------------------------------------------------------
+const Papel = require('../models/Papel');
+class PapelService {
+    static async listarPapeis() {
+        return await Papel.listar();
+    }
+    static async buscarPapelPorId(id) {
+        return await Papel.buscarPorId(id);
+    }
+    static async buscarPapelPorCodigo(codigo) {
+        return await Papel.buscarPorCodigo(codigo);
+    }
+    static async criarPapel(papel) {
+        return await Papel.criar(papel);
+    }
+    static async alterarNome(id, nome) {
+        return await Papel.alterarNome(id, nome);
+    }
+    static async alterarCodigo(id, codigo) {
+        return await Papel.alterarCodigo(id, codigo);
+    }
+    static async alterarDescricao(id, descricao) {
+        return await Papel.alterarDescricao(id, descricao);
+    }
+    static async desativarPapel(id) {
+        return await Papel.desativar(id);
+    }
+}
+module.exports = PapelService;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/permissaoService.js
+------------------------------------------------------------
+const Permissao = require('../models/Permissao');
+class PermissaoService {
+    static async listarPermissoes() {
+        return await Permissao.listar();
+    }
+    static async buscarPermissaoPorId(id) {
+        return await Permissao.buscarPorId(id);
+    }
+    static async buscarPermissaoPorCodigo(codigo) {
+        return await Permissao.buscarPorCodigo(codigo);
+    }
+    static async criarPermissao(permissao) {
+        return await Permissao.criar(permissao);
+    }
+    static async alterarNome(id, nome) {
+        return await Permissao.alterarNome(id, nome);
+    }
+    static async alterarCodigo(id, codigo) {
+        return await Permissao.alterarCodigo(id, codigo);
+    }
+    static async alterarDescricao(id, descricao) {
+        return await Permissao.alterarDescricao(id, descricao);
+    }
+    static async desativarPermissao(id) {
+        return await Permissao.desativar(id);
+    }
+}
+module.exports = PermissaoService;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/usuarioPapelService.js
+------------------------------------------------------------
+const UsuarioPapel = require('../models/UsuarioPapel');
+class UsuarioPapelService {
+    static async listarPorUsuario(usuarioId) {
+        return await UsuarioPapel.listarPorUsuario(usuarioId);
+    }
+    static async listarPorPapel(papelId) {
+        return await UsuarioPapel.listarPorPapel(papelId);
+    }
+    static async buscarPorId(id) {
+        return await UsuarioPapel.buscarPorId(id);
+    }
+    static async buscarPorUsuarioEPapel(usuarioId, papelId) {
+        return await UsuarioPapel.buscarPorUsuarioEPapel(
+            usuarioId,
+            papelId
+        );
+    }
+    static async criar(usuarioId, papelId) {
+        return await UsuarioPapel.criar(
+            usuarioId,
+            papelId
+        );
+    }
+    static async desativar(id) {
+        return await UsuarioPapel.desativar(id);
+    }
+}
+module.exports = UsuarioPapelService;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/papelPermissaoService.js
+------------------------------------------------------------
+const PapelPermissao = require('../models/PapelPermissao');
+class PapelPermissaoService {
+    static async listarPorPapel(papelId) {
+        return await PapelPermissao.listarPorPapel(papelId);
+    }
+    static async listarPorPermissao(permissaoId) {
+        return await PapelPermissao.listarPorPermissao(permissaoId);
+    }
+    static async buscarPorId(id) {
+        return await PapelPermissao.buscarPorId(id);
+    }
+    static async buscarPorPapelEPermissao(papelId, permissaoId) {
+        return await PapelPermissao.buscarPorPapelEPermissao(
+            papelId,
+            permissaoId
+        );
+    }
+    static async criar(papelId, permissaoId) {
+        return await PapelPermissao.criar(
+            papelId,
+            permissaoId
+        );
+    }
+    static async desativar(id) {
+        return await PapelPermissao.desativar(id);
+    }
+}
+module.exports = PapelPermissaoService;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/tokenUsuarioService.js
+------------------------------------------------------------
+const crypto = require('crypto');
+const TokenUsuario = require('../models/TokenUsuario');
+const Usuario = require('../models/Usuario');
+const EmailService = require('./EmailService');
+const FINALIDADES = {
+    VERIFICACAO_EMAIL: 'VERIFICACAO_EMAIL',
+    ALTERACAO_SENHA: 'ALTERACAO_SENHA',
+    RECUPERACAO_SENHA: 'RECUPERACAO_SENHA'
+};
+const VALIDADE_MINUTOS = 10;
+const MAX_TENTATIVAS = 5;
+class TokenUsuarioService {
+    static gerarToken() {
+        return crypto
+            .randomInt(0, 1000000)
+            .toString()
+            .padStart(6, '0');
+    }
+    static gerarHash(token) {
+        return crypto
+            .createHash('sha256')
+            .update(token)
+            .digest('hex');
+    }
+    static validarFinalidade(finalidade) {
+        return Object.values(FINALIDADES).includes(finalidade);
+    }
+    static calcularExpiracao() {
+        const expiraEm = new Date();
+        expiraEm.setMinutes(
+            expiraEm.getMinutes() + VALIDADE_MINUTOS
+        );
+        return expiraEm;
+    }
+    static async criar({
+        usuario_id,
+        finalidade
+    }) {
+        if (!usuario_id) {
+            throw new Error('ID do usuário é obrigatório.');
+        }
+        if (!this.validarFinalidade(finalidade)) {
+            throw new Error('Finalidade do token inválida.');
+        }
+        const usuario = await Usuario.buscarPorId(usuario_id);
+        if (!usuario) {
+            throw new Error('Usuário não encontrado.');
+        }
+        const tokenAnterior = await TokenUsuario.buscarAtivo(
+            usuario_id,
+            finalidade
+        );
+        if (tokenAnterior) {
+            await TokenUsuario.desativar(tokenAnterior.id);
+        }
+        const token = this.gerarToken();
+        const token_hash = this.gerarHash(token);
+        const expira_em = this.calcularExpiracao();
+        const registro = await TokenUsuario.criar({
+            usuario_id,
+            finalidade,
+            token_hash,
+            expira_em
+        });
+        await EmailService.enviar({
+            para: usuario.email,
+            assunto: 'Código de segurança — Ciganas',
+            texto: `
+Seu código de segurança é: ${token}
+Este código é válido por ${VALIDADE_MINUTOS} minutos.
+            `,
+            html: `
+                <h2>Ciganas</h2>
+                <p>Seu código de segurança é:</p>
+                <h1>${token}</h1>
+                <p>
+                    Este código é válido por
+                    <strong>${VALIDADE_MINUTOS} minutos</strong>.
+                </p>
+                <p>
+                    Não compartilhe este código com ninguém.
+                </p>
+            `
+        });
+        return {
+            id: registro.id,
+            usuario_id: registro.usuario_id,
+            finalidade: registro.finalidade,
+            expira_em: registro.expira_em
+        };
+    }
+    static async validar({
+        usuario_id,
+        finalidade,
+        token
+    }) {
+        if (!usuario_id) {
+            throw new Error('ID do usuário é obrigatório.');
+        }
+        if (!this.validarFinalidade(finalidade)) {
+            throw new Error('Finalidade do token inválida.');
+        }
+        if (!token || !/^\d{6}$/.test(token)) {
+            throw new Error('Token deve conter 6 dígitos.');
+        }
+        const registro = await TokenUsuario.buscarAtivo(
+            usuario_id,
+            finalidade
+        );
+        if (!registro) {
+            throw new Error('Token inválido ou inexistente.');
+        }
+        if (new Date() > new Date(registro.expira_em)) {
+            await TokenUsuario.desativar(registro.id);
+            throw new Error('Token expirado.');
+        }
+        if (registro.tentativas >= MAX_TENTATIVAS) {
+            await TokenUsuario.desativar(registro.id);
+            throw new Error('Limite de tentativas excedido.');
+        }
+        const token_hash = this.gerarHash(token);
+        if (token_hash !== registro.token_hash) {
+            const atualizado = await TokenUsuario.incrementarTentativas(
+                registro.id
+            );
+            if (atualizado.tentativas >= MAX_TENTATIVAS) {
+                await TokenUsuario.desativar(registro.id);
+                throw new Error('Limite de tentativas excedido.');
+            }
+            throw new Error('Token inválido.');
+        }
+        return TokenUsuario.marcarComoUsado(registro.id);
+    }
+    static async invalidar({
+        usuario_id,
+        finalidade
+    }) {
+        if (!usuario_id) {
+            throw new Error('ID do usuário é obrigatório.');
+        }
+        if (!this.validarFinalidade(finalidade)) {
+            throw new Error('Finalidade do token inválida.');
+        }
+        const registro = await TokenUsuario.buscarAtivo(
+            usuario_id,
+            finalidade
+        );
+        if (!registro) {
+            return null;
+        }
+        return TokenUsuario.desativar(registro.id);
+    }
+}
+module.exports = {
+    TokenUsuarioService,
+    FINALIDADES,
+    VALIDADE_MINUTOS,
+    MAX_TENTATIVAS
+};
+
+------------------------------------------------------------
+ARQUIVO: backend/src/services/autorizacaoService.js
+------------------------------------------------------------
+const LivroAutor = require('../models/LivroAutor');
+class AutorizacaoService {
+    static async temPermissao(usuario_id, codigoPermissao) {
+        const pool = require('../db/connection');
+        const result = await pool.query(`
+            SELECT 1
+              FROM usuario_papeis up
+              INNER JOIN papeis p
+                ON p.id = up.papel_id
+               AND p.ativo = TRUE
+              INNER JOIN papel_permissoes pp
+                ON pp.papel_id = p.id
+               AND pp.ativo = TRUE
+              INNER JOIN permissoes pm
+                ON pm.id = pp.permissao_id
+               AND pm.ativo = TRUE
+             WHERE up.usuario_id = $1
+               AND up.ativo = TRUE
+               AND pm.codigo = $2
+             LIMIT 1
+        `, [usuario_id, codigoPermissao]);
+        return result.rowCount > 0;
+    }
+    static async podeEditarObra(
+        usuario_id,
+        livro_id,
+        codigoPermissao = 'obra.editar'
+    ) {
+        const possuiPermissao = await this.temPermissao(
+            usuario_id,
+            codigoPermissao
+        );
+        if (possuiPermissao) {
+            return true;
+        }
+        if (codigoPermissao === 'obra.editar') {
+            return LivroAutor.usuarioEhAutorDaObra(
+                usuario_id,
+                livro_id
+            );
+        }
+        return false;
+    }
+}
+module.exports = AutorizacaoService;
+
+============================================================
+4. CONTROLLERS
+============================================================
+
+------------------------------------------------------------
+ARQUIVO: backend/src/controllers/UsuarioController.js
+------------------------------------------------------------
+const UsuarioService = require('../services/usuarioService');
+const { success, error } = require('../utils/apiResponse');
+const { gerarToken } = require('../utils/jwt');
+class UsuarioController {
+    static async listar(req, res) {
+        try {
+            const usuarios = await UsuarioService.listarUsuarios();
+            return success(res, usuarios);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                erro: 'Erro interno do servidor'
+            });
+        }
+    }
+    static async buscarPorId(req, res){
+        try{
+            const { id } = req.params;
+            const usuario = await UsuarioService.buscarUsuarioPorId(id);
+            if(!usuario) {
+                return error(res,'Usuario não Encontrado.', 404);
+            } 
+            return success(res, usuario);
+        } catch(error){
+            console.error(error);
+            return error(res, 'Erro interno do servidor.', 500);
+       }
+    }
+    static async criar(req, res) {
+        try {
+            const usuario = await UsuarioService.criarUsuario(req.body);
+            return success(res, usuario, 'Usuário criado com sucesso.', 201);
+        } catch (err) {
+            if (err.message === 'EMAIL_JA_CADASTRADO') {
+                return error(res, 'E-mail já cadastrado.', 409);
+            }
+        console.error(err);
+            return error(res, 'Erro interno do servidor.', 500);
+            }
+    }
+    static async atualizar(req, res, next) {
+        try {
+            const usuario = await UsuarioService.atualizarUsuario(
+                req.params.id, req.body );
+            return success(res, usuario,'Usuário atualizado com sucesso.');
+        } catch (err) {
+            if (err.message === 'USUARIO_NAO_ENCONTRADO') {
+                return error(res, 'Usuário não encontrado.', 404);
+            }
+            if (err.message === 'EMAIL_JA_CADASTRADO') {
+                return error(res, 'E-mail já cadastrado.', 409);
+            }
+            next(err);
+        }
+    }
+    static async alterarSenha(req, res, next) {
+        try {
+            const usuario = await UsuarioService.alterarSenhaUsuario(
+                req.params.id,  req.body.senha
+        );
+        return success( res, usuario, 'Senha alterada com sucesso.' );
+        } catch (err) {
+            if (err.message === 'USUARIO_NAO_ENCONTRADO') {
+                return error( res,    'Usuário não encontrado.', 404 );
+            }
+            console.error(err);
+            return next(err);
+        }
+    }   
+   static async solicitarVerificacaoEmail(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.solicitarVerificacaoEmail(
+                req.params.id
+            );
+        return success(
+            res,
+            resultado,
+            'Código de verificação enviado com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+    static async verificarEmail(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.verificarEmail(
+                req.params.id,
+                req.body.token
+            );
+        return success(
+            res,
+            resultado,
+            'E-mail verificado com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+    static async solicitarAlteracaoSenha(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.solicitarAlteracaoSenha(
+                req.params.id,
+                req.body.senha
+            );
+        return success(
+            res,
+            resultado,
+            'Código para alteração de senha enviado com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+    static async alterarSenhaComToken(req, res) {
+    try {
+        const resultado =
+            await UsuarioService.alterarSenhaComToken(
+                req.params.id,
+                req.body.token,
+                req.body.senha
+            );
+        return success(
+            res,
+            resultado,
+            'Senha alterada com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+}
+    static async solicitarRecuperacaoSenha(req, res) {
+        try {
+        const resultado =
+            await UsuarioService.solicitarRecuperacaoSenha(
+                req.body.email
+            );
+        return success(
+            res,
+            resultado,
+            'Se o e-mail estiver cadastrado, um código de recuperação será enviado.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+     }
+  }
+    static async recuperarSenhaComToken(req, res) {
+      try {
+        const resultado =
+            await UsuarioService.recuperarSenhaComToken(
+                req.body.email,
+                req.body.token,
+                req.body.senha
+            );
+        return success(
+            res,
+            resultado,
+            'Senha recuperada com sucesso.'
+        );
+    } catch (err) {
+        return error(res, err.message);
+    }
+  }
+    static async autenticar(req, res) {
+    try {
+        const usuario =
+            await UsuarioService.autenticarUsuario(
+                req.body.email,
+                req.body.senha
+            );
+        const token = gerarToken({
+            id: usuario.id
+        });
+        return success(
+            res,
+            {
+                usuario,
+                token
+            },
+            'Login realizado com sucesso.'
+        );
+    } catch (err) {
+        if (err.message === 'CREDENCIAIS_INVALIDAS') {
+            return error(
+                res,
+                'E-mail ou senha inválidos.',
+                401
+            );
+        }
+        if (err.message === 'EMAIL_NAO_VERIFICADO') {
+            return error(
+                res,
+                'E-mail não verificado.',
+                403
+            );
+        }
+        console.error(err);
+        return error(
+            res,
+            'Não foi possível realizar o login.',
+            500
+        );
+    }
+}
+    static async desativar(req, res, next) {
+        try {
+            await UsuarioService.desativarUsuario(req.params.id);
+            return success( res,    null,   'Usuário desativado com sucesso.');
+        } catch (err) {
+            if (err.message === 'USUARIO_NAO_ENCONTRADO') {
+                return error( res, 'Usuário não encontrado.', 404 );}
+            console.error(err);
+            next(err);
+        }
+    }
+}
+module.exports = UsuarioController;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/controllers/PerfilUsuarioController.js
+------------------------------------------------------------
+const PerfilUsuarioService = require('../services/PerfilUsuarioService');
+const { success, error } = require('../utils/apiResponse');
+class PerfilUsuarioController {
+    async listar(req, res) {
+        try {
+            const perfis = await PerfilUsuarioService.listarPerfis();
+            return success( res, perfis, 'Perfis listados com sucesso');
+        } catch (err) {
+            return error( res, err.message, 500 );
+        }
+    }
+    async buscarPorId(req, res) {
+        try {
+            const perfil =
+                await PerfilUsuarioService.buscarPerfilPorId(req.params.id);
+            return success( res, perfil, 'Perfil encontrado com sucesso');
+        } catch (err) {
+            return error( res, err.message, 404);
+        }
+    }
+    async buscarPorUsuario(req, res) {
+        try {
+            const perfil =
+                await PerfilUsuarioService.buscarPerfilPorUsuario(
+                    req.params.usuario_id );
+            return success( res, perfil,  'Perfil encontrado com sucesso' );
+        } catch (err) {
+            return error( res, err.message, 404  );
+        }
+    }
+    async criar(req, res) {
+        try {
+            const perfil =
+                await PerfilUsuarioService.criarPerfil( req.body );
+            return success( res, perfil, 'Perfil criado com sucesso', 201 );
+        } catch (err) {
+            return error( res,  err.message,  400 );
+        }
+    }
+    async alterarDadosPessoais(req, res) {
+        try {
+            const perfil =
+                await PerfilUsuarioService.alterarDadosPessoais(
+                    req.params.id, req.body );
+            return success( res, perfil, 'Dados pessoais alterados com sucesso' );
+        } catch (err) {
+            return error( res, err.message, 400 );
+        }
+    }
+    async alterarNomeUsuario(req, res) {
+        try {
+            const perfil =
+                await PerfilUsuarioService.alterarNomeUsuario(
+                    req.params.id, req.body.nome_usuario );
+            return success( res, perfil, 'Nome de usuário alterado com sucesso' );
+        } catch (err) {
+            return error( res, err.message, 400 );
+        }
+    }
+    async alterarAvatar(req, res) {
+        try {
+            const perfil =
+                await PerfilUsuarioService.alterarAvatar(
+                    req.params.id, req.body.avatar_url );
+            return success( res, perfil, 'Avatar alterado com sucesso' );
+        } catch (err) {
+            return error( res, err.message, 400 );
+        }
+    }
+    async alterarBiografia(req, res) {
+        try {
+            const perfil =
+                await PerfilUsuarioService.alterarBiografia(
+                    req.params.id, req.body.biografia );
+            return success( res, perfil, 'Biografia alterada com sucesso' );
+        } catch (err) {
+            return error( res, err.message, 400 );
+        }
+    }
+    async alterarIdioma(req, res) {
+        try {
+            const perfil =
+                await PerfilUsuarioService.alterarIdioma(
+                    req.params.id, req.body.idioma_id );
+            return success( res, perfil, 'Idioma alterado com sucesso' );
+        } catch (err) {
+            return error( res, err.message, 400 );
+        }
+    }
+    async excluir(req, res) {
+        try {
+            await PerfilUsuarioService.excluirPerfil( req.params.id );
+            return success( res, null, 'Perfil desativado com sucesso' );
+        } catch (err) {
+            return error( res, err.message, 404 );
+        }
+    }
+}
+module.exports = new PerfilUsuarioController();
+
+------------------------------------------------------------
+ARQUIVO: backend/src/controllers/AutorController.js
+------------------------------------------------------------
+const AutorService = require('../services/autorService');
+class AutorController {
+    static async listar(req, res, next) {
+        try {
+            const autores = await AutorService.listarAutores();
+            return res.json({
+                success: true,
+                data: autores
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async buscarPorId(req, res, next) {
+        try {
+            const autor = await AutorService.buscarAutorPorId(req.params.id);
+            if (!autor) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Autor não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                data: autor
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async buscarPorUsuarioId(req, res, next) {
+        try {
+            const autor = await AutorService.buscarAutorPorUsuarioId(
+                req.params.usuario_id
+            );
+            if (!autor) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Autor não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                data: autor
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async criar(req, res, next) {
+        try {
+            const autor = await AutorService.criarAutor(req.body);
+            return res.status(201).json({
+                success: true,
+                message: 'Autor criado com sucesso.',
+                data: autor
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async alterarNomePublico(req, res, next) {
+        try {
+            const autor = await AutorService.alterarNomePublico(
+                req.params.id,
+                req.body.nome_publico
+            );
+            if (!autor) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Autor não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Nome público alterado com sucesso.',
+                data: autor
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async alterarBiografia(req, res, next) {
+        try {
+            const autor = await AutorService.alterarBiografia(
+                req.params.id,
+                req.body.biografia
+            );
+            if (!autor) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Autor não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Biografia alterada com sucesso.',
+                data: autor
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async alterarFoto(req, res, next) {
+        try {
+            const autor = await AutorService.alterarFoto(
+                req.params.id,
+                req.body.foto_url
+            );
+            if (!autor) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Autor não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Foto do autor alterada com sucesso.',
+                data: autor
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async desativar(req, res, next) {
+        try {
+            const autor = await AutorService.desativarAutor(req.params.id);
+            if (!autor) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Autor não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Autor desativado com sucesso.',
+                data: autor
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+}
+module.exports = AutorController;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/controllers/LivroAutorController.js
+------------------------------------------------------------
+const LivroAutorService = require('../services/livroAutorService');
+class LivroAutorController {
+static async listarPorLivro(req, res, next) {
+    try {
+        const livroAutores =
+            await LivroAutorService.listarPorLivro(
+                req.params.livro_id
+            );
+        return res.json({
+            success: true,
+            data: livroAutores
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+static async listarPorAutor(req, res, next) {
+    try {
+        const livroAutores =
+            await LivroAutorService.listarPorAutor(
+                req.params.autor_id
+            );
+        return res.json({
+            success: true,
+            data: livroAutores
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+static async criar(req, res, next) {
+    try {
+        const livroAutor =
+            await LivroAutorService.criarLivroAutor(
+                req.body
+            );
+        return res.status(201).json({
+            success: true,
+            message: 'Relação livro-autor criada com sucesso.',
+            data: livroAutor
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+static async alterarOrdemExibicao(req, res, next) {
+    try {
+        const livroAutor =
+            await LivroAutorService.alterarOrdemExibicao(
+                req.params.id,
+                req.body.ordem_exibicao
+            );
+        if (!livroAutor) {
+            return res.status(404).json({
+                success: false,
+                message: 'Relação livro-autor não encontrada.'
+            });
+        }
+        return res.json({
+            success: true,
+            message: 'Ordem de exibição alterada com sucesso.',
+            data: livroAutor
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+static async desativar(req, res, next) {
+    try {
+        const livroAutor =
+            await LivroAutorService.desativarLivroAutor(
+                req.params.id
+            );
+        if (!livroAutor) {
+            return res.status(404).json({
+                success: false,
+                message: 'Relação livro-autor não encontrada.'
+            });
+        }
+        return res.json({
+            success: true,
+            message: 'Relação livro-autor desativada com sucesso.',
+            data: livroAutor
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+}
+module.exports = LivroAutorController;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/controllers/SolicitacaoAutorController.js
+------------------------------------------------------------
+const SolicitacaoAutorService = require('../services/solicitacaoAutorService');
+class SolicitacaoAutorController {
+    // =====================================================
+    // USUÁRIO
+    // =====================================================
+    static async criar(req, res) {
+        try {
+            const usuario_id = req.usuario.id;
+            const solicitacao =
+                await SolicitacaoAutorService.criar(
+                    usuario_id,
+                    req.body
+                );
+            return res.status(201).json({
+                success: true,
+                data: solicitacao
+            });
+        } catch (error) {
+            console.error(
+                'Erro ao criar solicitação de Autor:',
+                error
+            );
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message:
+                    error.message ||
+                    'Erro ao criar solicitação de Autor.'
+            });
+        }
+    }
+    static async buscarMinhaPorId(req, res) {
+        try {
+            const usuario_id = req.usuario.id;
+            const solicitacao =
+                await SolicitacaoAutorService.buscarMinhaPorId(
+                    usuario_id,
+                    req.params.id
+                );
+            return res.status(200).json({
+                success: true,
+                data: solicitacao
+            });
+        } catch (error) {
+            console.error(
+                'Erro ao buscar solicitação de Autor:',
+                error
+            );
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message:
+                    error.message ||
+                    'Erro ao buscar solicitação de Autor.'
+            });
+        }
+    }
+    static async listarPorUsuario(req, res) {
+        try {
+            const usuario_id = req.usuario.id;
+            const solicitacoes =
+                await SolicitacaoAutorService.listarPorUsuario(
+                    usuario_id
+                );
+            return res.status(200).json({
+                success: true,
+                data: solicitacoes
+            });
+        } catch (error) {
+            console.error(
+                'Erro ao listar solicitações de Autor:',
+                error
+            );
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message:
+                    error.message ||
+                    'Erro ao listar solicitações de Autor.'
+            });
+        }
+    }
+    // =====================================================
+    // GESTÃO DA PLATAFORMA
+    // =====================================================
+    static async buscarParaAvaliacao(req, res) {
+        try {
+            const avaliador_id = req.usuario.id;
+            const solicitacao =
+                await SolicitacaoAutorService.buscarParaAvaliacao(
+                    avaliador_id,
+                    req.params.id
+                );
+            return res.status(200).json({
+                success: true,
+                data: solicitacao
+            });
+        } catch (error) {
+            console.error(
+                'Erro ao buscar solicitação para avaliação:',
+                error
+            );
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message:
+                    error.message ||
+                    'Erro ao buscar solicitação de Autor.'
+            });
+        }
+    }
+    static async listarPorAvaliacao(req, res) {
+        try {
+            const avaliador_id = req.usuario.id;
+            const { status } = req.query;
+            const solicitacoes =
+                await SolicitacaoAutorService.listarPorAvaliacao(
+                    avaliador_id,
+                    status || null
+                );
+            return res.status(200).json({
+                success: true,
+                data: solicitacoes
+            });
+        } catch (error) {
+            console.error(
+                'Erro ao listar solicitações para avaliação:',
+                error
+            );
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message:
+                    error.message ||
+                    'Erro ao listar solicitações de Autor.'
+            });
+        }
+    }
+    static async listarPendentes(req, res) {
+        try {
+            const avaliador_id = req.usuario.id;
+            const solicitacoes =
+                await SolicitacaoAutorService.listarPendentes(
+                    avaliador_id
+                );
+            return res.status(200).json({
+                success: true,
+                data: solicitacoes
+            });
+        } catch (error) {
+            console.error(
+                'Erro ao listar solicitações pendentes:',
+                error
+            );
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message:
+                    error.message ||
+                    'Erro ao listar solicitações pendentes.'
+            });
+        }
+    }
+    static async aprovar(req, res) {
+        try {
+            const avaliador_id = req.usuario.id;
+            const solicitacao =
+                await SolicitacaoAutorService.aprovar(
+                    req.params.id,
+                    avaliador_id
+                );
+            return res.status(200).json({
+                success: true,
+                data: solicitacao
+            });
+        } catch (error) {
+            console.error(
+                'Erro ao aprovar solicitação de Autor:',
+                error
+            );
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message:
+                    error.message ||
+                    'Erro ao aprovar solicitação de Autor.'
+            });
+        }
+    }
+    static async recusar(req, res) {
+        try {
+            const avaliador_id = req.usuario.id;
+            const solicitacao =
+                await SolicitacaoAutorService.recusar(
+                    req.params.id,
+                    avaliador_id,
+                    req.body.motivo_recusa
+                );
+            return res.status(200).json({
+                success: true,
+                data: solicitacao
+            });
+        } catch (error) {
+            console.error(
+                'Erro ao recusar solicitação de Autor:',
+                error
+            );
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message:
+                    error.message ||
+                    'Erro ao recusar solicitação de Autor.'
+            });
+        }
+    }
+}
+module.exports = SolicitacaoAutorController;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/controllers/PapelController.js
+------------------------------------------------------------
+const PapelService = require('../services/papelService');
+class PapelController {
+    static async listar(req, res, next) {
+        try {
+            const papeis = await PapelService.listarPapeis();
+            return res.json({
+                success: true,
+                data: papeis
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async buscarPorId(req, res, next) {
+        try {
+            const papel = await PapelService.buscarPapelPorId(
+                req.params.id
+            );
+            if (!papel) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Papel não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                data: papel
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async buscarPorCodigo(req, res, next) {
+        try {
+            const papel = await PapelService.buscarPapelPorCodigo(
+                req.params.codigo
+            );
+            if (!papel) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Papel não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                data: papel
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async criar(req, res, next) {
+        try {
+            const papel = await PapelService.criarPapel(req.body);
+            return res.status(201).json({
+                success: true,
+                message: 'Papel criado com sucesso.',
+                data: papel
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async alterarNome(req, res, next) {
+        try {
+            const papel = await PapelService.alterarNome(
+                req.params.id,
+                req.body.nome
+            );
+            if (!papel) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Papel não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Nome do papel alterado com sucesso.',
+                data: papel
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async alterarCodigo(req, res, next) {
+        try {
+            const papel = await PapelService.alterarCodigo(
+                req.params.id,
+                req.body.codigo
+            );
+            if (!papel) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Papel não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Código do papel alterado com sucesso.',
+                data: papel
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async alterarDescricao(req, res, next) {
+        try {
+            const papel = await PapelService.alterarDescricao(
+                req.params.id,
+                req.body.descricao
+            );
+            if (!papel) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Papel não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Descrição do papel alterada com sucesso.',
+                data: papel
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async desativar(req, res, next) {
+        try {
+            const papel = await PapelService.desativarPapel(
+                req.params.id
+            );
+            if (!papel) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Papel não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Papel desativado com sucesso.',
+                data: papel
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+}
+module.exports = PapelController;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/controllers/PermissaoController.js
+------------------------------------------------------------
+const PermissaoService = require('../services/permissaoService');
+class PermissaoController {
+    static async listar(req, res, next) {
+        try {
+            const permissoes = await PermissaoService.listarPermissoes();
+            return res.json({
+                success: true,
+                data: permissoes
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async buscarPorId(req, res, next) {
+        try {
+            const permissao = await PermissaoService.buscarPermissaoPorId(
+                req.params.id
+            );
+            if (!permissao) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Permissão não encontrada.'
+                });
+            }
+            return res.json({
+                success: true,
+                data: permissao
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async buscarPorCodigo(req, res, next) {
+        try {
+            const permissao = await PermissaoService.buscarPermissaoPorCodigo(
+                req.params.codigo
+            );
+            if (!permissao) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Permissão não encontrada.'
+                });
+            }
+            return res.json({
+                success: true,
+                data: permissao
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async criar(req, res, next) {
+        try {
+            const permissao = await PermissaoService.criarPermissao(req.body);
+            return res.status(201).json({
+                success: true,
+                message: 'Permissão criada com sucesso.',
+                data: permissao
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async alterarNome(req, res, next) {
+        try {
+            const permissao = await PermissaoService.alterarNome(
+                req.params.id,
+                req.body.nome
+            );
+            if (!permissao) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Permissão não encontrada.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Nome da permissão alterado com sucesso.',
+                data: permissao
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async alterarCodigo(req, res, next) {
+        try {
+            const permissao = await PermissaoService.alterarCodigo(
+                req.params.id,
+                req.body.codigo
+            );
+            if (!permissao) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Permissão não encontrada.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Código da permissão alterado com sucesso.',
+                data: permissao
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async alterarDescricao(req, res, next) {
+        try {
+            const permissao = await PermissaoService.alterarDescricao(
+                req.params.id,
+                req.body.descricao
+            );
+            if (!permissao) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Permissão não encontrada.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Descrição da permissão alterada com sucesso.',
+                data: permissao
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async desativar(req, res, next) {
+        try {
+            const permissao = await PermissaoService.desativarPermissao(
+                req.params.id
+            );
+            if (!permissao) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Permissão não encontrada.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Permissão desativada com sucesso.',
+                data: permissao
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+}
+module.exports = PermissaoController;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/controllers/UsuarioPapelController.js
+------------------------------------------------------------
+const UsuarioPapelService =
+    require('../services/usuarioPapelService');
+class UsuarioPapelController {
+    static async listarPorUsuario(req, res, next) {
+        try {
+            const papeis =
+                await UsuarioPapelService.listarPorUsuario(
+                    req.params.usuarioId
+                );
+            return res.json({
+                success: true,
+                data: papeis
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async listarPorPapel(req, res, next) {
+        try {
+            const usuarios =
+                await UsuarioPapelService.listarPorPapel(
+                    req.params.papelId
+                );
+            return res.json({
+                success: true,
+                data: usuarios
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async buscarPorId(req, res, next) {
+        try {
+            const vinculo =
+                await UsuarioPapelService.buscarPorId(
+                    req.params.id
+                );
+            if (!vinculo) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Vínculo entre usuário e papel não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async buscarPorUsuarioEPapel(req, res, next) {
+        try {
+            const vinculo =
+                await UsuarioPapelService.buscarPorUsuarioEPapel(
+                    req.params.usuarioId,
+                    req.params.papelId
+                );
+            if (!vinculo) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Vínculo entre usuário e papel não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async criar(req, res, next) {
+        try {
+            const vinculo =
+                await UsuarioPapelService.criar(
+                    req.body.usuario_id,
+                    req.body.papel_id
+                );
+            return res.status(201).json({
+                success: true,
+                message: 'Papel vinculado ao usuário com sucesso.',
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async desativar(req, res, next) {
+        try {
+            const vinculo =
+                await UsuarioPapelService.desativar(
+                    req.params.id
+                );
+            if (!vinculo) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Vínculo entre usuário e papel não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Vínculo entre usuário e papel desativado com sucesso.',
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+}
+module.exports = UsuarioPapelController;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/controllers/PapelPermissaoController.js
+------------------------------------------------------------
+const PapelPermissaoService = require('../services/papelPermissaoService');
+class PapelPermissaoController {
+    static async listarPorPapel(req, res, next) {
+        try {
+            const permissoes =
+                await PapelPermissaoService.listarPorPapel(
+                    req.params.papelId
+                );
+            return res.json({
+                success: true,
+                data: permissoes
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async listarPorPermissao(req, res, next) {
+        try {
+            const papeis =
+                await PapelPermissaoService.listarPorPermissao(
+                    req.params.permissaoId
+                );
+            return res.json({
+                success: true,
+                data: papeis
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async buscarPorId(req, res, next) {
+        try {
+            const vinculo =
+                await PapelPermissaoService.buscarPorId(
+                    req.params.id
+                );
+            if (!vinculo) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Vínculo entre papel e permissão não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async buscarPorPapelEPermissao(req, res, next) {
+        try {
+            const vinculo =
+                await PapelPermissaoService.buscarPorPapelEPermissao(
+                    req.params.papelId,
+                    req.params.permissaoId
+                );
+            if (!vinculo) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Vínculo entre papel e permissão não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async criar(req, res, next) {
+        try {
+            const vinculo =
+                await PapelPermissaoService.criar(
+                    req.body.papel_id,
+                    req.body.permissao_id
+                );
+            return res.status(201).json({
+                success: true,
+                message: 'Permissão vinculada ao papel com sucesso.',
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async desativar(req, res, next) {
+        try {
+            const vinculo =
+                await PapelPermissaoService.desativar(
+                    req.params.id
+                );
+            if (!vinculo) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Vínculo entre papel e permissão não encontrado.'
+                });
+            }
+            return res.json({
+                success: true,
+                message: 'Vínculo entre papel e permissão desativado com sucesso.',
+                data: vinculo
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+}
+module.exports = PapelPermissaoController;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/controllers/TokenUsuarioController.js
+------------------------------------------------------------
+const {
+    TokenUsuarioService
+} = require('../services/tokenUsuarioService');
+const apiResponse = require('../utils/apiResponse');
+class TokenUsuarioController {
+    static async criar(req, res) {
+        try {
+            const resultado = await TokenUsuarioService.criar(req.body);
+            return apiResponse.success(
+                res,
+                {
+                    id: resultado.id,
+                    usuario_id: resultado.usuario_id,
+                    finalidade: resultado.finalidade,
+                    expira_em: resultado.expira_em
+                },
+                'Token criado com sucesso.'
+            );
+        } catch (error) {
+            return apiResponse.error(
+                res,
+                error.message
+            );
+        }
+    }
+    static async validar(req, res) {
+        try {
+            const resultado = await TokenUsuarioService.validar(req.body);
+            return apiResponse.success(
+                res,
+                {
+                    id: resultado.id,
+                    usuario_id: resultado.usuario_id,
+                    finalidade: resultado.finalidade,
+                    usado_em: resultado.usado_em
+                },
+                'Token validado com sucesso.'
+            );
+        } catch (error) {
+            return apiResponse.error(
+                res,
+                error.message
+            );
+        }
+    }
+    static async invalidar(req, res) {
+        try {
+            const resultado = await TokenUsuarioService.invalidar(req.body);
+            return apiResponse.success(
+                res,
+                resultado,
+                'Token invalidado com sucesso.'
+            );
+        } catch (error) {
+            return apiResponse.error(
+                res,
+                error.message
+            );
+        }
+    }
+}
+module.exports = TokenUsuarioController;
+
+============================================================
+5. VALIDATORS
+============================================================
+
+------------------------------------------------------------
+ARQUIVO: backend/src/validators/usuarioValidator.js
+------------------------------------------------------------
+const { error } = require('../utils/apiResponse');
+function validarSolicitacaoVerificacaoEmail(req, res, next) {
+    const { id } = req.params;
+    if (!id) {
+        return error(res, 'ID do usuário é obrigatório.', 400);
+    }
+    const uuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuid.test(id)) {
+        return error(res, 'ID do usuário inválido.', 400);
+    }
+    next();
+}
+function validarConfirmacaoVerificacaoEmail(req, res, next) {
+    const { id } = req.params;
+    const { token } = req.body;
+    const uuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!id) {
+        return error(res, 'ID do usuário é obrigatório.', 400);
+    }
+    if (!uuid.test(id)) {
+        return error(res, 'ID do usuário inválido.', 400);
+    }
+    if (!token) {
+        return error(res, 'Token é obrigatório.', 400);
+    }
+    if (typeof token !== 'string') {
+        return error(res, 'Token deve ser um texto.', 400);
+    }
+    if (!/^\d{6}$/.test(token)) {
+        return error(
+            res,
+            'Token deve conter exatamente 6 dígitos.',
+            400
+        );
+    }
+    req.body = {
+        token: token.trim()
+    };
+    next();
+}
+function validarCriacaoUsuario(req, res, next) {
+    let { email, senha } = req.body;
+    if (!email) {
+        return error(res,'E-mail é obrigatório.', 400);
+    }
+    if (!senha) {
+        return error(res, 'Senha é obrigatória', 400);
+    }
+    // Sanitização
+    email = String(email).trim().toLowerCase();
+    senha = String(senha);
+    // Atualiza o body com dados sanitizados
+    req.body = {email, senha};
+    next();
+}
+function validarAtualizacaoUsuario(req, res, next) {
+    let { email } = req.body;
+    if (!email) {
+        return error(res, 'E-mail é obrigatório.', 400);
+    }
+    email = String(email).trim().toLowerCase();
+    req.body = {email};
+    next();
+}
+function validarAlteracaoSenha(req, res, next){
+    const { senha } = req.body;
+    if(!senha){ return error(res,'Senha é obrigatória',400);} 
+    if(typeof senha !== 'string'){
+    return error(res,'Senha deve ser um texto.');
+    }
+    if(senha.length < 8){
+        return error(res,'Senha deve possuir no mínimo 8 caracteres.',400);
+    }
+    req.body = {senha: senha.trim()
+    };
+    next();
+}
+function validarSolicitacaoAlteracaoSenha(req, res, next) {
+    const { id } = req.params;
+    let { senha } = req.body;
+    const uuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!id) {
+        return error(res, 'ID do usuário é obrigatório.', 400);
+    }
+    if (!uuid.test(id)) {
+        return error(res, 'ID do usuário inválido.', 400);
+    }
+    if (!senha) {
+        return error(res, 'Senha é obrigatória.', 400);
+    }
+    if (typeof senha !== 'string') {
+        return error(res, 'Senha deve ser um texto.', 400);
+    }
+    if (senha.length < 8) {
+        return error(
+            res,
+            'Senha deve possuir no mínimo 8 caracteres.',
+            400
+        );
+    }
+    req.body = {
+        senha: senha.trim()
+    };
+    next();
+}
+function validarConfirmacaoAlteracaoSenha(req, res, next) {
+    const { id } = req.params;
+    const { token, senha } = req.body;
+    const uuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!id) {
+        return error(res, 'ID do usuário é obrigatório.', 400);
+    }
+    if (!uuid.test(id)) {
+        return error(res, 'ID do usuário inválido.', 400);
+    }
+    if (!token) {
+        return error(res, 'Token é obrigatório.', 400);
+    }
+    if (typeof token !== 'string') {
+        return error(res, 'Token deve ser um texto.', 400);
+    }
+    if (!/^\d{6}$/.test(token)) {
+        return error(
+            res,
+            'Token deve conter exatamente 6 dígitos.',
+            400
+        );
+    }
+    if (!senha) {
+        return error(res, 'Senha é obrigatória.', 400);
+    }
+    if (typeof senha !== 'string') {
+        return error(res, 'Senha deve ser um texto.', 400);
+    }
+    if (senha.length < 8) {
+        return error(
+            res,
+            'Senha deve possuir no mínimo 8 caracteres.',
+            400
+        );
+    }
+    req.body = {
+        token: token.trim(),
+        senha: senha.trim()
+    };
+    next();
+}
+function validarSolicitacaoRecuperacaoSenha(req, res, next) {
+    let { email } = req.body;
+    if (!email) {
+        return error(res, 'E-mail é obrigatório.', 400);
+    }
+    email = String(email).trim().toLowerCase();
+    req.body = { email };
+    next();
+}
+function validarConfirmacaoRecuperacaoSenha(req, res, next) {
+    let { email, token, senha } = req.body;
+    if (!email) {
+        return error(res, 'E-mail é obrigatório.', 400);
+    }
+    if (!token) {
+        return error(res, 'Token é obrigatório.', 400);
+    }
+    if (typeof token !== 'string') {
+        return error(res, 'Token deve ser um texto.', 400);
+    }
+    if (!/^\d{6}$/.test(token)) {
+        return error(
+            res,
+            'Token deve conter exatamente 6 dígitos.',
+            400
+        );
+    }
+    if (!senha) {
+        return error(res, 'Senha é obrigatória.', 400);
+    }
+    if (typeof senha !== 'string') {
+        return error(res, 'Senha deve ser um texto.', 400);
+    }
+    if (senha.length < 8) {
+        return error(
+            res,
+            'Senha deve possuir no mínimo 8 caracteres.',
+            400
+        );
+    }
+    email = String(email).trim().toLowerCase();
+    token = token.trim();
+    senha = senha.trim();
+    req.body = {
+        email,
+        token,
+        senha
+    };
+    next();
+}
+function validarLogin(req, res, next) {
+    let { email, senha } = req.body;
+    if (!email) {
+        return error(res, 'E-mail é obrigatório.', 400);
+    }
+    if (!senha) {
+        return error(res, 'Senha é obrigatória.', 400);
+    }
+    email = String(email).trim().toLowerCase();
+    senha = String(senha).trim();
+    req.body = {
+        email,
+        senha
+    };
+    next();
+}
+module.exports = {
+    validarCriacaoUsuario,
+    validarAtualizacaoUsuario,
+    validarAlteracaoSenha,
+    validarSolicitacaoVerificacaoEmail,
+    validarConfirmacaoVerificacaoEmail,
+    validarSolicitacaoAlteracaoSenha,
+    validarConfirmacaoAlteracaoSenha,
+    validarSolicitacaoRecuperacaoSenha,
+    validarConfirmacaoRecuperacaoSenha,
+    validarLogin
+}
+
+------------------------------------------------------------
+ARQUIVO: backend/src/validators/perfilUsuarioValidator.js
+------------------------------------------------------------
+const { body, param, validationResult } = require('express-validator');
+const validar = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            message: 'Erro de validação.',
+            errors: errors.array()
+        });
+    }
+    next();
+};
+const validarBuscaPorId = [
+    param('id')
+        .isUUID()
+        .withMessage('ID do perfil inválido.'), 
+    validar
+];
+const validarCriacaoPerfil = [
+    body('usuario_id')
+        .isUUID()
+        .withMessage('Usuário inválido.'),
+    body('nome')
+        .trim()
+        .notEmpty()
+        .withMessage('Nome é obrigatório.')
+        .isLength({ max: 100 }),
+    body('sobrenome')
+        .optional()
+        .trim()
+        .isLength({ max: 100 }),
+    body('nome_usuario')
+        .trim()
+        .notEmpty()
+        .withMessage('Nome de usuário é obrigatório.')
+        .isLength({ min: 3, max: 50 })
+        .matches(/^[a-zA-Z0-9_.]+$/)
+        .withMessage('Nome de usuário inválido.'),
+    body('avatar_url')
+        .optional({ nullable: true })
+        .isURL()
+        .withMessage('Avatar deve ser uma URL válida.'),
+    body('biografia')
+        .optional()
+        .trim()
+        .isLength({ max: 1000 }),
+    body('idioma_id')
+        .isUUID()
+        .withMessage('Idioma inválido.'),
+    validar
+];
+const validarAlteracaoDadosPessoais = [
+    body('nome')
+        .trim()
+        .notEmpty()
+        .withMessage('Nome é obrigatório.')
+        .isLength({ max: 100 }),
+    body('sobrenome')
+        .optional()
+        .trim()
+        .isLength({ max: 100 }),
+    validar
+];
+const validarAlteracaoNomeUsuario = [
+    body('nome_usuario')
+        .trim()
+        .notEmpty()
+        .withMessage('Nome de usuário é obrigatório.')
+        .isLength({ min: 3, max: 50 })
+        .matches(/^[a-zA-Z0-9_.]+$/)
+        .withMessage('Nome de usuário inválido.'),
+    validar
+];
+const validarAlteracaoAvatar = [
+    body('avatar_url')
+        .isURL()
+        .withMessage('Avatar deve ser uma URL válida.'),
+    validar
+];
+const validarAlteracaoBiografia = [
+    body('biografia')
+        .optional()
+        .trim()
+        .isLength({ max: 1000 }),
+    validar
+];
+const validarAlteracaoIdioma = [
+    body('idioma_id')
+        .isUUID()
+        .withMessage('Idioma inválido.'),
+    validar
+];
+module.exports = {
+    validarCriacaoPerfil,
+    validarAlteracaoDadosPessoais,
+    validarAlteracaoNomeUsuario,
+    validarAlteracaoAvatar,
+    validarAlteracaoBiografia,
+    validarAlteracaoIdioma,
+    validarBuscaPorId
+};
+
+------------------------------------------------------------
+ARQUIVO: backend/src/validators/autorValidator.js
+------------------------------------------------------------
+function validarCriacaoAutor(req, res, next) {
+    const {
+        usuario_id,
+        nome_publico,
+        biografia,
+        foto_url
+    } = req.body;
+    if (!usuario_id) {
+        return res.status(400).json({
+            success: false,
+            message: 'usuario_id é obrigatório.'
+        });
+    }
+    if (!nome_publico || typeof nome_publico !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'nome_publico é obrigatório e deve ser um texto.'
+        });
+    }
+    if (biografia !== undefined && biografia !== null &&
+        typeof biografia !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'biografia deve ser um texto.'
+        });
+    }
+    if (foto_url !== undefined && foto_url !== null &&
+        typeof foto_url !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'foto_url deve ser um texto.'
+        });
+    }
+    next();
+}
+function validarNomePublico(req, res, next) {
+    const { nome_publico } = req.body;
+    if (!nome_publico || typeof nome_publico !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'nome_publico é obrigatório e deve ser um texto.'
+        });
+    }
+    next();
+}
+function validarBiografia(req, res, next) {
+    const { biografia } = req.body;
+    if (biografia === undefined || biografia === null) {
+        return res.status(400).json({
+            success: false,
+            message: 'biografia é obrigatória.'
+        });
+    }
+    if (typeof biografia !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'biografia deve ser um texto.'
+        });
+    }
+    next();
+}
+function validarFoto(req, res, next) {
+    const { foto_url } = req.body;
+    if (foto_url === undefined || foto_url === null) {
+        return res.status(400).json({
+            success: false,
+            message: 'foto_url é obrigatória.'
+        });
+    }
+    if (typeof foto_url !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'foto_url deve ser um texto.'
+        });
+    }
+    next();
+}
+module.exports = {
+    validarCriacaoAutor,
+    validarNomePublico,
+    validarBiografia,
+    validarFoto
+};
+
+------------------------------------------------------------
+ARQUIVO: backend/src/validators/livroAutorValidator.js
+------------------------------------------------------------
+function validarCriacaoLivroAutor(req, res, next) {
+    const {
+        livro_id,
+        autor_id,
+        ordem_exibicao
+    } = req.body;
+    if (!livro_id) {
+        return res.status(400).json({
+            success: false,
+            message: 'livro_id é obrigatório.'
+        });
+    }
+    if (!autor_id) {
+        return res.status(400).json({
+            success: false,
+            message: 'autor_id é obrigatório.'
+        });
+    }
+    if (
+        ordem_exibicao === undefined ||
+        !Number.isInteger(ordem_exibicao) ||
+        ordem_exibicao <= 0
+    ) {
+        return res.status(400).json({
+            success: false,
+            message: 'ordem_exibicao deve ser um número inteiro maior que zero.'
+        });
+    }
+    next();
+}
+function validarAlteracaoOrdemExibicao(req, res, next) {
+    const { ordem_exibicao } = req.body;
+    if (
+        ordem_exibicao === undefined ||
+        !Number.isInteger(ordem_exibicao) ||
+        ordem_exibicao <= 0
+    ) {
+        return res.status(400).json({
+            success: false,
+            message: 'ordem_exibicao deve ser um número inteiro maior que zero.'
+        });
+    }
+    next();
+}
+module.exports = {
+    validarCriacaoLivroAutor,
+    validarAlteracaoOrdemExibicao
+};
+
+------------------------------------------------------------
+ARQUIVO: backend/src/validators/solicitacaoAutorValidator.js
+------------------------------------------------------------
+class SolicitacaoAutorValidator {
+    static validarCriacao(req, res, next) {
+        const {
+            nome_publico,
+            biografia,
+            foto_url,
+            titulo_provisorio,
+            resumo,
+            categoria_id,
+            classificacao_indicativa_id,
+            idioma_id
+        } = req.body;
+        const erros = [];
+        if (
+            !nome_publico ||
+            typeof nome_publico !== 'string' ||
+            !nome_publico.trim()
+        ) {
+            erros.push('Nome público é obrigatório.');
+        }
+        if (
+            !titulo_provisorio ||
+            typeof titulo_provisorio !== 'string' ||
+            !titulo_provisorio.trim()
+        ) {
+            erros.push('Título provisório da obra é obrigatório.');
+        }
+        if (
+            !categoria_id ||
+            typeof categoria_id !== 'string'
+        ) {
+            erros.push('Categoria é obrigatória.');
+        }
+        if (
+            !classificacao_indicativa_id ||
+            typeof classificacao_indicativa_id !== 'string'
+        ) {
+            erros.push('Classificação indicativa é obrigatória.');
+        }
+        if (
+            !idioma_id ||
+            typeof idioma_id !== 'string'
+        ) {
+            erros.push('Idioma é obrigatório.');
+        }
+        if (biografia !== undefined && biografia !== null) {
+            if (typeof biografia !== 'string') {
+                erros.push('Biografia deve ser um texto.');
+            }
+        }
+        if (foto_url !== undefined && foto_url !== null) {
+            if (typeof foto_url !== 'string') {
+                erros.push('Foto deve ser uma URL válida.');
+            }
+        }
+        if (resumo !== undefined && resumo !== null) {
+            if (typeof resumo !== 'string') {
+                erros.push('Resumo deve ser um texto.');
+            }
+        }
+        if (erros.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Dados inválidos.',
+                errors: erros
+            });
+        }
+        req.body = {
+            nome_publico: nome_publico.trim(),
+            biografia:
+                typeof biografia === 'string'
+                    ? biografia.trim()
+                    : null,
+            foto_url:
+                typeof foto_url === 'string'
+                    ? foto_url.trim()
+                    : null,
+            titulo_provisorio: titulo_provisorio.trim(),
+            resumo:
+                typeof resumo === 'string'
+                    ? resumo.trim()
+                    : null,
+            categoria_id: categoria_id.trim(),
+            classificacao_indicativa_id:
+                classificacao_indicativa_id.trim(),
+            idioma_id: idioma_id.trim()
+        };
+        next();
+    }
+    static validarId(req, res, next) {
+        const { id } = req.params;
+        if (!id || typeof id !== 'string' || !id.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID da solicitação é obrigatório.'
+            });
+        }
+        req.params.id = id.trim();
+        next();
+    }
+    static validarRecusa(req, res, next) {
+        const { motivo_recusa } = req.body;
+        if (
+            !motivo_recusa ||
+            typeof motivo_recusa !== 'string' ||
+            !motivo_recusa.trim()
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: 'Motivo da recusa é obrigatório.'
+            });
+        }
+        req.body.motivo_recusa = motivo_recusa.trim();
+        next();
+    }
+}
+module.exports = SolicitacaoAutorValidator;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/validators/papelValidator.js
+------------------------------------------------------------
+function validarCriacaoPapel(req, res, next) {
+    const {
+        nome,
+        codigo,
+        descricao
+    } = req.body;
+    if (!nome || typeof nome !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'nome é obrigatório e deve ser um texto.'
+        });
+    }
+    if (!codigo || typeof codigo !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'codigo é obrigatório e deve ser um texto.'
+        });
+    }
+    if (descricao !== undefined && descricao !== null &&
+        typeof descricao !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'descricao deve ser um texto.'
+        });
+    }
+    next();
+}
+function validarNome(req, res, next) {
+    const { nome } = req.body;
+    if (!nome || typeof nome !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'nome é obrigatório e deve ser um texto.'
+        });
+    }
+    next();
+}
+function validarCodigo(req, res, next) {
+    const { codigo } = req.body;
+    if (!codigo || typeof codigo !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'codigo é obrigatório e deve ser um texto.'
+        });
+    }
+    next();
+}
+function validarDescricao(req, res, next) {
+    const { descricao } = req.body;
+    if (descricao === undefined || descricao === null) {
+        return res.status(400).json({
+            success: false,
+            message: 'descricao é obrigatória.'
+        });
+    }
+    if (typeof descricao !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'descricao deve ser um texto.'
+        });
+    }
+    next();
+}
+module.exports = {
+    validarCriacaoPapel,
+    validarNome,
+    validarCodigo,
+    validarDescricao
+};
+
+------------------------------------------------------------
+ARQUIVO: backend/src/validators/permissaoValidator.js
+------------------------------------------------------------
+function validarCriacaoPermissao(req, res, next) {
+    const {
+        nome,
+        codigo,
+        descricao
+    } = req.body;
+    if (!nome || typeof nome !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'nome é obrigatório e deve ser um texto.'
+        });
+    }
+    if (!codigo || typeof codigo !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'codigo é obrigatório e deve ser um texto.'
+        });
+    }
+    if (descricao !== undefined && descricao !== null &&
+        typeof descricao !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'descricao deve ser um texto.'
+        });
+    }
+    next();
+}
+function validarNome(req, res, next) {
+    const { nome } = req.body;
+    if (!nome || typeof nome !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'nome é obrigatório e deve ser um texto.'
+        });
+    }
+    next();
+}
+function validarCodigo(req, res, next) {
+    const { codigo } = req.body;
+    if (!codigo || typeof codigo !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'codigo é obrigatório e deve ser um texto.'
+        });
+    }
+    next();
+}
+function validarDescricao(req, res, next) {
+    const { descricao } = req.body;
+    if (descricao === undefined || descricao === null) {
+        return res.status(400).json({
+            success: false,
+            message: 'descricao é obrigatória.'
+        });
+    }
+    if (typeof descricao !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'descricao deve ser um texto.'
+        });
+    }
+    next();
+}
+module.exports = {
+    validarCriacaoPermissao,
+    validarNome,
+    validarCodigo,
+    validarDescricao
+};
+
+------------------------------------------------------------
+ARQUIVO: backend/src/validators/usuarioPapelValidator.js
+------------------------------------------------------------
+const { validate: validarUUID } = require('uuid');
+function validarCriacaoUsuarioPapel(req, res, next) {
+    const {
+        usuario_id,
+        papel_id
+    } = req.body;
+    if (!usuario_id || typeof usuario_id !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'usuario_id é obrigatório e deve ser um UUID válido.'
+        });
+    }
+    if (!validarUUID(usuario_id)) {
+        return res.status(400).json({
+            success: false,
+            message: 'usuario_id deve ser um UUID válido.'
+        });
+    }
+    if (!papel_id || typeof papel_id !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'papel_id é obrigatório e deve ser um UUID válido.'
+        });
+    }
+    if (!validarUUID(papel_id)) {
+        return res.status(400).json({
+            success: false,
+            message: 'papel_id deve ser um UUID válido.'
+        });
+    }
+    next();
+}
+module.exports = {
+    validarCriacaoUsuarioPapel
+};
+
+------------------------------------------------------------
+ARQUIVO: backend/src/validators/papelPermissaoValidator.js
+------------------------------------------------------------
+const { validate: validarUUID } = require('uuid');
+function validarCriacaoPapelPermissao(req, res, next) {
+    const {
+        papel_id,
+        permissao_id
+    } = req.body;
+    if (!papel_id || typeof papel_id !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'papel_id é obrigatório e deve ser um UUID válido.'
+        });
+    }
+    if (!validarUUID(papel_id)) {
+        return res.status(400).json({
+            success: false,
+            message: 'papel_id deve ser um UUID válido.'
+        });
+    }
+    if (!permissao_id || typeof permissao_id !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'permissao_id é obrigatório e deve ser um UUID válido.'
+        });
+    }
+    if (!validarUUID(permissao_id)) {
+        return res.status(400).json({
+            success: false,
+            message: 'permissao_id deve ser um UUID válido.'
+        });
+    }
+    next();
+}
+module.exports = {
+    validarCriacaoPapelPermissao
+};
+
+------------------------------------------------------------
+ARQUIVO: backend/src/validators/tokenUsuarioValidator.js
+------------------------------------------------------------
+const { body } = require('express-validator');
+const finalidadesValidas = [
+    'VERIFICACAO_EMAIL',
+    'ALTERACAO_SENHA',
+    'RECUPERACAO_SENHA'
+];
+const validarFinalidade = body('finalidade')
+    .notEmpty()
+    .withMessage('Finalidade é obrigatória.')
+    .isIn(finalidadesValidas)
+    .withMessage(
+        'Finalidade deve ser VERIFICACAO_EMAIL, ALTERACAO_SENHA ou RECUPERACAO_SENHA.'
+    );
+const validarUsuarioId = body('usuario_id')
+    .notEmpty()
+    .withMessage('ID do usuário é obrigatório.')
+    .isUUID()
+    .withMessage('ID do usuário inválido.');
+const validarToken = body('token')
+    .notEmpty()
+    .withMessage('Token é obrigatório.')
+    .matches(/^\d{6}$/)
+    .withMessage('Token deve conter exatamente 6 dígitos.');
+const validarCriacaoToken = [
+    validarUsuarioId,
+    validarFinalidade
+];
+const validarValidacaoToken = [
+    validarUsuarioId,
+    validarFinalidade,
+    validarToken
+];
+const validarInvalidacaoToken = [
+    validarUsuarioId,
+    validarFinalidade
+];
+module.exports = {
+    validarCriacaoToken,
+    validarValidacaoToken,
+    validarInvalidacaoToken
+};
+
+============================================================
+6. ROTAS ADMINISTRATIVAS
+============================================================
+
+------------------------------------------------------------
+ARQUIVO: backend/src/routes/usuarioRoutes.js
+------------------------------------------------------------
+const express = require('express');
+const UsuarioController = require('../controllers/UsuarioController');
+const autenticar = require('../middleware/autenticar');
+const {
+    validarCriacaoUsuario,
+    validarAlteracaoSenha,
+    validarAtualizacaoUsuario,
+    validarSolicitacaoVerificacaoEmail,
+    validarConfirmacaoVerificacaoEmail,
+    validarSolicitacaoAlteracaoSenha,
+    validarConfirmacaoAlteracaoSenha,
+    validarSolicitacaoRecuperacaoSenha,
+    validarConfirmacaoRecuperacaoSenha,
+    validarLogin
+} = require('../validators/usuarioValidator');
+const router = express.Router();
+// Login
+router.post(
+    '/login',
+    validarLogin,
+    UsuarioController.autenticar
+);
+// CRUD
+router.get('/', autenticar, UsuarioController.listar);
+router.get('/:id', autenticar, UsuarioController.buscarPorId);
+router.post(
+    '/',
+    validarCriacaoUsuario,
+    UsuarioController.criar
+);
+router.put(
+    '/:id',
+    autenticar,
+    validarAtualizacaoUsuario,
+    UsuarioController.atualizar
+);
+router.delete(
+    '/:id', autenticar,
+    UsuarioController.desativar
+);
+// Alteração direta de senha
+router.patch(
+    '/:id/senha',
+    autenticar,
+    validarAlteracaoSenha,
+    UsuarioController.alterarSenha
+);
+// Alteração de senha com verificação por e-mail
+router.post(
+    '/:id/alteracao-senha',
+    autenticar,
+    validarSolicitacaoAlteracaoSenha,
+    UsuarioController.solicitarAlteracaoSenha
+);
+router.post(
+    '/:id/alteracao-senha/confirmar',
+    autenticar,
+    validarConfirmacaoAlteracaoSenha,
+    UsuarioController.alterarSenhaComToken
+);
+// Verificação de e-mail
+router.post(
+    '/:id/verificacao-email',
+    validarSolicitacaoVerificacaoEmail,
+    UsuarioController.solicitarVerificacaoEmail
+);
+router.post(
+    '/:id/verificacao-email/confirmar',
+    validarConfirmacaoVerificacaoEmail,
+    UsuarioController.verificarEmail
+);
+// Recuperação de senha
+router.post(
+    '/recuperacao-senha',
+    validarSolicitacaoRecuperacaoSenha,
+    UsuarioController.solicitarRecuperacaoSenha
+);
+router.post(
+    '/recuperacao-senha/confirmar',
+    validarConfirmacaoRecuperacaoSenha,
+    UsuarioController.recuperarSenhaComToken
+);
+module.exports = router;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/routes/perfilUsuarioRoutes.js
+------------------------------------------------------------
+const express = require('express');
+const router = express.Router();
+const PerfilUsuarioController = require('../controllers/PerfilUsuarioController');
+const {
+    validarBuscaPorId,
+    validarCriacaoPerfil,
+    validarAlteracaoDadosPessoais,
+    validarAlteracaoNomeUsuario,
+    validarAlteracaoAvatar,
+    validarAlteracaoBiografia,
+    validarAlteracaoIdioma
+} = require('../validators/perfilUsuarioValidator');
+router.get(
+    '/',
+    PerfilUsuarioController.listar
+);
+router.post(
+    '/',
+    validarCriacaoPerfil,
+    PerfilUsuarioController.criar
+);
+router.get(
+    '/usuario/:usuario_id',
+    PerfilUsuarioController.buscarPorUsuario
+);
+router.get(
+    '/:id',
+    validarBuscaPorId,
+    PerfilUsuarioController.buscarPorId
+);
+router.patch(
+    '/:id/dados-pessoais',
+    validarAlteracaoDadosPessoais,
+    PerfilUsuarioController.alterarDadosPessoais
+);
+router.patch(
+    '/:id/nome-usuario',
+    validarAlteracaoNomeUsuario,
+    PerfilUsuarioController.alterarNomeUsuario
+);
+router.patch(
+    '/:id/avatar',
+    validarAlteracaoAvatar,
+    PerfilUsuarioController.alterarAvatar
+);
+router.patch(
+    '/:id/biografia',
+    validarAlteracaoBiografia,
+    PerfilUsuarioController.alterarBiografia
+);
+router.patch(
+    '/:id/idioma',
+    validarAlteracaoIdioma,
+    PerfilUsuarioController.alterarIdioma
+);
+router.delete(
+    '/:id',
+    PerfilUsuarioController.excluir
+);
+module.exports = router;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/routes/autorRoutes.js
+------------------------------------------------------------
+const express = require('express');
+const router = express.Router();
+const AutorController = require('../controllers/AutorController');
+const {
+    validarCriacaoAutor,
+    validarNomePublico,
+    validarBiografia,
+    validarFoto
+} = require('../validators/autorValidator');
+// Listar autores
+router.get(
+    '/',
+    AutorController.listar
+);
+// Buscar autor por ID
+router.get(
+    '/:id',
+    AutorController.buscarPorId
+);
+// Buscar autor por usuário
+router.get(
+    '/usuario/:usuario_id',
+    AutorController.buscarPorUsuarioId
+);
+// Criar autor
+router.post(
+    '/',
+    validarCriacaoAutor,
+    AutorController.criar
+);
+// Alterar nome público
+router.patch(
+    '/:id/nome',
+    validarNomePublico,
+    AutorController.alterarNomePublico
+);
+// Alterar biografia
+router.patch(
+    '/:id/biografia',
+    validarBiografia,
+    AutorController.alterarBiografia
+);
+// Alterar foto
+router.patch(
+    '/:id/foto',
+    validarFoto,
+    AutorController.alterarFoto
+);
+// Desativar autor
+router.delete(
+    '/:id',
+    AutorController.desativar
+);
+module.exports = router;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/routes/livroAutorRoutes.js
+------------------------------------------------------------
+const express = require('express');
+const LivroAutorController = require('../controllers/LivroAutorController');
+const {
+    validarCriacaoLivroAutor,
+    validarAlteracaoOrdemExibicao
+} = require('../validators/livroAutorValidator');
+const router = express.Router();
+// Listar autores de um livro
+router.get(
+    '/livro/:livro_id',
+    LivroAutorController.listarPorLivro
+);
+// Listar livros de um autor
+router.get(
+    '/autor/:autor_id',
+    LivroAutorController.listarPorAutor
+);
+// Associar autor a livro
+router.post(
+    '/',
+    validarCriacaoLivroAutor,
+    LivroAutorController.criar
+);
+// Alterar ordem de exibição
+router.patch(
+    '/:id/ordem',
+    validarAlteracaoOrdemExibicao,
+    LivroAutorController.alterarOrdemExibicao
+);
+// Desativar associação
+router.delete(
+    '/:id',
+    LivroAutorController.desativar
+);
+module.exports = router;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/routes/solicitacaoAutorRoutes.js
+------------------------------------------------------------
+const express = require('express');
+const SolicitacaoAutorController = require('../controllers/SolicitacaoAutorController');
+const SolicitacaoAutorValidator = require('../validators/solicitacaoAutorValidator');
+const autenticar = require('../middleware/autenticar');
+const router = express.Router();
+// =====================================================
+// USUÁRIO
+// =====================================================
+// Criar solicitação para atuar como Autor
+router.post(
+    '/',
+    autenticar,
+    SolicitacaoAutorValidator.validarCriacao,
+    SolicitacaoAutorController.criar
+);
+// Listar minhas solicitações
+router.get(
+    '/minhas',
+    autenticar,
+    SolicitacaoAutorController.listarPorUsuario
+);
+// Buscar uma das minhas solicitações
+router.get(
+    '/minhas/:id',
+    autenticar,
+    SolicitacaoAutorValidator.validarId,
+    SolicitacaoAutorController.buscarMinhaPorId
+);
+// =====================================================
+// GESTÃO DA PLATAFORMA
+// =====================================================
+// Listar solicitações para avaliação
+router.get(
+    '/gestao',
+    autenticar,
+    SolicitacaoAutorController.listarPorAvaliacao
+);
+// Listar solicitações pendentes
+router.get(
+    '/gestao/pendentes',
+    autenticar,
+    SolicitacaoAutorController.listarPendentes
+);
+// Buscar solicitação para avaliação
+router.get(
+    '/gestao/:id',
+    autenticar,
+    SolicitacaoAutorValidator.validarId,
+    SolicitacaoAutorController.buscarParaAvaliacao
+);
+// Aprovar solicitação
+router.patch(
+    '/gestao/:id/aprovar',
+    autenticar,
+    SolicitacaoAutorValidator.validarId,
+    SolicitacaoAutorController.aprovar
+);
+// Recusar solicitação
+router.patch(
+    '/gestao/:id/recusar',
+    autenticar,
+    SolicitacaoAutorValidator.validarId,
+    SolicitacaoAutorValidator.validarRecusa,
+    SolicitacaoAutorController.recusar
+);
+module.exports = router;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/routes/papelRoutes.js
+------------------------------------------------------------
+const express = require('express');
+const router = express.Router();
+const PapelController = require('../controllers/PapelController');
+const {
+    validarCriacaoPapel,
+    validarNome,
+    validarCodigo,
+    validarDescricao
+} = require('../validators/papelValidator');
+// Listar papéis
+router.get(
+    '/',
+    PapelController.listar
+);
+// Buscar papel por ID
+router.get(
+    '/:id',
+    PapelController.buscarPorId
+);
+// Buscar papel por código
+router.get(
+    '/codigo/:codigo',
+    PapelController.buscarPorCodigo
+);
+// Criar papel
+router.post(
+    '/',
+    validarCriacaoPapel,
+    PapelController.criar
+);
+// Alterar nome
+router.patch(
+    '/:id/nome',
+    validarNome,
+    PapelController.alterarNome
+);
+// Alterar código
+router.patch(
+    '/:id/codigo',
+    validarCodigo,
+    PapelController.alterarCodigo
+);
+// Alterar descrição
+router.patch(
+    '/:id/descricao',
+    validarDescricao,
+    PapelController.alterarDescricao
+);
+// Desativar
+router.delete(
+    '/:id',
+    PapelController.desativar
+);
+module.exports = router;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/routes/permissaoRoutes.js
+------------------------------------------------------------
+const express = require('express');
+const router = express.Router();
+const PermissaoController = require('../controllers/PermissaoController');
+const {
+    validarCriacaoPermissao,
+    validarNome,
+    validarCodigo,
+    validarDescricao
+} = require('../validators/permissaoValidator');
+// Listar permissões
+router.get(
+    '/',
+    PermissaoController.listar
+);
+// Buscar permissão por ID
+router.get(
+    '/:id',
+    PermissaoController.buscarPorId
+);
+// Buscar permissão por código
+router.get(
+    '/codigo/:codigo',
+    PermissaoController.buscarPorCodigo
+);
+// Criar permissão
+router.post(
+    '/',
+    validarCriacaoPermissao,
+    PermissaoController.criar
+);
+// Alterar nome
+router.patch(
+    '/:id/nome',
+    validarNome,
+    PermissaoController.alterarNome
+);
+// Alterar código
+router.patch(
+    '/:id/codigo',
+    validarCodigo,
+    PermissaoController.alterarCodigo
+);
+// Alterar descrição
+router.patch(
+    '/:id/descricao',
+    validarDescricao,
+    PermissaoController.alterarDescricao
+);
+// Desativar permissão
+router.delete(
+    '/:id',
+    PermissaoController.desativar
+);
+module.exports = router;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/routes/usuarioPapelRoutes.js
+------------------------------------------------------------
+const express = require('express');
+const router = express.Router();
+const UsuarioPapelController =
+    require('../controllers/UsuarioPapelController');
+const {
+    validarCriacaoUsuarioPapel
+} = require('../validators/usuarioPapelValidator');
+// Listar papéis de um usuário
+router.get(
+    '/usuario/:usuarioId',
+    UsuarioPapelController.listarPorUsuario
+);
+// Listar usuários de um papel
+router.get(
+    '/papel/:papelId',
+    UsuarioPapelController.listarPorPapel
+);
+// Buscar vínculo por usuário e papel
+router.get(
+    '/usuario/:usuarioId/papel/:papelId',
+    UsuarioPapelController.buscarPorUsuarioEPapel
+);
+// Buscar vínculo por ID
+router.get(
+    '/:id',
+    UsuarioPapelController.buscarPorId
+);
+// Criar vínculo
+router.post(
+    '/',
+    validarCriacaoUsuarioPapel,
+    UsuarioPapelController.criar
+);
+// Desativar vínculo
+router.delete(
+    '/:id',
+    UsuarioPapelController.desativar
+);
+module.exports = router;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/routes/papelPermissaoRoutes.js
+------------------------------------------------------------
+const express = require('express');
+const router = express.Router();
+const PapelPermissaoController =
+    require('../controllers/PapelPermissaoController');
+const {
+    validarCriacaoPapelPermissao
+} = require('../validators/papelPermissaoValidator');
+// Listar permissões de um papel
+router.get(
+    '/papel/:papelId',
+    PapelPermissaoController.listarPorPapel
+);
+// Listar papéis de uma permissão
+router.get(
+    '/permissao/:permissaoId',
+    PapelPermissaoController.listarPorPermissao
+);
+// Buscar vínculo por papel e permissão
+router.get(
+    '/papel/:papelId/permissao/:permissaoId',
+    PapelPermissaoController.buscarPorPapelEPermissao
+);
+// Buscar vínculo por ID
+router.get(
+    '/:id',
+    PapelPermissaoController.buscarPorId
+);
+// Criar vínculo
+router.post(
+    '/',
+    validarCriacaoPapelPermissao,
+    PapelPermissaoController.criar
+);
+// Desativar vínculo
+router.delete(
+    '/:id',
+    PapelPermissaoController.desativar
+);
+module.exports = router;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/routes/tokenUsuarioRoutes.js
+------------------------------------------------------------
+const express = require('express');
+const router = express.Router();
+const TokenUsuarioController = require('../controllers/TokenUsuarioController');
+const {
+    validarCriacaoToken,
+    validarValidacaoToken,
+    validarInvalidacaoToken
+} = require('../validators/tokenUsuarioValidator');
+// Criar token
+router.post(
+    '/',
+    validarCriacaoToken,
+    TokenUsuarioController.criar
+);
+// Validar token
+router.post(
+    '/validar',
+    validarValidacaoToken,
+    TokenUsuarioController.validar
+);
+// Invalidar token
+router.patch(
+    '/invalidar',
+    validarInvalidacaoToken,
+    TokenUsuarioController.invalidar
+);
+module.exports = router;
+
+============================================================
+7. AUTENTICAÇÃO E AUTORIZAÇÃO
+============================================================
+
+------------------------------------------------------------
+ARQUIVO: backend/src/middleware/autorizacao.js
+------------------------------------------------------------
+const pool = require('../db/connection');
+const { error } = require('../utils/apiResponse');
+function autorizar(codigoPermissao) {
+    return async function (req, res, next) {
+        if (!req.usuario || !req.usuario.id) {
+            return error(
+                res,
+                'Usuário não autenticado.',
+                401
+            );
+        }
+        if (!codigoPermissao || typeof codigoPermissao !== 'string') {
+            return error(
+                res,
+                'Permissão de autorização não informada.',
+                500
+            );
+        }
+        try {
+            const result = await pool.query(`
+                SELECT 1
+                  FROM usuario_papeis up
+                  INNER JOIN papeis p
+                    ON p.id = up.papel_id
+                   AND p.ativo = TRUE
+                  INNER JOIN papel_permissoes pp
+                    ON pp.papel_id = p.id
+                   AND pp.ativo = TRUE
+                  INNER JOIN permissoes pm
+                    ON pm.id = pp.permissao_id
+                   AND pm.ativo = TRUE
+                 WHERE up.usuario_id = $1
+                   AND up.ativo = TRUE
+                   AND pm.codigo = $2
+                 LIMIT 1
+            `, [
+                req.usuario.id,
+                codigoPermissao
+            ]);
+            if (result.rowCount === 0) {
+                return error(
+                    res,
+                    'Usuário não possui permissão para executar esta operação.',
+                    403
+                );
+            }
+            next();
+        } catch (err) {
+            next(err);
+        }
+    };
+}
+module.exports = autorizar;
+
+------------------------------------------------------------
+ARQUIVO: backend/src/middleware/autorizarObra.js
+------------------------------------------------------------
+const AutorizacaoService = require('../services/autorizacaoService');
+const { error } = require('../utils/apiResponse');
+function autorizarObra(
+    resolverLivroId,
+    codigoPermissao = 'obra.editar'
+) {
+    return async function (req, res, next) {
+        if (!req.usuario || !req.usuario.id) {
+            return error(res, 'Usuário não autenticado.', 401);
+        }
+        if (
+            !codigoPermissao ||
+            typeof codigoPermissao !== 'string'
+        ) {
+            return error(
+                res,
+                'Permissão de autorização não informada.',
+                500
+            );
+        }
+        try {
+            const livro_id = await resolverLivroId(req);
+            if (!livro_id) {
+                return error(
+                    res,
+                    'Obra não identificada.',
+                    400
+                );
+            }
+            const autorizado =
+                await AutorizacaoService.podeEditarObra(
+                    req.usuario.id,
+                    livro_id,
+                    codigoPermissao
+                );
+            if (!autorizado) {
+                return error(
+                    res,
+                    'Usuário não possui autorização para executar esta operação nesta obra.',
+                    403
+                );
+            }
+            req.livro_id = livro_id;
+            next();
+        } catch (err) {
+            next(err);
+        }
+    };
+}
+module.exports = autorizarObra;
+
+============================================================
+8. REFERÊNCIAS DE RBAC
+============================================================
+backend/src/services/autorizacaoService.js:3:class AutorizacaoService {
+backend/src/services/autorizacaoService.js:5:    static async temPermissao(usuario_id, codigoPermissao) {
+backend/src/services/autorizacaoService.js:10:              FROM usuario_papeis up
+backend/src/services/autorizacaoService.js:12:                ON p.id = up.papel_id
+backend/src/services/autorizacaoService.js:14:              INNER JOIN papel_permissoes pp
+backend/src/services/autorizacaoService.js:15:                ON pp.papel_id = p.id
+backend/src/services/autorizacaoService.js:18:                ON pm.id = pp.permissao_id
+backend/src/services/autorizacaoService.js:24:        `, [usuario_id, codigoPermissao]);
+backend/src/services/autorizacaoService.js:32:        codigoPermissao = 'obra.editar'
+backend/src/services/autorizacaoService.js:34:        const possuiPermissao = await this.temPermissao(
+backend/src/services/autorizacaoService.js:36:            codigoPermissao
+backend/src/services/autorizacaoService.js:39:        if (possuiPermissao) {
+backend/src/services/autorizacaoService.js:43:        if (codigoPermissao === 'obra.editar') {
+backend/src/services/autorizacaoService.js:54:module.exports = AutorizacaoService;
+backend/src/services/papelPermissaoService.js:1:const PapelPermissao = require('../models/PapelPermissao');
+backend/src/services/papelPermissaoService.js:3:class PapelPermissaoService {
+backend/src/services/papelPermissaoService.js:5:    static async listarPorPapel(papelId) {
+backend/src/services/papelPermissaoService.js:6:        return await PapelPermissao.listarPorPapel(papelId);
+backend/src/services/papelPermissaoService.js:9:    static async listarPorPermissao(permissaoId) {
+backend/src/services/papelPermissaoService.js:10:        return await PapelPermissao.listarPorPermissao(permissaoId);
+backend/src/services/papelPermissaoService.js:14:        return await PapelPermissao.buscarPorId(id);
+backend/src/services/papelPermissaoService.js:17:    static async buscarPorPapelEPermissao(papelId, permissaoId) {
+backend/src/services/papelPermissaoService.js:18:        return await PapelPermissao.buscarPorPapelEPermissao(
+backend/src/services/papelPermissaoService.js:19:            papelId,
+backend/src/services/papelPermissaoService.js:20:            permissaoId
+backend/src/services/papelPermissaoService.js:24:    static async criar(papelId, permissaoId) {
+backend/src/services/papelPermissaoService.js:25:        return await PapelPermissao.criar(
+backend/src/services/papelPermissaoService.js:26:            papelId,
+backend/src/services/papelPermissaoService.js:27:            permissaoId
+backend/src/services/papelPermissaoService.js:32:        return await PapelPermissao.desativar(id);
+backend/src/services/papelPermissaoService.js:36:module.exports = PapelPermissaoService;
+backend/src/services/papelService.js:1:const Papel = require('../models/Papel');
+backend/src/services/papelService.js:3:class PapelService {
+backend/src/services/papelService.js:6:        return await Papel.listar();
+backend/src/services/papelService.js:9:    static async buscarPapelPorId(id) {
+backend/src/services/papelService.js:10:        return await Papel.buscarPorId(id);
+backend/src/services/papelService.js:13:    static async buscarPapelPorCodigo(codigo) {
+backend/src/services/papelService.js:14:        return await Papel.buscarPorCodigo(codigo);
+backend/src/services/papelService.js:17:    static async criarPapel(papel) {
+backend/src/services/papelService.js:18:        return await Papel.criar(papel);
+backend/src/services/papelService.js:22:        return await Papel.alterarNome(id, nome);
+backend/src/services/papelService.js:26:        return await Papel.alterarCodigo(id, codigo);
+backend/src/services/papelService.js:30:        return await Papel.alterarDescricao(id, descricao);
+backend/src/services/papelService.js:33:    static async desativarPapel(id) {
+backend/src/services/papelService.js:34:        return await Papel.desativar(id);
+backend/src/services/papelService.js:38:module.exports = PapelService;
+backend/src/services/usuarioPapelService.js:1:const UsuarioPapel = require('../models/UsuarioPapel');
+backend/src/services/usuarioPapelService.js:3:class UsuarioPapelService {
+backend/src/services/usuarioPapelService.js:6:        return await UsuarioPapel.listarPorUsuario(usuarioId);
+backend/src/services/usuarioPapelService.js:9:    static async listarPorPapel(papelId) {
+backend/src/services/usuarioPapelService.js:10:        return await UsuarioPapel.listarPorPapel(papelId);
+backend/src/services/usuarioPapelService.js:14:        return await UsuarioPapel.buscarPorId(id);
+backend/src/services/usuarioPapelService.js:17:    static async buscarPorUsuarioEPapel(usuarioId, papelId) {
+backend/src/services/usuarioPapelService.js:18:        return await UsuarioPapel.buscarPorUsuarioEPapel(
+backend/src/services/usuarioPapelService.js:20:            papelId
+backend/src/services/usuarioPapelService.js:24:    static async criar(usuarioId, papelId) {
+backend/src/services/usuarioPapelService.js:25:        return await UsuarioPapel.criar(
+backend/src/services/usuarioPapelService.js:27:            papelId
+backend/src/services/usuarioPapelService.js:32:        return await UsuarioPapel.desativar(id);
+backend/src/services/usuarioPapelService.js:36:module.exports = UsuarioPapelService;
+backend/src/services/permissaoService.js:1:const Permissao = require('../models/Permissao');
+backend/src/services/permissaoService.js:3:class PermissaoService {
+backend/src/services/permissaoService.js:6:        return await Permissao.listar();
+backend/src/services/permissaoService.js:9:    static async buscarPermissaoPorId(id) {
+backend/src/services/permissaoService.js:10:        return await Permissao.buscarPorId(id);
+backend/src/services/permissaoService.js:13:    static async buscarPermissaoPorCodigo(codigo) {
+backend/src/services/permissaoService.js:14:        return await Permissao.buscarPorCodigo(codigo);
+backend/src/services/permissaoService.js:17:    static async criarPermissao(permissao) {
+backend/src/services/permissaoService.js:18:        return await Permissao.criar(permissao);
+backend/src/services/permissaoService.js:22:        return await Permissao.alterarNome(id, nome);
+backend/src/services/permissaoService.js:26:        return await Permissao.alterarCodigo(id, codigo);
+backend/src/services/permissaoService.js:30:        return await Permissao.alterarDescricao(id, descricao);
+backend/src/services/permissaoService.js:33:    static async desativarPermissao(id) {
+backend/src/services/permissaoService.js:34:        return await Permissao.desativar(id);
+backend/src/services/permissaoService.js:38:module.exports = PermissaoService;
+backend/src/services/solicitacaoAutorService.js:3:const AutorizacaoService = require('./autorizacaoService');
+backend/src/services/solicitacaoAutorService.js:69:        await this._validarPermissaoAvaliacao(avaliador_id);
+backend/src/services/solicitacaoAutorService.js:86:        await this._validarPermissaoAvaliacao(avaliador_id);
+backend/src/services/solicitacaoAutorService.js:96:        await this._validarPermissaoAvaliacao(avaliador_id);
+backend/src/services/solicitacaoAutorService.js:102:        await this._validarPermissaoAvaliacao(avaliador_id);
+backend/src/services/solicitacaoAutorService.js:130:        await this._validarPermissaoAvaliacao(avaliador_id);
+backend/src/services/solicitacaoAutorService.js:166:    static async _validarPermissaoAvaliacao(usuario_id) {
+backend/src/services/solicitacaoAutorService.js:168:            await AutorizacaoService.temPermissao(
+backend/src/models/Permissao.js:13:class Permissao {
+backend/src/models/Permissao.js:48:    static async criar(permissao, client = pool) {
+backend/src/models/Permissao.js:54:        } = permissao;
+backend/src/models/Permissao.js:136:module.exports = Permissao;
+backend/src/models/UsuarioPapel.js:6:    papel_id,
+backend/src/models/UsuarioPapel.js:12:class UsuarioPapel {
+backend/src/models/UsuarioPapel.js:19:                up.papel_id,
+backend/src/models/UsuarioPapel.js:20:                p.nome AS papel_nome,
+backend/src/models/UsuarioPapel.js:21:                p.codigo AS papel_codigo,
+backend/src/models/UsuarioPapel.js:22:                p.descricao AS papel_descricao,
+backend/src/models/UsuarioPapel.js:26:              FROM usuario_papeis up
+backend/src/models/UsuarioPapel.js:28:                ON p.id = up.papel_id
+backend/src/models/UsuarioPapel.js:38:    static async listarPorPapel(papelId) {
+backend/src/models/UsuarioPapel.js:43:                up.papel_id,
+backend/src/models/UsuarioPapel.js:48:              FROM usuario_papeis up
+backend/src/models/UsuarioPapel.js:51:             WHERE up.papel_id = $1
+backend/src/models/UsuarioPapel.js:54:        `, [papelId]);
+backend/src/models/UsuarioPapel.js:62:              FROM usuario_papeis
+backend/src/models/UsuarioPapel.js:70:    static async buscarPorUsuarioEPapel(usuarioId, papelId) {
+backend/src/models/UsuarioPapel.js:73:              FROM usuario_papeis
+backend/src/models/UsuarioPapel.js:75:               AND papel_id = $2
+backend/src/models/UsuarioPapel.js:77:        `, [usuarioId, papelId]);
+backend/src/models/UsuarioPapel.js:82:    static async criar(usuarioId, papelId, client = pool) {
+backend/src/models/UsuarioPapel.js:84:            INSERT INTO usuario_papeis (
+backend/src/models/UsuarioPapel.js:86:                papel_id
+backend/src/models/UsuarioPapel.js:91:        `, [usuarioId, papelId]);
+backend/src/models/UsuarioPapel.js:98:            UPDATE usuario_papeis
+backend/src/models/UsuarioPapel.js:111:module.exports = UsuarioPapel;
+backend/src/models/Papel.js:13:class Papel {
+backend/src/models/Papel.js:48:    static async criar(papel, client = pool) {
+backend/src/models/Papel.js:54:        } = papel;
+backend/src/models/Papel.js:136:module.exports = Papel;
+backend/src/models/PapelPermissao.js:5:    papel_id,
+backend/src/models/PapelPermissao.js:6:    permissao_id,
+backend/src/models/PapelPermissao.js:12:class PapelPermissao {
+backend/src/models/PapelPermissao.js:14:    static async listarPorPapel(papelId) {
+backend/src/models/PapelPermissao.js:18:                pp.papel_id,
+backend/src/models/PapelPermissao.js:19:                pp.permissao_id,
+backend/src/models/PapelPermissao.js:20:                p.nome AS permissao_nome,
+backend/src/models/PapelPermissao.js:21:                p.codigo AS permissao_codigo,
+backend/src/models/PapelPermissao.js:22:                p.descricao AS permissao_descricao,
+backend/src/models/PapelPermissao.js:26:              FROM papel_permissoes pp
+backend/src/models/PapelPermissao.js:28:                ON p.id = pp.permissao_id
+backend/src/models/PapelPermissao.js:29:             WHERE pp.papel_id = $1
+backend/src/models/PapelPermissao.js:33:        `, [papelId]);
+backend/src/models/PapelPermissao.js:38:    static async listarPorPermissao(permissaoId) {
+backend/src/models/PapelPermissao.js:42:                pp.papel_id,
+backend/src/models/PapelPermissao.js:43:                pp.permissao_id,
+backend/src/models/PapelPermissao.js:44:                p.nome AS papel_nome,
+backend/src/models/PapelPermissao.js:45:                p.codigo AS papel_codigo,
+backend/src/models/PapelPermissao.js:46:                p.descricao AS papel_descricao,
+backend/src/models/PapelPermissao.js:50:              FROM papel_permissoes pp
+backend/src/models/PapelPermissao.js:52:                ON p.id = pp.papel_id
+backend/src/models/PapelPermissao.js:53:             WHERE pp.permissao_id = $1
+backend/src/models/PapelPermissao.js:57:        `, [permissaoId]);
+backend/src/models/PapelPermissao.js:65:              FROM papel_permissoes
+backend/src/models/PapelPermissao.js:73:    static async buscarPorPapelEPermissao(papelId, permissaoId) {
+backend/src/models/PapelPermissao.js:76:              FROM papel_permissoes
+backend/src/models/PapelPermissao.js:77:             WHERE papel_id = $1
+backend/src/models/PapelPermissao.js:78:               AND permissao_id = $2
+backend/src/models/PapelPermissao.js:80:        `, [papelId, permissaoId]);
+backend/src/models/PapelPermissao.js:85:    static async criar(papelId, permissaoId, client = pool) {
+backend/src/models/PapelPermissao.js:87:            INSERT INTO papel_permissoes (
+backend/src/models/PapelPermissao.js:88:                papel_id,
+backend/src/models/PapelPermissao.js:89:                permissao_id
+backend/src/models/PapelPermissao.js:94:        `, [papelId, permissaoId]);
+backend/src/models/PapelPermissao.js:101:            UPDATE papel_permissoes
+backend/src/models/PapelPermissao.js:114:module.exports = PapelPermissao;
+backend/src/server.js:34:const permissaoRoutes = require('./routes/permissaoRoutes');
+backend/src/server.js:35:const papelRoutes = require('./routes/papelRoutes');
+backend/src/server.js:36:const papelPermissaoRoutes = require('./routes/papelPermissaoRoutes');
+backend/src/server.js:37:const usuarioPapelRoutes = require('./routes/usuarioPapelRoutes');
+backend/src/server.js:87:app.use('/api/permissoes', permissaoRoutes);
+backend/src/server.js:88:app.use('/api/papeis', papelRoutes);
+backend/src/server.js:89:app.use('/api/papel-permissoes', papelPermissaoRoutes);
+backend/src/server.js:90:app.use('/api/usuario-papeis', usuarioPapelRoutes);
+backend/src/controllers/PermissaoController.js:1:const PermissaoService = require('../services/permissaoService');
+backend/src/controllers/PermissaoController.js:3:class PermissaoController {
+backend/src/controllers/PermissaoController.js:7:            const permissoes = await PermissaoService.listarPermissoes();
+backend/src/controllers/PermissaoController.js:20:            const permissao = await PermissaoService.buscarPermissaoPorId(
+backend/src/controllers/PermissaoController.js:24:            if (!permissao) {
+backend/src/controllers/PermissaoController.js:33:                data: permissao
+backend/src/controllers/PermissaoController.js:42:            const permissao = await PermissaoService.buscarPermissaoPorCodigo(
+backend/src/controllers/PermissaoController.js:46:            if (!permissao) {
+backend/src/controllers/PermissaoController.js:55:                data: permissao
+backend/src/controllers/PermissaoController.js:64:            const permissao = await PermissaoService.criarPermissao(req.body);
+backend/src/controllers/PermissaoController.js:69:                data: permissao
+backend/src/controllers/PermissaoController.js:78:            const permissao = await PermissaoService.alterarNome(
+backend/src/controllers/PermissaoController.js:83:            if (!permissao) {
+backend/src/controllers/PermissaoController.js:93:                data: permissao
+backend/src/controllers/PermissaoController.js:102:            const permissao = await PermissaoService.alterarCodigo(
+backend/src/controllers/PermissaoController.js:107:            if (!permissao) {
+backend/src/controllers/PermissaoController.js:117:                data: permissao
+backend/src/controllers/PermissaoController.js:126:            const permissao = await PermissaoService.alterarDescricao(
+backend/src/controllers/PermissaoController.js:131:            if (!permissao) {
+backend/src/controllers/PermissaoController.js:141:                data: permissao
+backend/src/controllers/PermissaoController.js:150:            const permissao = await PermissaoService.desativarPermissao(
+backend/src/controllers/PermissaoController.js:154:            if (!permissao) {
+backend/src/controllers/PermissaoController.js:164:                data: permissao
+backend/src/controllers/PermissaoController.js:172:module.exports = PermissaoController;
+backend/src/controllers/UsuarioPapelController.js:1:const UsuarioPapelService =
+backend/src/controllers/UsuarioPapelController.js:2:    require('../services/usuarioPapelService');
+backend/src/controllers/UsuarioPapelController.js:4:class UsuarioPapelController {
+backend/src/controllers/UsuarioPapelController.js:9:                await UsuarioPapelService.listarPorUsuario(
+backend/src/controllers/UsuarioPapelController.js:22:    static async listarPorPapel(req, res, next) {
+backend/src/controllers/UsuarioPapelController.js:25:                await UsuarioPapelService.listarPorPapel(
+backend/src/controllers/UsuarioPapelController.js:26:                    req.params.papelId
+backend/src/controllers/UsuarioPapelController.js:41:                await UsuarioPapelService.buscarPorId(
+backend/src/controllers/UsuarioPapelController.js:48:                    message: 'Vínculo entre usuário e papel não encontrado.'
+backend/src/controllers/UsuarioPapelController.js:61:    static async buscarPorUsuarioEPapel(req, res, next) {
+backend/src/controllers/UsuarioPapelController.js:64:                await UsuarioPapelService.buscarPorUsuarioEPapel(
+backend/src/controllers/UsuarioPapelController.js:66:                    req.params.papelId
+backend/src/controllers/UsuarioPapelController.js:72:                    message: 'Vínculo entre usuário e papel não encontrado.'
+backend/src/controllers/UsuarioPapelController.js:88:                await UsuarioPapelService.criar(
+backend/src/controllers/UsuarioPapelController.js:90:                    req.body.papel_id
+backend/src/controllers/UsuarioPapelController.js:95:                message: 'Papel vinculado ao usuário com sucesso.',
+backend/src/controllers/UsuarioPapelController.js:106:                await UsuarioPapelService.desativar(
+backend/src/controllers/UsuarioPapelController.js:113:                    message: 'Vínculo entre usuário e papel não encontrado.'
+backend/src/controllers/UsuarioPapelController.js:119:                message: 'Vínculo entre usuário e papel desativado com sucesso.',
+backend/src/controllers/UsuarioPapelController.js:128:module.exports = UsuarioPapelController;
+backend/src/controllers/PapelController.js:1:const PapelService = require('../services/papelService');
+backend/src/controllers/PapelController.js:3:class PapelController {
+backend/src/controllers/PapelController.js:7:            const papeis = await PapelService.listarPapeis();
+backend/src/controllers/PapelController.js:20:            const papel = await PapelService.buscarPapelPorId(
+backend/src/controllers/PapelController.js:24:            if (!papel) {
+backend/src/controllers/PapelController.js:27:                    message: 'Papel não encontrado.'
+backend/src/controllers/PapelController.js:33:                data: papel
+backend/src/controllers/PapelController.js:42:            const papel = await PapelService.buscarPapelPorCodigo(
+backend/src/controllers/PapelController.js:46:            if (!papel) {
+backend/src/controllers/PapelController.js:49:                    message: 'Papel não encontrado.'
+backend/src/controllers/PapelController.js:55:                data: papel
+backend/src/controllers/PapelController.js:64:            const papel = await PapelService.criarPapel(req.body);
+backend/src/controllers/PapelController.js:68:                message: 'Papel criado com sucesso.',
+backend/src/controllers/PapelController.js:69:                data: papel
+backend/src/controllers/PapelController.js:78:            const papel = await PapelService.alterarNome(
+backend/src/controllers/PapelController.js:83:            if (!papel) {
+backend/src/controllers/PapelController.js:86:                    message: 'Papel não encontrado.'
+backend/src/controllers/PapelController.js:92:                message: 'Nome do papel alterado com sucesso.',
+backend/src/controllers/PapelController.js:93:                data: papel
+backend/src/controllers/PapelController.js:102:            const papel = await PapelService.alterarCodigo(
+backend/src/controllers/PapelController.js:107:            if (!papel) {
+backend/src/controllers/PapelController.js:110:                    message: 'Papel não encontrado.'
+backend/src/controllers/PapelController.js:116:                message: 'Código do papel alterado com sucesso.',
+backend/src/controllers/PapelController.js:117:                data: papel
+backend/src/controllers/PapelController.js:126:            const papel = await PapelService.alterarDescricao(
+backend/src/controllers/PapelController.js:131:            if (!papel) {
+backend/src/controllers/PapelController.js:134:                    message: 'Papel não encontrado.'
+backend/src/controllers/PapelController.js:140:                message: 'Descrição do papel alterada com sucesso.',
+backend/src/controllers/PapelController.js:141:                data: papel
+backend/src/controllers/PapelController.js:150:            const papel = await PapelService.desativarPapel(
+backend/src/controllers/PapelController.js:154:            if (!papel) {
+backend/src/controllers/PapelController.js:157:                    message: 'Papel não encontrado.'
+backend/src/controllers/PapelController.js:163:                message: 'Papel desativado com sucesso.',
+backend/src/controllers/PapelController.js:164:                data: papel
+backend/src/controllers/PapelController.js:172:module.exports = PapelController;
+backend/src/controllers/PapelPermissaoController.js:1:const PapelPermissaoService = require('../services/papelPermissaoService');
+backend/src/controllers/PapelPermissaoController.js:3:class PapelPermissaoController {
+backend/src/controllers/PapelPermissaoController.js:5:    static async listarPorPapel(req, res, next) {
+backend/src/controllers/PapelPermissaoController.js:8:                await PapelPermissaoService.listarPorPapel(
+backend/src/controllers/PapelPermissaoController.js:9:                    req.params.papelId
+backend/src/controllers/PapelPermissaoController.js:21:    static async listarPorPermissao(req, res, next) {
+backend/src/controllers/PapelPermissaoController.js:24:                await PapelPermissaoService.listarPorPermissao(
+backend/src/controllers/PapelPermissaoController.js:25:                    req.params.permissaoId
+backend/src/controllers/PapelPermissaoController.js:40:                await PapelPermissaoService.buscarPorId(
+backend/src/controllers/PapelPermissaoController.js:47:                    message: 'Vínculo entre papel e permissão não encontrado.'
+backend/src/controllers/PapelPermissaoController.js:60:    static async buscarPorPapelEPermissao(req, res, next) {
+backend/src/controllers/PapelPermissaoController.js:63:                await PapelPermissaoService.buscarPorPapelEPermissao(
+backend/src/controllers/PapelPermissaoController.js:64:                    req.params.papelId,
+backend/src/controllers/PapelPermissaoController.js:65:                    req.params.permissaoId
+backend/src/controllers/PapelPermissaoController.js:71:                    message: 'Vínculo entre papel e permissão não encontrado.'
+backend/src/controllers/PapelPermissaoController.js:87:                await PapelPermissaoService.criar(
+backend/src/controllers/PapelPermissaoController.js:88:                    req.body.papel_id,
+backend/src/controllers/PapelPermissaoController.js:89:                    req.body.permissao_id
+backend/src/controllers/PapelPermissaoController.js:94:                message: 'Permissão vinculada ao papel com sucesso.',
+backend/src/controllers/PapelPermissaoController.js:105:                await PapelPermissaoService.desativar(
+backend/src/controllers/PapelPermissaoController.js:112:                    message: 'Vínculo entre papel e permissão não encontrado.'
+backend/src/controllers/PapelPermissaoController.js:118:                message: 'Vínculo entre papel e permissão desativado com sucesso.',
+backend/src/controllers/PapelPermissaoController.js:127:module.exports = PapelPermissaoController;
+backend/src/routes/cenaAudioRoutes.js:9:const autorizarObra = require('../middleware/autorizarObra');
+backend/src/routes/cenaAudioRoutes.js:39:autorizarObra(
+backend/src/routes/cenaAudioRoutes.js:49:autorizarObra(
+backend/src/routes/cenaAudioRoutes.js:59:autorizarObra(
+backend/src/routes/cenaAudioRoutes.js:69:autorizarObra(
+backend/src/routes/cenaAudioRoutes.js:72:autorizar('obra.excluir'),
+backend/src/routes/cenaTextoRoutes.js:9:const autorizarObra = require('../middleware/autorizarObra');
+backend/src/routes/cenaTextoRoutes.js:34:    autorizarObra(EscopoObraService.porCenaBody),
+backend/src/routes/cenaTextoRoutes.js:42:    autorizarObra(EscopoObraService.porCenaTextoParam),
+backend/src/routes/cenaTextoRoutes.js:49:    autorizar('obra.excluir'),
+backend/src/routes/papelPermissaoRoutes.js:5:const PapelPermissaoController =
+backend/src/routes/papelPermissaoRoutes.js:6:    require('../controllers/PapelPermissaoController');
+backend/src/routes/papelPermissaoRoutes.js:9:    validarCriacaoPapelPermissao
+backend/src/routes/papelPermissaoRoutes.js:10:} = require('../validators/papelPermissaoValidator');
+backend/src/routes/papelPermissaoRoutes.js:12:// Listar permissões de um papel
+backend/src/routes/papelPermissaoRoutes.js:14:    '/papel/:papelId',
+backend/src/routes/papelPermissaoRoutes.js:15:    PapelPermissaoController.listarPorPapel
+backend/src/routes/papelPermissaoRoutes.js:18:// Listar papéis de uma permissão
+backend/src/routes/papelPermissaoRoutes.js:20:    '/permissao/:permissaoId',
+backend/src/routes/papelPermissaoRoutes.js:21:    PapelPermissaoController.listarPorPermissao
+backend/src/routes/papelPermissaoRoutes.js:24:// Buscar vínculo por papel e permissão
+backend/src/routes/papelPermissaoRoutes.js:26:    '/papel/:papelId/permissao/:permissaoId',
+backend/src/routes/papelPermissaoRoutes.js:27:    PapelPermissaoController.buscarPorPapelEPermissao
+backend/src/routes/papelPermissaoRoutes.js:33:    PapelPermissaoController.buscarPorId
+backend/src/routes/papelPermissaoRoutes.js:39:    validarCriacaoPapelPermissao,
+backend/src/routes/papelPermissaoRoutes.js:40:    PapelPermissaoController.criar
+backend/src/routes/papelPermissaoRoutes.js:46:    PapelPermissaoController.desativar
+backend/src/routes/usuarioPapelRoutes.js:5:const UsuarioPapelController =
+backend/src/routes/usuarioPapelRoutes.js:6:    require('../controllers/UsuarioPapelController');
+backend/src/routes/usuarioPapelRoutes.js:9:    validarCriacaoUsuarioPapel
+backend/src/routes/usuarioPapelRoutes.js:10:} = require('../validators/usuarioPapelValidator');
+backend/src/routes/usuarioPapelRoutes.js:12:// Listar papéis de um usuário
+backend/src/routes/usuarioPapelRoutes.js:15:    UsuarioPapelController.listarPorUsuario
+backend/src/routes/usuarioPapelRoutes.js:18:// Listar usuários de um papel
+backend/src/routes/usuarioPapelRoutes.js:20:    '/papel/:papelId',
+backend/src/routes/usuarioPapelRoutes.js:21:    UsuarioPapelController.listarPorPapel
+backend/src/routes/usuarioPapelRoutes.js:24:// Buscar vínculo por usuário e papel
+backend/src/routes/usuarioPapelRoutes.js:26:    '/usuario/:usuarioId/papel/:papelId',
+backend/src/routes/usuarioPapelRoutes.js:27:    UsuarioPapelController.buscarPorUsuarioEPapel
+backend/src/routes/usuarioPapelRoutes.js:33:    UsuarioPapelController.buscarPorId
+backend/src/routes/usuarioPapelRoutes.js:39:    validarCriacaoUsuarioPapel,
+backend/src/routes/usuarioPapelRoutes.js:40:    UsuarioPapelController.criar
+backend/src/routes/usuarioPapelRoutes.js:46:    UsuarioPapelController.desativar
+backend/src/routes/papelRoutes.js:5:const PapelController = require('../controllers/PapelController');
+backend/src/routes/papelRoutes.js:8:    validarCriacaoPapel,
+backend/src/routes/papelRoutes.js:12:} = require('../validators/papelValidator');
+backend/src/routes/papelRoutes.js:14:// Listar papéis
+backend/src/routes/papelRoutes.js:17:    PapelController.listar
+backend/src/routes/papelRoutes.js:20:// Buscar papel por ID
+backend/src/routes/papelRoutes.js:23:    PapelController.buscarPorId
+backend/src/routes/papelRoutes.js:26:// Buscar papel por código
+backend/src/routes/papelRoutes.js:29:    PapelController.buscarPorCodigo
+backend/src/routes/papelRoutes.js:32:// Criar papel
+backend/src/routes/papelRoutes.js:35:    validarCriacaoPapel,
+backend/src/routes/papelRoutes.js:36:    PapelController.criar
+backend/src/routes/papelRoutes.js:43:    PapelController.alterarNome
+backend/src/routes/papelRoutes.js:50:    PapelController.alterarCodigo
+backend/src/routes/papelRoutes.js:57:    PapelController.alterarDescricao
+backend/src/routes/papelRoutes.js:63:    PapelController.desativar
+backend/src/routes/capituloRoutes.js:8:const autorizarObra = require('../middleware/autorizarObra');
+backend/src/routes/capituloRoutes.js:39:    autorizarObra(EscopoObraService.porLivroBody),
+backend/src/routes/capituloRoutes.js:48:    autorizarObra(EscopoObraService.porCapituloParam),
+backend/src/routes/capituloRoutes.js:57:    autorizarObra(EscopoObraService.porCapituloParam),
+backend/src/routes/capituloRoutes.js:66:    autorizar('obra.excluir'),
+backend/src/routes/livroRoutes.js:36:    autorizar('obra.criar'),
+backend/src/routes/livroRoutes.js:44:    autorizar('obra.editar'),
+backend/src/routes/livroRoutes.js:52:    autorizar('obra.editar'),
+backend/src/routes/livroRoutes.js:60:    autorizar('obra.editar'),
+backend/src/routes/livroRoutes.js:68:    autorizar('obra.editar'),
+backend/src/routes/livroRoutes.js:76:    autorizar('obra.excluir'),
+backend/src/routes/cenaVideoRoutes.js:11:const autorizarObra = require('../middleware/autorizarObra');
+backend/src/routes/cenaVideoRoutes.js:41:autorizarObra(
+backend/src/routes/cenaVideoRoutes.js:52:autorizarObra(
+backend/src/routes/cenaVideoRoutes.js:63:autorizarObra(
+backend/src/routes/cenaVideoRoutes.js:74:autorizarObra(
+backend/src/routes/cenaVideoRoutes.js:77:autorizar('obra.excluir'),
+backend/src/routes/permissaoRoutes.js:5:const PermissaoController = require('../controllers/PermissaoController');
+backend/src/routes/permissaoRoutes.js:8:    validarCriacaoPermissao,
+backend/src/routes/permissaoRoutes.js:12:} = require('../validators/permissaoValidator');
+backend/src/routes/permissaoRoutes.js:15:// Listar permissões
+backend/src/routes/permissaoRoutes.js:18:    PermissaoController.listar
+backend/src/routes/permissaoRoutes.js:25:    PermissaoController.buscarPorId
+backend/src/routes/permissaoRoutes.js:32:    PermissaoController.buscarPorCodigo
+backend/src/routes/permissaoRoutes.js:39:    validarCriacaoPermissao,
+backend/src/routes/permissaoRoutes.js:40:    PermissaoController.criar
+backend/src/routes/permissaoRoutes.js:48:    PermissaoController.alterarNome
+backend/src/routes/permissaoRoutes.js:56:    PermissaoController.alterarCodigo
+backend/src/routes/permissaoRoutes.js:64:    PermissaoController.alterarDescricao
+backend/src/routes/permissaoRoutes.js:71:    PermissaoController.desativar
+backend/src/routes/cenaRoutes.js:6:const autorizarObra = require('../middleware/autorizarObra');
+backend/src/routes/cenaRoutes.js:23:    autorizarObra(EscopoObraService.porCapituloBody),
+backend/src/routes/cenaRoutes.js:31:    autorizarObra(EscopoObraService.porCenaParam),
+backend/src/routes/cenaRoutes.js:39:    autorizarObra(EscopoObraService.porCenaParam),
+backend/src/routes/cenaRoutes.js:47:    autorizar('obra.excluir'),
+backend/src/routes/cenaImagemRoutes.js:10:const autorizarObra = require('../middleware/autorizarObra');
+backend/src/routes/cenaImagemRoutes.js:40:    autorizarObra(EscopoObraService.porCenaBody),
+backend/src/routes/cenaImagemRoutes.js:49:    autorizarObra(EscopoObraService.porCenaImagemParam),
+backend/src/routes/cenaImagemRoutes.js:58:    autorizarObra(EscopoObraService.porCenaImagemParam),
+backend/src/routes/cenaImagemRoutes.js:67:    autorizarObra(EscopoObraService.porCenaImagemParam),
+backend/src/routes/cenaImagemRoutes.js:68:    autorizar('obra.excluir'),
+backend/src/routes/escolhaRoutes.js:5:const autorizarObra = require('../middleware/autorizarObra');
+backend/src/routes/escolhaRoutes.js:39:    autorizarObra(
+backend/src/routes/escolhaRoutes.js:41:        'obra.editar'
+backend/src/routes/escolhaRoutes.js:51:    autorizarObra(
+backend/src/routes/escolhaRoutes.js:62:    autorizarObra(EscopoObraService.porEscolhaParam),
+backend/src/routes/escolhaRoutes.js:71:    autorizarObra(EscopoObraService.porEscolhaParam),
+backend/src/routes/escolhaRoutes.js:80:    autorizarObra(EscopoObraService.porEscolhaParam),
+backend/src/routes/escolhaRoutes.js:90:    autorizarObra(
+backend/src/routes/escolhaRoutes.js:92:        'obra.excluir'
+backend/src/routes/cenaConteudoRoutes.js:9:const autorizarObra = require('../middleware/autorizarObra');
+backend/src/routes/cenaConteudoRoutes.js:40:    autorizarObra(EscopoObraService.porCenaConteudoBody),
+backend/src/routes/cenaConteudoRoutes.js:49:    autorizarObra(EscopoObraService.porCenaConteudoBody),
+backend/src/routes/cenaConteudoRoutes.js:58:    autorizarObra(EscopoObraService.porCenaConteudoParam),
+backend/src/routes/cenaConteudoRoutes.js:67:    autorizarObra(EscopoObraService.porCenaConteudoParam),
+backend/src/routes/cenaConteudoRoutes.js:76:    autorizarObra(EscopoObraService.porCenaConteudoParam),
+backend/src/middleware/autorizacao.js:4:function autorizar(codigoPermissao) {
+backend/src/middleware/autorizacao.js:16:        if (!codigoPermissao || typeof codigoPermissao !== 'string') {
+backend/src/middleware/autorizacao.js:28:                  FROM usuario_papeis up
+backend/src/middleware/autorizacao.js:30:                    ON p.id = up.papel_id
+backend/src/middleware/autorizacao.js:32:                  INNER JOIN papel_permissoes pp
+backend/src/middleware/autorizacao.js:33:                    ON pp.papel_id = p.id
+backend/src/middleware/autorizacao.js:36:                    ON pm.id = pp.permissao_id
+backend/src/middleware/autorizacao.js:44:                codigoPermissao
+backend/src/middleware/autorizarObra.js:1:const AutorizacaoService = require('../services/autorizacaoService');
+backend/src/middleware/autorizarObra.js:4:function autorizarObra(
+backend/src/middleware/autorizarObra.js:6:    codigoPermissao = 'obra.editar'
+backend/src/middleware/autorizarObra.js:15:            !codigoPermissao ||
+backend/src/middleware/autorizarObra.js:16:            typeof codigoPermissao !== 'string'
+backend/src/middleware/autorizarObra.js:37:                await AutorizacaoService.podeEditarObra(
+backend/src/middleware/autorizarObra.js:40:                    codigoPermissao
+backend/src/middleware/autorizarObra.js:61:module.exports = autorizarObra;
+backend/src/validators/usuarioPapelValidator.js:3:function validarCriacaoUsuarioPapel(req, res, next) {
+backend/src/validators/usuarioPapelValidator.js:7:        papel_id
+backend/src/validators/usuarioPapelValidator.js:24:    if (!papel_id || typeof papel_id !== 'string') {
+backend/src/validators/usuarioPapelValidator.js:27:            message: 'papel_id é obrigatório e deve ser um UUID válido.'
+backend/src/validators/usuarioPapelValidator.js:31:    if (!validarUUID(papel_id)) {
+backend/src/validators/usuarioPapelValidator.js:34:            message: 'papel_id deve ser um UUID válido.'
+backend/src/validators/usuarioPapelValidator.js:42:    validarCriacaoUsuarioPapel
+backend/src/validators/papelValidator.js:1:function validarCriacaoPapel(req, res, next) {
+backend/src/validators/papelValidator.js:80:    validarCriacaoPapel,
+backend/src/validators/papelPermissaoValidator.js:3:function validarCriacaoPapelPermissao(req, res, next) {
+backend/src/validators/papelPermissaoValidator.js:6:        papel_id,
+backend/src/validators/papelPermissaoValidator.js:7:        permissao_id
+backend/src/validators/papelPermissaoValidator.js:10:    if (!papel_id || typeof papel_id !== 'string') {
+backend/src/validators/papelPermissaoValidator.js:13:            message: 'papel_id é obrigatório e deve ser um UUID válido.'
+backend/src/validators/papelPermissaoValidator.js:17:    if (!validarUUID(papel_id)) {
+backend/src/validators/papelPermissaoValidator.js:20:            message: 'papel_id deve ser um UUID válido.'
+backend/src/validators/papelPermissaoValidator.js:24:    if (!permissao_id || typeof permissao_id !== 'string') {
+backend/src/validators/papelPermissaoValidator.js:27:            message: 'permissao_id é obrigatório e deve ser um UUID válido.'
+backend/src/validators/papelPermissaoValidator.js:31:    if (!validarUUID(permissao_id)) {
+backend/src/validators/papelPermissaoValidator.js:34:            message: 'permissao_id deve ser um UUID válido.'
+backend/src/validators/papelPermissaoValidator.js:42:    validarCriacaoPapelPermissao
+backend/src/validators/permissaoValidator.js:1:function validarCriacaoPermissao(req, res, next) {
+backend/src/validators/permissaoValidator.js:84:    validarCriacaoPermissao,
+
+============================================================
+9. MIGRATIONS ADMINISTRATIVAS
+============================================================
+
+============================================================
+10. CONTEÚDO DAS MIGRATIONS ADMINISTRATIVAS
+============================================================
+
+============================================================
+11. APP / SERVER
+============================================================
+
+------------------------------------------------------------
+ARQUIVO: backend/src/config/app.js
+------------------------------------------------------------
+
+------------------------------------------------------------
+ARQUIVO: backend/src/server.js
+------------------------------------------------------------
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const autenticar = require('./middleware/autenticar');
+const autorizar = require('./middleware/autorizacao');
+const errorHandler = require('./middleware/errorHandler');
+const path = require('path');
+// routes
+const usuarioRoutes = require('./routes/usuarioRoutes');
+const perfilUsuarioRoutes = require('./routes/perfilUsuarioRoutes');
+const autorRoutes = require('./routes/autorRoutes');
+const livroRoutes = require('./routes/livroRoutes');
+const capituloRoutes = require('./routes/capituloRoutes');
+const cenaRoutes = require('./routes/cenaRoutes');
+const escolhaRoutes = require('./routes/escolhaRoutes');
+const cenasImagemRoutes = require('./routes/cenaImagemRoutes');
+const cenaAudioRoutes = require('./routes/cenaAudioRoutes');
+const cenaVideoRoutes = require('./routes/cenaVideoRoutes');
+const progressoLeituraRoutes = require('./routes/progressoLeituraRoutes');
+const marcadorRoutes = require('./routes/marcadorRoutes');
+const favoritoRoutes = require('./routes/favoritoRoutes');
+const avaliacaoRoutes = require('./routes/avaliacaoRoutes');
+const comentarioRoutes = require('./routes/comentarioRoutes');
+const tokenUsuarioRoutes = require('./routes/tokenUsuarioRoutes');
+const cenaTextoRoutes = require('./routes/cenaTextoRoutes');
+const cenaConteudoRoutes = require('./routes/cenaConteudoRoutes');
+const livroAutorRoutes = require('./routes/livroAutorRoutes');
+const statusLivroRoutes = require('./routes/statusLivroRoutes');
+const visibilidadeLivroRoutes = require('./routes/visibilidadeLivroRoutes');
+const categoriaRoutes = require('./routes/categoriaRoutes');
+const classificacaoIndicativaRoutes = require('./routes/classificacaoIndicativaRoutes');
+const idiomaRoutes = require('./routes/idiomaRoutes');
+const permissaoRoutes = require('./routes/permissaoRoutes');
+const papelRoutes = require('./routes/papelRoutes');
+const papelPermissaoRoutes = require('./routes/papelPermissaoRoutes');
+const usuarioPapelRoutes = require('./routes/usuarioPapelRoutes');
+const solicitacaoAutorRoutes = require('./routes/solicitacaoAutorRoutes');
+const app = express();
+const PORT = process.env.PORT || 3001;
+// CORS options
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+// Middleware
+app.use(cors(corsOptions));  // ✅ Correto: cors() é uma função
+app.use(express.json());
+app.use('/media', express.static(path.join(__dirname, '../../media')));
+// Health check
+app.get('/', (req, res) => {
+  res.json({ message: 'API Ciganas rodando!' });
+});
+// Routes
+app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/perfis', perfilUsuarioRoutes);
+app.use('/api/autores', autorRoutes);
+app.use('/api/livros', livroRoutes);
+app.use('/api/capitulos', capituloRoutes);
+app.use('/api/cenas', cenaRoutes);
+app.use('/api/escolhas', escolhaRoutes);
+app.use('/api/cena-imagens', cenasImagemRoutes);
+app.use('/api/cena-audios',cenaAudioRoutes);
+app.use('/api/cena-videos', cenaVideoRoutes);
+app.use('/api/progresso-leitura',progressoLeituraRoutes);
+app.use('/api/marcadores', marcadorRoutes);
+app.use('/api/favoritos', favoritoRoutes);
+app.use('/api/avaliacoes', avaliacaoRoutes);
+app.use('/api/comentarios', comentarioRoutes);
+app.use('/api/tokens-usuario', tokenUsuarioRoutes);
+app.use('/api/cena-textos', cenaTextoRoutes);
+app.use('/api/cena-conteudos', cenaConteudoRoutes);
+app.use('/api/livro-autores', livroAutorRoutes);
+app.use('/api/status-livro', statusLivroRoutes);
+app.use('/api/visibilidade-livro', visibilidadeLivroRoutes);
+app.use('/api/categorias', categoriaRoutes);
+app.use('/api/classificacoes-indicativas', classificacaoIndicativaRoutes);
+app.use('/api/idiomas', idiomaRoutes);
+app.use('/api/permissoes', permissaoRoutes);
+app.use('/api/papeis', papelRoutes);
+app.use('/api/papel-permissoes', papelPermissaoRoutes);
+app.use('/api/usuario-papeis', usuarioPapelRoutes);
+app.use('/api/solicitacoes-autor', solicitacaoAutorRoutes);
+// Error handling
+app.use(errorHandler);
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Rota não encontrada' });
+});
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+});
+
+============================================================
+12. ENDPOINTS ADMINISTRATIVOS
+============================================================
+backend/src/server.js:63:app.use('/api/usuarios', usuarioRoutes);
+backend/src/server.js:64:app.use('/api/perfis', perfilUsuarioRoutes);
+backend/src/server.js:65:app.use('/api/autores', autorRoutes);
+backend/src/server.js:78:app.use('/api/tokens-usuario', tokenUsuarioRoutes);
+backend/src/server.js:87:app.use('/api/permissoes', permissaoRoutes);
+backend/src/server.js:88:app.use('/api/papeis', papelRoutes);
+backend/src/server.js:89:app.use('/api/papel-permissoes', papelPermissaoRoutes);
+backend/src/server.js:90:app.use('/api/usuario-papeis', usuarioPapelRoutes);
+backend/src/server.js:91:app.use('/api/solicitacoes-autor', solicitacaoAutorRoutes);
+
+============================================================
+13. RESUMO DA INSPEÇÃO
+============================================================
+Escopo:
+- Usuários
+- Perfis de usuário
+- Autores
+- Relação livro-autor
+- Solicitações de autor
+- Papéis
+- Permissões
+- Usuário-Papel
+- Papel-Permissão
+- Tokens de usuário
+- Autenticação
+- Autorização
+- Migrations relacionadas
+- Rotas administrativas
+
+Excluído propositalmente:
+- Pessoa
+- PessoaFisica
+- PessoaJuridica
+- Telefone
+- Endereco
+- Testes
+- node_modules
+- package-lock.json
+
+Objetivo:
+Entender a estrutura administrativa existente antes
+de definir ou implementar novas funcionalidades.

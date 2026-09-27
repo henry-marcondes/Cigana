@@ -144,24 +144,27 @@ class SolicitacaoAutor {
         return result.rows;
     }
 
-    static async aprovar(id, avaliado_por) {
-        const query = `
-            UPDATE solicitacoes_autor
-            SET
-                status = 'APROVADA',
-                avaliado_por = $2,
-                avaliado_em = NOW(),
-                motivo_recusa = NULL,
-                atualizado_em = NOW()
-            WHERE id = $1
-              AND status = 'PENDENTE'
-            RETURNING ${CAMPOS_PUBLICOS}
-        `;
+static async aprovar(id, avaliado_por, client = pool) {
+    const query = `
+        UPDATE solicitacoes_autor
+           SET status = 'APROVADA',
+               avaliado_por = $2,
+               avaliado_em = NOW(),
+               motivo_recusa = NULL,
+               atualizado_em = NOW()
+         WHERE id = $1
+           AND status = 'PENDENTE'
+        RETURNING ${CAMPOS_PUBLICOS}
+    `;
 
-        const result = await pool.query(query, [id, avaliado_por]);
+    const result = await client.query(
+        query,
+        [id, avaliado_por]
+    );
 
-        return result.rows[0] || null;
-    }
+    return result.rows[0] || null;
+}
+     
 
     static async recusar(id, avaliado_por, motivo_recusa) {
         const query = `

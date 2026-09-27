@@ -14,10 +14,10 @@ class LivroService {
         return await Livro.buscarPorSlug(slug);
     }
 
-    static async criar(dados) {
-        return await Livro.criar(dados);
+    static async criar(dados, client) {
+        return await Livro.criar(dados, client);
     }
-
+    
     static async alterarInformacoes(id, dados) {
         return await Livro.alterarInformacoes(id, dados);
     }

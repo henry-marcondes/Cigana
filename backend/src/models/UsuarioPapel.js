@@ -67,17 +67,17 @@ class UsuarioPapel {
         return result.rows[0];
     }
 
-    static async buscarPorUsuarioEPapel(usuarioId, papelId) {
-        const result = await pool.query(`
-            SELECT ${CAMPOS_PUBLICOS}
-              FROM usuario_papeis
-             WHERE usuario_id = $1
-               AND papel_id = $2
-               AND ativo = TRUE
-        `, [usuarioId, papelId]);
+    static async buscarPorUsuarioEPapel(usuarioId, papelId, client = pool) {
+    const result = await client.query(`
+        SELECT ${CAMPOS_PUBLICOS}
+          FROM usuario_papeis
+         WHERE usuario_id = $1
+           AND papel_id = $2
+           AND ativo = TRUE
+    `, [usuarioId, papelId]);
 
-        return result.rows[0];
-    }
+    return result.rows[0];
+}
 
     static async criar(usuarioId, papelId, client = pool) {
         const result = await client.query(`
