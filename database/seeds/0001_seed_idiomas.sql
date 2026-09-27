@@ -13,7 +13,7 @@ VALUES
     ('Español', 'Español', 'es', 'spa', 'es-ES'),
     ('Français', 'Français', 'fr', 'fra', 'fr-FR'),
     ('Deutsch', 'Deutsch', 'de', 'deu', 'de-DE'),
-    ('Italiano', 'Italiano', 'it', 'ita', 'it-IT');
+    ('Italiano', 'Italiano', 'it', 'ita', 'it-IT')
 
 ON CONFLICT (codigo_iso_639_1)
 DO UPDATE SET

@@ -43,7 +43,7 @@ if [ -z "$DB_HOST" ] || \
     exit 1
 fi
 
-PSQL="PGPASSWORD=\"$DB_PASSWORD\" psql -h \"$DB_HOST\" -p \"$DB_PORT\" -U \"$DB_USER\" -d \"$DB_NAME\""
+PSQL="PGPASSWORD=\"$DB_PASSWORD\" psql -h \"$DB_HOST\" -p \"$DB_PORT\" -U \"$DB_USER\" -d \"$DB_NAME\" \-v ON_ERROR_STOP=1"
 
 if [ -n "$1" ]; then
     echo "Executando migration: $1"
