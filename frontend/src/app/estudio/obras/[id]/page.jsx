@@ -448,6 +448,8 @@ export default function EditarObra() {
 
           <button
             type="button"
+            onClick={() =>
+                router.push(`/estudio/obras/${id}/informacoes`)}
             className="flex w-full items-center justify-between p-5 text-left hover:bg-gray-50 sm:p-6"
           >
             <div>

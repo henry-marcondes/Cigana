@@ -86,11 +86,37 @@ function validarAlteracaoCapaLivro(req, res, next) {
     return next();
 }
 
+function validarCriacaoLivroParaAutor(req, res, next) {
+    const {
+        categoria_id,
+        classificacao_indicativa_id,
+        idioma_id,
+        titulo,
+        slug
+    } = req.body;
+
+    if (
+        !categoria_id ||
+        !classificacao_indicativa_id ||
+        !idioma_id ||
+        !titulo ||
+        !slug
+    ) {
+        return res.status(400).json({
+            success: false,
+            message: 'Campos obrigatórios não informados.'
+        });
+    }
+
+    return next();
+}
+
 
 module.exports = {
     validarCriacaoLivro,
     validarAlteracaoInformacoesLivro,
     validarAlteracaoStatusLivro,
     validarAlteracaoVisibilidadeLivro,
-    validarAlteracaoCapaLivro
+    validarAlteracaoCapaLivro,
+    validarCriacaoLivroParaAutor
 };

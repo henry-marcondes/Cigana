@@ -1,53 +1,39 @@
 const pool = require('../db/connection');
 
 const SolicitacaoAutor = require('../models/SolicitacaoAutor');
-const Usuario = require('../models/Usuario');
-const Autor = require('../models/Autor');
-const Papel = require('../models/Papel');
 const UsuarioPapel = require('../models/UsuarioPapel');
+const Papel = require('../models/Papel');
+const Autor = require('../models/Autor');
+const Livro = require('../models/Livro');
 const LivroAutor = require('../models/LivroAutor');
-
-const AutorizacaoService = require('./autorizacaoService');
 
 class SolicitacaoAutorService {
 
+    // =====================================================
+    // USUÁRIO
+    // =====================================================
+
     static async criar(usuario_id, dados) {
 
-        const usuario = await Usuario.buscarPorId(usuario_id);
-
-        if (!usuario) {
-            const erro = new Error('Usuário não encontrado.');
-            erro.statusCode = 404;
-            throw erro;
-        }
-
-        if (!usuario.email_verificado_em) {
-            const erro = new Error(
-                'É necessário verificar o e-mail antes de solicitar atuação como Autor.'
+        const existente =
+            await SolicitacaoAutor.buscarPendentePorUsuario(
+                usuario_id
             );
 
-            erro.statusCode = 400;
-            throw erro;
-        }
-
-        const pendente =
-            await SolicitacaoAutor.buscarPendentePorUsuario(usuario_id);
-
-        if (pendente) {
-            const erro = new Error(
-                'Já existe uma solicitação para atuação como Autor pendente.'
+        if (existente) {
+            const error = new Error(
+                'Já existe uma solicitação de Autor pendente para este usuário.'
             );
 
-            erro.statusCode = 409;
-            throw erro;
+            error.statusCode = 409;
+            throw error;
         }
 
-        return SolicitacaoAutor.criar({
+        return await SolicitacaoAutor.criar({
             usuario_id,
             ...dados
         });
     }
-
 
     static async buscarMinhaPorId(usuario_id, id) {
 
@@ -55,91 +41,84 @@ class SolicitacaoAutorService {
             await SolicitacaoAutor.buscarPorId(id);
 
         if (!solicitacao) {
-            const erro = new Error(
+            const error = new Error(
                 'Solicitação de Autor não encontrada.'
             );
 
-            erro.statusCode = 404;
-            throw erro;
+            error.statusCode = 404;
+            throw error;
         }
 
         if (solicitacao.usuario_id !== usuario_id) {
-            const erro = new Error(
-                'Solicitação de Autor não encontrada.'
+            const error = new Error(
+                'Você não tem acesso a esta solicitação.'
             );
 
-            erro.statusCode = 404;
-            throw erro;
+            error.statusCode = 403;
+            throw error;
         }
 
         return solicitacao;
     }
 
-
     static async listarPorUsuario(usuario_id) {
-        return SolicitacaoAutor.listarPorUsuario(usuario_id);
+
+        return await SolicitacaoAutor.listarPorUsuario(
+            usuario_id
+        );
     }
 
+    // =====================================================
+    // GESTÃO DA PLATAFORMA
+    // =====================================================
 
-    static async buscarParaAvaliacao(avaliador_id, id) {
-
-        await this._validarPermissaoAvaliacao(avaliador_id);
+    static async buscarParaAvaliacao(
+        avaliador_id,
+        id
+    ) {
 
         const solicitacao =
             await SolicitacaoAutor.buscarPorId(id);
 
         if (!solicitacao) {
-            const erro = new Error(
+            const error = new Error(
                 'Solicitação de Autor não encontrada.'
             );
 
-            erro.statusCode = 404;
-            throw erro;
+            error.statusCode = 404;
+            throw error;
         }
 
         return solicitacao;
     }
-
 
     static async listarPorAvaliacao(
         avaliador_id,
         status = null
     ) {
 
-        await this._validarPermissaoAvaliacao(avaliador_id);
-
         if (status) {
-            return SolicitacaoAutor.listarPorStatus(status);
+            return await SolicitacaoAutor.listarPorStatus(
+                status
+            );
         }
 
-        return SolicitacaoAutor.listarTodas();
+        return await SolicitacaoAutor.listarTodas();
     }
-
 
     static async listarPendentes(avaliador_id) {
 
-        await this._validarPermissaoAvaliacao(avaliador_id);
-
-        return SolicitacaoAutor.listarPendentes();
+        return await SolicitacaoAutor.listarPendentes();
     }
 
+    // =====================================================
+    // APROVAÇÃO
+    // =====================================================
 
-    /**
-     * Aprova uma solicitação de Autor.
-     *
-     * A aprovação é uma operação transacional:
-     *
-     * 1. valida a solicitação;
-     * 2. obtém o papel AUTOR;
-     * 3. atribui o papel ao usuário, se ainda não possuir;
-     * 4. cria a entidade Autor, se ainda não existir;
-     * 5. vincula o Autor à obra proposta;
-     * 6. altera a solicitação para APROVADA;
-     * 7. confirma tudo com COMMIT.
-     */
-    static async aprovar(id, avaliador_id) {
-
-        await this._validarPermissaoAvaliacao(avaliador_id);
+    static async aprovar(
+        id,
+        avaliador_id
+    ) {
 
         const client = await pool.connect();
 
@@ -147,73 +126,79 @@ class SolicitacaoAutorService {
 
             await client.query('BEGIN');
 
-            /*
-             * Busca a solicitação dentro da transação.
-             */
-            const solicitacao =
-                await SolicitacaoAutor.buscarPorId(id);
+            // -------------------------------------------------
+            // 1. Buscar solicitação
+            // -------------------------------------------------
 
-            if (!solicitacao) {
-                const erro = new Error(
+            const solicitacao =
+                await client.query(`
+                    SELECT
+                        id,
+                        usuario_id,
+                        nome_publico,
+                        biografia,
+                        foto_url,
+                        titulo_provisorio,
+                        resumo,
+                        categoria_id,
+                        classificacao_indicativa_id,
+                        idioma_id,
+                        status
+                    FROM solicitacoes_autor
+                    WHERE id = $1
+                    FOR UPDATE
+                `, [id]);
+
+            if (solicitacao.rowCount === 0) {
+
+                const error = new Error(
                     'Solicitação de Autor não encontrada.'
                 );
 
-                erro.statusCode = 404;
-                throw erro;
+                error.statusCode = 404;
+                throw error;
             }
 
-            if (solicitacao.status !== 'PENDENTE') {
-                const erro = new Error(
-                    'Somente solicitações pendentes podem ser aprovadas.'
+            const dados = solicitacao.rows[0];
+
+            // -------------------------------------------------
+            // 2. Garantir que ainda está pendente
+            // -------------------------------------------------
+
+            if (dados.status !== 'PENDENTE') {
+
+                const error = new Error(
+                    'Esta solicitação já foi avaliada.'
                 );
 
-                erro.statusCode = 409;
-                throw erro;
+                error.statusCode = 409;
+                throw error;
             }
 
+            // -------------------------------------------------
+            // 3. Obter papel AUTOR
+            // -------------------------------------------------
 
-            /*
-             * Verifica o usuário candidato.
-             */
-            const usuario =
-                await Usuario.buscarPorId(solicitacao.usuario_id);
-
-            if (!usuario) {
-                const erro = new Error(
-                    'Usuário da solicitação não encontrado.'
-                );
-
-                erro.statusCode = 404;
-                throw erro;
-            }
-
-
-            /*
-             * Obtém o papel AUTOR diretamente pelo código.
-             *
-             * O banco continua sendo a fonte de verdade
-             * para RBAC.
-             */
             const papelAutor =
                 await Papel.buscarPorCodigo('AUTOR');
 
             if (!papelAutor) {
-                const erro = new Error(
-                    'Papel AUTOR não encontrado.'
+
+                const error = new Error(
+                    'O papel AUTOR não está cadastrado.'
                 );
 
-                erro.statusCode = 500;
-                throw erro;
+                error.statusCode = 500;
+                throw error;
             }
 
+            // -------------------------------------------------
+            // 4. Atribuir papel AUTOR ao usuário
+            // -------------------------------------------------
 
-            /*
-             * Atribui o papel AUTOR caso o usuário ainda
-             * não possua esse papel.
-             */
             let usuarioPapel =
                 await UsuarioPapel.buscarPorUsuarioEPapel(
-                    solicitacao.usuario_id,
+                    dados.usuario_id,
                     papelAutor.id,
                     client
                 );
@@ -222,119 +207,169 @@ class SolicitacaoAutorService {
 
                 usuarioPapel =
                     await UsuarioPapel.criar(
-                        solicitacao.usuario_id,
+                        dados.usuario_id,
                         papelAutor.id,
                         client
                     );
             }
 
+            // -------------------------------------------------
+            // 5. Criar ou obter entidade Autor
+            // -------------------------------------------------
 
-            /*
-             * Obtém ou cria a entidade de domínio Autor.
-             */
             let autor =
                 await Autor.buscarPorUsuarioId(
-                    solicitacao.usuario_id
+                    dados.usuario_id
                 );
 
             if (!autor) {
 
-                autor = await Autor.criar(
-                    {
-                        usuario_id: solicitacao.usuario_id,
-                        nome_publico: solicitacao.nome_publico,
-                        biografia: solicitacao.biografia,
-                        foto_url: solicitacao.foto_url
-                    },
+                autor = await Autor.criar({
+                    usuario_id: dados.usuario_id,
+                    nome_publico: dados.nome_publico,
+                    biografia: dados.biografia,
+                    foto_url: dados.foto_url
+                }, client);
+            }
+
+            // -------------------------------------------------
+            // 6. Criar a Obra
+            // -------------------------------------------------
+
+            const statusResult =
+                await client.query(`
+                    SELECT id
+                    FROM status_livro
+                    WHERE slug = 'em-elaboracao'
+                      AND ativo = TRUE
+                    LIMIT 1
+                `);
+
+            if (statusResult.rowCount === 0) {
+
+                const error = new Error(
+                    'O status "Em elaboração" não está cadastrado.'
+                );
+
+                error.statusCode = 500;
+                throw error;
+            }
+
+            const visibilidadeResult =
+                await client.query(`
+                    SELECT id
+                    FROM visibilidade_livro
+                    WHERE slug = 'rascunho'
+                      AND ativo = TRUE
+                    LIMIT 1
+                `);
+
+            if (visibilidadeResult.rowCount === 0) {
+
+                const error = new Error(
+                    'A visibilidade "Rascunho" não está cadastrada.'
+                );
+
+                error.statusCode = 500;
+                throw error;
+            }
+
+            const status_livro_id =
+                statusResult.rows[0].id;
+
+            const visibilidade_livro_id =
+                visibilidadeResult.rows[0].id;
+
+            // -------------------------------------------------
+            // Slug inicial da obra
+            // -------------------------------------------------
+
+            const slugBase =
+                this.gerarSlug(dados.titulo_provisorio);
+
+            const slug =
+                await this.gerarSlugUnico(
+                    slugBase,
                     client
                 );
-            }
 
+            const livro =
+                await Livro.criar({
+                    categoria_id:
+                        dados.categoria_id,
 
-            /*
-             * Verifica se o Autor já está vinculado
-             * à obra proposta.
-             *
-             * Não criamos vínculo duplicado.
-             */
-            const autorDaObra =
-                await LivroAutor.usuarioEhAutorDaObra(
-                    solicitacao.usuario_id,
-                    solicitacao.id
-                );
+                    classificacao_indicativa_id:
+                        dados.classificacao_indicativa_id,
 
-            /*
-             * A solicitação ainda não possui livro_id.
-             *
-             * A obra da solicitação é criada neste processo.
-             */
-            let livroId = null;
+                    idioma_id:
+                        dados.idioma_id,
 
-            /*
-             * A partir da estrutura atual, a solicitação contém
-             * os dados da futura obra, mas não contém livro_id.
-             *
-             * Portanto, a aprovação não pode simplesmente criar
-             * LivroAutor ainda.
-             *
-             * Esta condição interrompe a transação de forma
-             * explícita até que a obra seja criada/vinculada
-             * por uma operação definida para esse fluxo.
-             */
-            if (!livroId) {
+                    status_livro_id,
 
-                const erro = new Error(
-                    'A solicitação aprovada ainda não possui uma obra vinculável.'
-                );
+                    visibilidade_livro_id,
 
-                erro.statusCode = 409;
-                throw erro;
-            }
+                    titulo:
+                        dados.titulo_provisorio,
 
+                    slug,
 
-            /*
-             * Este bloco será executado quando o fluxo de criação
-             * da obra estiver definido.
-             */
-            if (!autorDaObra) {
+                    resumo:
+                        dados.resumo,
 
-                await LivroAutor.criar(
-                    {
-                        livro_id: livroId,
-                        autor_id: autor.id,
-                        ordem_exibicao: 1
-                    },
-                    client
-                );
-            }
+                    capa_url:
+                        null,
 
+                    isbn:
+                        null,
 
-            /*
-             * Finalmente aprova a solicitação.
-             */
-            const solicitacaoAprovada =
+                    ano_publicacao:
+                        null,
+
+                    data_publicacao:
+                        null,
+
+                    ordem_exibicao:
+                        0
+
+                }, client);
+
+            // -------------------------------------------------
+            // 7. Vincular Autor à Obra
+            // -------------------------------------------------
+
+            await LivroAutor.criar({
+                livro_id: livro.id,
+                autor_id: autor.id,
+                ordem_exibicao: 1
+            }, client);
+
+            // -------------------------------------------------
+            // 8. Aprovar solicitação
+            // -------------------------------------------------
+
+            const resultado =
                 await SolicitacaoAutor.aprovar(
                     id,
                     avaliador_id,
                     client
                 );
 
-            if (!solicitacaoAprovada) {
-                const erro = new Error(
-                    'Não foi possível aprovar a solicitação de Autor.'
+            if (!resultado) {
+
+                const error = new Error(
+                    'Não foi possível aprovar a solicitação.'
                 );
 
-                erro.statusCode = 409;
-                throw erro;
+                error.statusCode = 409;
+                throw error;
             }
-
 
             await client.query('COMMIT');
 
             return {
-                solicitacao: solicitacaoAprovada,
-                usuario_papel: usuarioPapel,
-                autor
+                solicitacao: resultado,
+                autor,
+                livro
             };
 
         } catch (error) {
@@ -349,6 +384,9 @@ class SolicitacaoAutorService {
         }
     }
 
+    // =====================================================
+    // RECUSA
+    // =====================================================
 
     static async recusar(
         id,
@@ -356,63 +394,91 @@ class SolicitacaoAutorService {
         motivo_recusa
     ) {
 
-        await this._validarPermissaoAvaliacao(avaliador_id);
-
         const solicitacao =
             await SolicitacaoAutor.buscarPorId(id);
 
         if (!solicitacao) {
-            const erro = new Error(
+
+            const error = new Error(
                 'Solicitação de Autor não encontrada.'
             );
 
-            erro.statusCode = 404;
-            throw erro;
+            error.statusCode = 404;
+            throw error;
         }
 
         if (solicitacao.status !== 'PENDENTE') {
-            const erro = new Error(
-                'Somente solicitações pendentes podem ser recusadas.'
+
+            const error = new Error(
+                'Esta solicitação já foi avaliada.'
             );
 
-            erro.statusCode = 409;
-            throw erro;
+            error.statusCode = 409;
+            throw error;
         }
 
-        if (!motivo_recusa || !motivo_recusa.trim()) {
-            const erro = new Error(
+        if (
+            !motivo_recusa ||
+            !motivo_recusa.trim()
+        ) {
+
+            const error = new Error(
                 'O motivo da recusa é obrigatório.'
             );
 
-            erro.statusCode = 400;
-            throw erro;
+            error.statusCode = 400;
+            throw error;
         }
 
-        return SolicitacaoAutor.recusar(
+        return await SolicitacaoAutor.recusar(
             id,
             avaliador_id,
             motivo_recusa.trim()
         );
     }
 
+    // =====================================================
+    // UTILITÁRIOS
+    // =====================================================
 
-    static async _validarPermissaoAvaliacao(usuario_id) {
+    static gerarSlug(texto) {
 
-        const podeAvaliar =
-            await AutorizacaoService.temPermissao(
-                usuario_id,
-                'autor.editar'
-            );
+        return texto
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
 
-        if (!podeAvaliar) {
-            const erro = new Error(
-                'Usuário não possui permissão para avaliar solicitações de Autor.'
-            );
+    static async gerarSlugUnico(
+        slugBase,
+        client
+    ) {
 
-            erro.statusCode = 403;
-            throw erro;
+        let slug = slugBase;
+        let contador = 2;
+
+        while (true) {
+
+            const result = await client.query(`
+                SELECT 1
+                FROM livros
+                WHERE slug = $1
+                LIMIT 1
+            `, [slug]);
+
+            if (result.rowCount === 0) {
+                return slug;
+            }
+
+            slug = `${slugBase}-${contador}`;
+            contador++;
         }
     }
 }
 
 module.exports = SolicitacaoAutorService;
+
+

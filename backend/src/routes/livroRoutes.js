@@ -4,13 +4,16 @@ const LivroController = require('../controllers/LivroController');
 
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
+const autorizarObra = require('../middleware/autorizarObra');
+const EscopoObraService = require('../services/escopoObraService');
 
 const {
     validarCriacaoLivro,
     validarAlteracaoInformacoesLivro,
     validarAlteracaoStatusLivro,
     validarAlteracaoVisibilidadeLivro,
-    validarAlteracaoCapaLivro
+    validarAlteracaoCapaLivro,
+    validarCriacaoLivroParaAutor
 } = require('../validators/livroValidator');
 
 const router = express.Router();
@@ -23,6 +26,14 @@ router.get(
 router.get(
     '/slug/:slug',
     LivroController.buscarPorSlug
+);
+
+router.post(
+    '/autor',
+    autenticar,
+    autorizar('obra.criar'),
+    validarCriacaoLivroParaAutor,
+    LivroController.criarParaAutor
 );
 
 router.get(
@@ -41,7 +52,7 @@ router.post(
 router.put(
     '/:id',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porLivroParam,'obra.editar'),
     validarAlteracaoInformacoesLivro,
     LivroController.alterarInformacoes
 );

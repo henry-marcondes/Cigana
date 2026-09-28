@@ -55,11 +55,24 @@ useEffect(() => {
 
             // Carrega Autor
             try {
-                const respostaAutor = await buscarAutorPorUsuario(usuarioAtual.id);
+                const respostaAutor = await buscarAutorPorUsuario(
+                usuarioAtual.id);
+
                 setAutor(respostaAutor.data);
+
             } catch (error) {
-                // Usuário pode não possuir uma entidade Autor.
+
+            // Usuário sem entidade Autor é uma situação normal.
+                if (error.status === 404) {
+                    setAutor(null);
+                } else {
+                    console.error(
+                    'Erro ao carregar Autor:',
+                    error
+                );
+
                 setAutor(null);
+                }
             }
 
             // Carrega solicitações de Autor

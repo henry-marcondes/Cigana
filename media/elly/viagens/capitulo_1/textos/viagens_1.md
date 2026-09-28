@@ -30,7 +30,7 @@ nevados de uma montanha! Nunca mais vou me esquecer desse momento!
 ![](Pictures/10000000000002F0000003FCBC50CAFB13082641.jpg){width="7.414cm"
 height="10.056cm"}
 
-Cerro Catedral
+### Cerro Catedral
 
 Ver neve por si só é emocionante, mas pegar, sentir a neve é
 indescritível.
@@ -1086,3 +1086,5 @@ Ficamos pouco tempo nesse lugar, porque estávamos indo a Parati, porém
 essa imagem de Picinguaba estará pra sempre gravada em meu coração.
 
 31
+
+# TRINTADADE

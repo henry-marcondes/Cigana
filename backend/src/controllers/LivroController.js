@@ -71,6 +71,26 @@ class LivroController {
             next(error);
         }
     }
+    
+    static async criarParaAutor(req, res, next) {
+    try {
+        const usuario_id = req.usuario.id;
+
+        const livro =
+            await LivroService.criarParaAutor(
+                usuario_id,
+                req.body
+            );
+
+        return res.status(201).json({
+            success: true,
+            data: livro
+        });
+
+    } catch (error) {
+        next(error);
+    }
+}
 
     static async alterarInformacoes(req, res, next) {
         try {
