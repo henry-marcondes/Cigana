@@ -1,6 +1,6 @@
 # BARILOCHE
 
-#### (Julho de 2025)
+### (Julho de 2025)
 
 Após uma viagem longa, cansativa e uma conexão em Buenos Aires, com um
 tempo contadinho para passar na Imigração e tirar as botas da esteira
@@ -30,7 +30,7 @@ nevados de uma montanha! Nunca mais vou me esquecer desse momento!
 ![](Pictures/10000000000002F0000003FCBC50CAFB13082641.jpg){width="7.414cm"
 height="10.056cm"}
 
-### Cerro Catedral
+## Cerro Catedral
 
 Ver neve por si só é emocionante, mas pegar, sentir a neve é
 indescritível.
@@ -66,7 +66,7 @@ as pessoas numa estação de esqui, o tempo passa muito rápido!
 ![](Pictures/100000000000043800000438C6E85B237A52CDE8.jpg){width="13.52cm"
 height="13.077cm"}
 
-Tronador: a força de uma montanha
+## Tronador: a força de uma montanha
 
 Tudo é mágico nesse local, a força da Cordilheira dos Andes, um glaciar
 despejando pedaços de gelo num lago glacial: o poder da natureza.
@@ -78,7 +78,7 @@ aí é impressionante, mágico.
 ![](Pictures/1000000000000BF400000FF0C34D541E01C4C6CF.png){width="16.738cm"
 height="13.499cm"}
 
-### Cordilheira dos Andes
+## Cordilheira dos Andes
 
 Um pedaço do meu coração mora em ti;
 
@@ -98,9 +98,9 @@ Campanário: a saideira surpreendente !
 ![](Pictures/1000000000000640000004B02B77B892A3817B75.jpg){width="17cm"
 height="12.749cm"}
 
-BELO HORIZONTE
+# BELO HORIZONTE
 
-(março de 2021)
+### (março de 2021)
 
 Quando eu e meu filho combinamos passar uma pernoite em BH, antes de
 partir para Ouro Preto, logo pensei: mais uma metrópole, nada especial:
@@ -140,16 +140,16 @@ localizada numa cidade enorme.
 
 Depois disso, fomos à rodoviária, rumo às cidades históricas.
 
-CALDAS NOVAS
+# CALDAS NOVAS
 
-(outubro de 2015 / agosto de 2018)
+### (outubro de 2015 / agosto de 2018)
 
 É difícil voltar duas vezes ao mesmo lugar porque, para mim, viajar
 significa explorar, conhecer lugares novos, mas \...às vezes faço
 exceções e viajo novamente para um determinado lugar, e um desses
 lugares foi a incrível Caldas Novas, no estado de Goiás;
 
-Esse lugar é uma jia no meio do cerrado brasileiro, uma cidade
+Esse lugar é uma joia no meio do cerrado brasileiro, uma cidade
 aprazível, na qual você tem uma única preocupação: curtir o máximo da
 vida, relaxar, sentir o prazer de viver e desfrutar de suas águas
 quentes e mornas.
@@ -180,9 +180,9 @@ submersa kkkkk
 Em Caldas Novas, o que você precisa fazer: escolher um bom clube de
 piscinas aquecidas (há dezenas de termas lá) e desfrutar de suas águas.
 
-CARAÍVA / CORUMBAU
+# CARAÍVA / CORUMBAU
 
-(março de 2023)
+### (março de 2023)
 
 Denomino esses dois lugares de "*paraísos perdidos"*, porque para chegar
 a esses lugares, temos que ter muita paciência e determinação. Aliás, os
@@ -250,7 +250,7 @@ novo.
 Pretendo voltar um dia a Caraíva e conhecer a famosa Praia do Satu;
 dizem que ela é incrível também, parecida com Corumbau.
 
-Corumbau, uma beleza a parte
+## Corumbau, uma beleza a parte
 
 Dizem que ir para Caraíva e não conhecer Corumbau é como ir pra Roma e
 não ver o Papa. Bom, lá estava eu num passeio caro de buggy logo cedo.
@@ -296,9 +296,9 @@ Corumbau é daqueles lugares que não saem da cabeça da gente e, durante
 várias noites, aqui em Sáo Paulo, sonhava que ainda estava nesse paraíso
 tropical\...
 
-CUMURUXATIBA
+# CUMURUXATIBA
 
-(março de 2024)
+### (março de 2024)
 
 Sabe aquele lugar que dá uma baita trabalheira chegar?
 
@@ -364,7 +364,7 @@ atenciosos, profissionais; ela me levou para os pontos turísticos mais
 lindos de Cumuruxatiba. O roteiro foi o seguinte: Praia do Moreira,
 Imbassuaba e Barra do Cahy.
 
-Praia do Moreira, será que entrei em outra dimensão?
+## Praia do Moreira, será que entrei em outra dimensão?
 
 Fica a cinco quilômetros da vila: um verdadeiro tesouro! Os nativos
 costumam ir de bicicleta para lá e passam o dia nesse paraíso. Na Praia
@@ -377,7 +377,7 @@ naquele lugar maravilhoso; simples assim! Mas não se esqueça de recolher
 todos os restos de alimentos e lixos diversos porque um paraíso não pode
 ter rastro de nenhum ser humano descuidado.
 
-Praia do Imbassuaba
+## Praia do Imbassuaba
 
 Pertinho da Praia do Moreira (1,6 km), não sei se dá pra ir a pé pela
 praia por causa dos acidentes geográficos, mas a essa pouca distância,
@@ -395,7 +395,7 @@ Tanto Moreira como Imbassuaba são lugares paradisíacos, encantadores.
 Mar calmo, muitos recifes e uma beleza selvagem que deixa qualquer
 pessoa boquiaberta.
 
-Barra do Cahy
+## Barra do Cahy
 
 Meu sonho era passar o dia nessa praia, cujas falésias são muito famosas
 na Internet e um dos cartões postais de Cumuru.
@@ -422,9 +422,9 @@ No dia seguinte, fiz uma caminhada pela Praia do Rio do Peixe (a dois
 quilômetros da Praia do Pier), muito bela, mas sem estrutura turística.
 Peguei o ônibus para Prado.
 
-JOÃO PESSOA
+# JOÃO PESSOA
 
-( outubro de 2023 )
+### ( outubro de 2023 )
 
 A orla de João Pessoa é muito bem cuidada, moderna e cheia de edifícios.
 A praia central, Tambaú, é bonita, limpa, cheia de quiosques, mas não
@@ -449,7 +449,7 @@ Fora da região metropolitana de João Pessoa, sem dúvida, o que marcou
 minha viagem pelo litoral paraibano foi a alegre e efusiva Praia Bela,
 no município de Pitimbu.
 
-Areia Vermelha
+## Areia Vermelha
 
 Na verdade, não é uma praia no sentido científico da palavra. Ela não
 está permanentemente lá para os banhistas a desfrutarem; ela só surge,
@@ -480,7 +480,7 @@ de João Pessoa e Cabedelo bem à sua frente.
 Areia Vermelha é um desses refúgios aqui na Terra que ninguém se
 esquece, onde só reina a paz, a alegria de viver e muita diversão.
 
-Ponta do Seixas
+## Ponta do Seixas
 
 Uma pérola na capital paraibana, nem parece que estamos numa grande
 cidade: recifes, mar límpido, falésias bonitas, tudo para marcar o ponto
@@ -502,7 +502,7 @@ e Tambaú é relativamente rápido, uns vinte minutos, dependendo do
 trânsito. Então, dois conselhos: não esperem muita coisa de Seixas fora
 da orla e levem roupas pra se trocar na hora da volta.
 
-Praia Bela
+## Praia Bela
 
 Depois de uma longa permanência nos litorais paraibano e potiguar, é
 hora de fazer o passeio "saideira" antes do aeroporto.
@@ -539,9 +539,9 @@ Praia Bela pra mim é sinônimo de organização e beleza, nota dez!
 Lugar bonito, serviço competente e peixinhos na lagoa. Sonho em voltar
 um dia.
 
-MACEIÓ
+# MACEIÓ
 
-( outubro de 2021)
+### ( outubro de 2021)
 
 Maceió é daqueles lugares que mexe com a cabeça e o coração da gente, um
 vício que não faz mal à saúde; não dá pra vivenciar uma única vez na
@@ -569,7 +569,7 @@ Recomendo uma hospedagem de pelo menos uma noite em Maragogi porque as
 praias são realmente belas. Quanto às famosas piscinas naturais, só em
 horário de maré realmente baixa (menos de 0,4).
 
-Gunga e suas lindas falésias
+## Gunga e suas lindas falésias
 
 Essa localidade fica próxima à capital, o trajeto é tranquilo. Chegando
 lá, somos convidados a fazer um passeio muito interessante pelos recifes
@@ -597,7 +597,7 @@ elementos químicos presentes nas rochas. Os turistas podem andar
 livremente pelas falésias e depois tomar um refrescante banho numa
 lagoa, já que no mar não pode entrar: as ondas são de surfistas.
 
-Lajes / Patacho
+## Lajes / Patacho
 
 Quando eu estava na praia de São Miguel dos Milagres, um bugueiro nos
 ofereceu um passeio que me interessou muito: conhecer a famosa Patacho.
@@ -634,7 +634,7 @@ fica em primeiro lugar no meu coração.
 
 20
 
-São Miguel dos Milagres
+## São Miguel dos Milagres
 
 É uma localidade um pouco distante de Maceió, mas dá pra fazer bate e
 volta sem stress.
@@ -657,7 +657,7 @@ costuma ser um pouco caro.
 Nunca vou me esquecer da alegria de estar na piscina natural de São
 Miguel dos Milagres: puro prazer!
 
-Pajuçara
+## Pajuçara
 
 Quem disse que praia urbana de uma capital é tudo igual?
 
@@ -681,9 +681,9 @@ And I mean it from the bottom of my heart..."
 
 I will never forget you, Maceió, and I expect to come back to you.
 
-MORRO DE SÃO PAULO
+# MORRO DE SÃO PAULO
 
-(outubro de 2022)
+### (outubro de 2022)
 
 Um grande sonho de muitos e muitos anos...
 
@@ -765,7 +765,7 @@ restaurantes e barzinhos para todos os gostos, estilos e bolsos; vale
 destacar as sorveterias com sorvetes tão lindos e exóticos, que nunca
 tinha visto antes.
 
-Segunda e Terceira Praias
+## Segunda e Terceira Praias
 
 No dia seguinte, resolvemos curtir as praias próximas a uma encantadora
 península chamada "Ilha da Saudade" (na verdade, não uma ilha, e sim um
@@ -775,7 +775,7 @@ Terceira Praias. Realmente, esse nome romântico tem tudo a ver com o
 local porque quem vivencia essa praia, depois que sai dela, carrega no
 coração uma imensa saudade.
 
-Quarta Praia e suas fantásticas piscinas naturais
+## Quarta Praia e suas fantásticas piscinas naturais
 
 No terceiro dia em Morro, decidimos mudar a direção, avançar sentido
 direita e caminhamos tranquilamente pela estrada. À medida que a gente
@@ -798,7 +798,7 @@ Praia. Ficamos a manhã inteira nadando. Depois, paramos na Terceira
 Praia para bebermos uma caipirinha. Meu filho entrou no mar, mas eu
 achei muito fundo, preferi ficar só apreciando a paisagem linda.
 
-Primeira Praia e o maravilhoso mirante
+## Primeira Praia e o maravilhoso mirante
 
 Após a pausa para o drinque, caminhamos até a Primeira Praia para
 conhecer. Confesso que foi a única que não gostei: mar virado. Meu filho
@@ -823,9 +823,9 @@ conhecido um lugar tão lindo.
 
 Morro de São Paulo, a Ilha da Saudade\...
 
-NATAL
+# NATAL
 
-(outubro de 2023)
+### (outubro de 2023)
 
 Na minha viagem a João Pessoa, planejei conhecer também Natal, já que
 fica perto, aproximadamente duas horas e meia de ônibus.
@@ -904,7 +904,7 @@ assistindo ao Jornal Nacional na sala da pousada, conheci uma menina
 independente como eu, a Giulia, pessoa muito legal. Ela iria no dia
 seguinte para Genipabu e eu, para Camurupim, no lado inverso.
 
-Camurupim, uma paixão
+## Camurupim, uma paixão
 
 No dia seguinte, acordei cedo para ir a um passeio de agência turística,
 liguei na pousada mesmo e combinamos tudo. Perguntei para a anfitriã da
@@ -948,9 +948,9 @@ surpresas de Natal. Pretendo voltar um dia pra conhecer as famosas
 lagoas de Nìsia Floresta e Genipabu, quem sabe, ao lado de um
 companheiro.
 
-OURO PRETO
+# OURO PRETO
 
-(julho de 2012 / abril de 2022)
+### (julho de 2012 / abril de 2022)
 
 Como eu já disse antes: são poucos os lugares nos quais repito a viagem
 porque viajar pra mim significa "desbravar". Mas para Ouro Preto já fui
@@ -1016,9 +1016,9 @@ de cidade moderna, com potencial turístico: bares, restaurantes para
 todos os gostos e estilos, lojas, artesanatos, hospedagens diversas,
 tudo para o conforto do turista.
 
-PARATI
+# PARATI
 
-( janeiro de 2016 )
+### ( janeiro de 2016 )
 
 Essa famosa cidade fluminense era o sonho do meu marido na época. Fui
 com ele e meu filho; uma viagem de família bem tranquila.
@@ -1047,7 +1047,7 @@ amizades na pousada.
 Nessa inesquecível viagem,conhecemos também dois tesouros próximos a
 Parati: Picinguaba e a famosa vila de Trindade.
 
-Picinguaba, simplesmente esplêndida
+## Picinguaba, simplesmente esplêndida
 
 Na rodovia Rio-Santos, no final das aprazíveis praias de Ubatuba, já
 perto da divisa com o estado do Rio de Janeiro, existe uma pérola
@@ -1085,6 +1085,79 @@ linda praia, triste isso.
 Ficamos pouco tempo nesse lugar, porque estávamos indo a Parati, porém
 essa imagem de Picinguaba estará pra sempre gravada em meu coração.
 
-31
+## TRINDADE
 
-# TRINTADADE
+Quando estávamos hospedados em Parati, fizemos um bate e volta pra Trindade, que é bem perto. Você pega uma estrada que começa na Rio-Santos, com muitas curvas, mas bem sinalizada, não tem erro. No final da estrada, você avista um mar nunca visto antes, com enormes ondas de surf, a primeira praia, Cepilho.
+marcamos um encontro com os primos, que estavam hospedados em Ubatuba, foi a maior festa. Comemos, pela primeira vez, empanadas feitas por uma senhora argentina, compramos cervejas, enchemos as *coolers* e fomos desbravar as praias, mas o mar de Trindade não estava pra peixe, só ondas altas. Aí resolvemos encarar duas trilhas pequenas e ir para a Piscina Natural do Cachadaço. Que diversão memorável! Caímos finalmente na água! 
+A Piscina Natural do Cachadaço é enorme, tem diferentes níveis de profundidade, muitos peixinhos coloridos, a coisa mais linda! Meu compadre alugou um *snorkel*, meu filho e meu afilhado também, eles deram vários mergulhos e tiramos uma foto icônica.
+Curtimos à beça e, na volta, percebemos que para ir à Piscina Natural, é só pegar um barquinho de dez minutos na Praia do Meio, não precisa fazer as duas trilhas, demos muitas risadas e voltamos para a vila de barco, é lógico *kkkkk*
+Chegando na vila, vimos muitos estrangeiros e não eram só os *hermanos* argentinos, eram pessoas de vários países - como Trindade é famosa no mundo todo! Só conheci três lugares de turistas do mundo todo no Brasil: Trindade, Rio de Janeiro e Jericoacoara. 
+A vila de Trindade tem boa estrutura turística, os atendimentos são em inglês, espanhol e português. Mas vou te confessar: não vale tanto a pena assim. O único mar no qual você relaxa é o da Piscina Natural: mar ladeado por grandes pedras. Há muitos turistas que se embrenham pelas matas em busca de cachoeiras, dizem que elas são top de linha, mas eu ainda não as conheci.
+Tirando a Piscina Natural do Cachadaço e as cachoeiras, Trindade só desperta interesse em surfistas.
+
+# POÇOS DE CALDAS
+### (Julho de 2024)
+
+Um passeio de inverno interessante que fiz durante as férias escolares do meu filho foi para a grande cidade mineira de Poços de Caldas.
+Reservamos o hotel, compramos as passagens e fomos conhecer esse recanto turístico.
+A viagem de ônibus não é curta, mas também não tão longa como para Olímpia ; durou aproximadamente umas cinco horas.
+A última parada de rodoviária foi na cidade paulista de Águas da Prata, já perto da divisa com Minas Gerais. Era fim de tarde, olhei pela janela do ônibus e fiquei encantada com a beleza dessa cidadezinha. Uma grande lagoa com patos em pleno centrinho, numa praça pitoresca - que encanto de cidade! Parecia uma paisagem de pintura, que você pendura num lugar visível para ficar apreciando. Que vontade de sair do ônibus e ficar algum tempo nesse lugar. O ônibus saiu da rodoviária e vi um caminho para uma cachoeira, perto do centro comercial: que lugar mágico! Um dia quero me hospedar em Águas da Prata para conhecer melhor;
+Chegamos em Poços de Caldas no início da noite, ficamos hospedados no Hotel Ibis, saímos para comer e depois passear nos arredores.Essa cidade mineira é um misto de cidade grande com decoração caprichada de cidade pequena. Há uma praça enorme, muito bela com coreto, muitas árvores, plantas e flores diversas, tudo isso perto de muitos edifícios.
+Na manhã seguinte, fomos conhecer a cidade, fazendo o famoso passeio de teleférico. Meu filho ficou com medo, mas eu me senti segura, pois era um teleférico de cabine fechada.
+Ficamos apreciando a visão de toda a cidade no Mirante do Cristo Redentor. Passamos a manhã inteira em cima do Morro onde há um complexo turístico com restaurante e galerias, na hora do lanche apareceu até uma siriema para nos encantar. Na hora de voltar, desci de teleférico e meu filho preferiu fazer uma trilha no morro, que ia terminar no Parque dos Macacos.
+Assim que desci do teleférico, fui até o parque e fiquei esperando meu filho no final da trilha. Nunca vi tantos macaquinhos em toda a minha vida e bem pertinho de mim...Um paque muito bem cuidado, arborizado, bonito. Bebemos água de coco, que os macaquinhos logo depois agarraram *kkkk*
+De tarde, visitamos duas termas, que são banhos de banheira com uma água especial, com componentes químicos medicinais. Fiquei encantada com o luxo dos vitrais da terma central chamada Antônio Carlos. Essa terma possui uma cafeteria muito gostosa, que serve lanches e cafés internacionais. William experimentou um café muito exótico *kkkkk*
+No dia seguinte, fomos até o Parque Véu das Noivas,com muitas cachoeiras e natureza, um cenário exuberante, de tirar o fôlego, muito preservado... esse parque fica um pouco distante da cidade. Na
+ volta, caminhamos no Parque Municipal, que não chama muito a atenção, mas foi um passeio legal.
+Além da Praça Central, com coretos e fontes, conhecemos também a Praça do Relógio Floral, também muito interessante.
+Poços de Caldas reúne modernidade, natureza e prédios antigos, com arquitetura bem elegante, vale a pena conhecer.
+Foi uma viagem curta, mas muito agradável. 
+
+# PORTO DE GALINHAS
+### ( Janeiro de 2018 )
+
+Quando eu era casada, convenci meu marido da época de ir para Porto de Galinhas, fomos com meu filho.
+Desembarcamos em Recife, e no aeroporto mesmo, a van contratada nos pegou e nos levou para Porto de Galinhas, onde ficava a nossa pousada. 
+A vila é muito bonita e tem muitos artesanatos de galinhas diversas espalhadas em todos os lugares.
+A praia de Porto de Galinhas só é interessante perto do centro da vila, pois quando a maré abaixa, forma uma grande piscina natural. As praias dos arredores não são assim, só a do centro. Me diverti bastante nessa praia, meu filho se aventurou e mergulhou com *snorkel* e nadadeiras no meio do mar e ficou maravilhado com os peixinhos.
+Fizemos dois passeios inesquecíveis nas regiões próximas: Carneiros e Muro Alto.
+
+
+## CARNEIROS
+
+O percurso de Porto de Galinhas até Carneiros (distrito de Tamandaré) é por uma rodovia bem asfaltada e ladeada por plantações de cana-de-açúcar. Os pernambucanos gostam muito de doces e fazem rocamboles recheados de diversos sabores chamados bolos de rolo. Existem outros doces deliciosos da culinária pernambucana, gostei de todos. Carneiros é muito visitado porque sua praia é simplesmente sensacional. A van agendada nos deixa no *Beach Club* conhecido, muito organizado, com ótima infraestrutura turística.
+A geografia de Carneiros faz com que o mar seja raso e, mesmo nas marés altas, dá pra tomar banho de mar tranquilamente.
+Fizemos um passeio que nos leva para um banco de areia no qual a gente vê diversos seres marinhos: passeio incrível, curti muito. Só não gostei que depois a gente vai para uma praia com argila medicinal, pra mim não tem nada a ver, não achei graça.
+No trajeto final, a embarcação passa bem perto da famosa igrejinha de Carneiros para tirarmos fotos e desembarcamos no mar mesmo porque é bem rasinho.
+Comemos e bebemos no *Beach Club*, andamos depois pela praia de Carneiros e conhecemos um lugar tão paradisíaco que pensei que tivesse morrido e já estava no paraíso.
+O mar morno, esverdeado, areia bem branquinha, e muitos coqueiros. Parecia cenário daquelas folhinhas de antigamente. Meu Deus! que lugar lindo! Pensei que não existisse um lugar assim... Foi revigorante nadar, mergulhar nas águas de Carneiros, penso em voltar brevemente a esse lugar.
+
+## MURO ALTO
+
+A melhor praia de Porto de Galinhas, sem dúvida. Isso eu falo para todo o mundo. Você quer ir para Porto de Galinhas ? Muito *marketing*, respondo, só é legal na maré baixa. Na maré alta, é muita chatice: mar perigoso, cheio de pedras e um monte de gente te oferecendo produtos para vender.
+Já, Muro Alto é outra coisa: muita descontração na água, o mar não tem ondas porque existe uma grande barreira de corais (daí vem o nome da praia) e nos livra do perigo até nos horários de maré alta. Marcamos um encontro com os primos lá: foi muito divertido. Bebemos, nadamos e minha prima teve a coragem de ficar em pé numa prancha; Muro Alto foi a maior curtição.
+
+# PORTO SEGURO
+### ( Dezembro de 2016, Março de 2023, Março de 2024, Outubro de 2024 )
+
+Desci no Aeroporto de Porto Seguro quatro vezes, mas desbravei lugares interessantes no sul da Bahia.Na primeira viagem, fiquei hospedada em Arraial da Ajuda, perto da Praia de Araçaípe.
+Na segunda vez, fiquei hospedada na avenida principal, a dois quilômetros do centro. Na terceira, fiquei hospedada em Caraíva e em Mutá, perto de Coroa Vermelha e na ultima vez, fiquei num hotel perto da Passarela do Descobrimento, no centro de Porto Seguro. 
+
+## ARRAIAL DA AJUDA
+ Lugar com praias incríveis e bem pertinho de Porto Seguro, é só pegar uma balsa que realmente funciona. É um lugar de gente alegre e bonita, com noites animadas, concorrendo com as noites da famosa "Passarela do Álcool": não sei qual é a melhor noite. Vou falar de Arraial, citando as lindas praias.
+### Praia do Apaga Fogo
+Na última viagem para Porto Seguro, em 2024, fui com a minha grande amiga Noemi conhecer uma praia que quase ninguém menciona: Apaga Fogo. Pensei até que seria chata porque ninguém fala dela e é tão próxima...
+É a primeira praia de Arraial, é so descer da balsa e andar uns duzentos metros e já está lá: linda e estonteante. 
+Fácil acesso, toda formosa: areias claras, mar límpido, esverdeado, que se transforma em piscinas naturais magníficas, nas marés baixas. Fomos duas vezes para essa praia lindíssima, com boas opções de barracas e espero que pouca gente conheça esse recanto, para continuar assim: preservada.
+### Mucugê
+ 
+
+## ARRAIAL DA AJUDA
+
+
+   
+
+
+ 
+ 
+
