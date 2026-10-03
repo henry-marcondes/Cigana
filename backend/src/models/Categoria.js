@@ -50,6 +50,17 @@ class Categoria {
 
     return result.rows;
   }
+
+    static async buscarPorId(id) {
+      const result = await pool.query(`
+        SELECT ${CAMPOS_PUBLICOS}
+          FROM categorias
+         WHERE id = $1
+           AND ativo = TRUE
+      `, [id]);
+
+      return result.rows[0];
+  }
 }
 
 module.exports = Categoria;

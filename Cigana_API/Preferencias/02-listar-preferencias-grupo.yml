@@ -1,0 +1,16 @@
+info:
+  name: 02-Listar Preferências por Grupo
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: http://localhost:3001/api/preferencias/grupo/FINALIDADE_LEITURA
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

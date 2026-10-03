@@ -1,0 +1,25 @@
+info:
+  name: 05-Adicionar Preferência ao Usuário
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:3001/api/usuario-preferencias
+
+  body:
+    type: json
+    data: |-
+      {
+        "preferencia_id": "3306573c-4574-4b02-8ff5-47067347b7f1"
+      }
+
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImEwYTU2Y2EyLTBlY2UtNGRkOC1iM2M5LTg0ZGM3MDQwNzMzMSIsImlhdCI6MTc5MDgxMDY2MSwiZXhwIjoxNzkwODk3MDYxfQ.7hwfK01XDdEqElqLjbDeR8Dj3SxrcJySrw2rqHTBNSs
+
+  assertions:
+    - type: status
+      value: 201

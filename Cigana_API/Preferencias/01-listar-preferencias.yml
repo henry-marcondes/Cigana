@@ -1,0 +1,16 @@
+info:
+  name: 01-Listar Preferências
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: http://localhost:3001/api/preferencias
+
+  headers:
+    - name: Content-Type
+      value: application/json
+
+  assertions:
+    - type: status
+      value: 200

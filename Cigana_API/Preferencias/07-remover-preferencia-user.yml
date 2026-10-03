@@ -1,0 +1,18 @@
+info:
+  name: 07-Remover Preferência do Usuário
+  type: http
+  seq: 7
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/usuario-preferencias/UUID_DA_RELACAO
+
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Authorization
+      value: Bearer SEU_TOKEN
+
+  assertions:
+    - type: status
+      value: 200

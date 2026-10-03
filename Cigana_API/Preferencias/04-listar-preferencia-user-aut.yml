@@ -1,0 +1,18 @@
+info:
+  name: 04-Listar Preferências do Usuário
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://localhost:3001/api/usuario-preferencias
+
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImEwYTU2Y2EyLTBlY2UtNGRkOC1iM2M5LTg0ZGM3MDQwNzMzMSIsImlhdCI6MTc5MDgxMDY2MSwiZXhwIjoxNzkwODk3MDYxfQ.7hwfK01XDdEqElqLjbDeR8Dj3SxrcJySrw2rqHTBNSs
+
+  assertions:
+    - type: status
+      value: 200

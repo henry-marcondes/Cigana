@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { apiFetch } from '../../../../../../../services/api';
 import CenaConteudo from '../../../../../../../components/CenaConteudo';
+import RegistroProgresso from '../../../../../../../components/RegistroProgresso';
 
 const API_URL = 'http://localhost:3001';
 
@@ -254,6 +255,10 @@ export default async function CenaPage({ params }) {
 
   return (
     <main className="min-h-screen bg-gray-100 p-6">
+        <RegistroProgresso
+          livroId={livro.id}
+          cenaId={cena.id}
+        />
       <div className="mx-auto max-w-4xl">
 
         <Link
