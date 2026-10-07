@@ -37,11 +37,13 @@ const papelPermissaoRoutes = require('./routes/papelPermissaoRoutes');
 const usuarioPapelRoutes = require('./routes/usuarioPapelRoutes');
 const solicitacaoAutorRoutes = require('./routes/solicitacaoAutorRoutes');
 const contratoRoutes = require('./routes/ContratoRoutes');
-const contratoAceiteRoutes = require('./routes/ContratoAceiteRoutes');
 const preferenciaRoute = require('./routes/preferenciaRoute');
 const usuarioPreferenciaRoute = require('./routes/usuarioPreferenciaRoute');
 const usuarioCategoriaPreferidaRoute =
     require('./routes/usuarioCategoriaPreferidaRoute');
+const pessoaRoutes = require('./routes/pessoaRoutes');
+const telefoneRoutes = require('./routes/TelefoneRoutes');
+const enderecoRoutes = require('./routes/EnderecoRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -96,10 +98,12 @@ app.use('/api/papel-permissoes', papelPermissaoRoutes);
 app.use('/api/usuario-papeis', usuarioPapelRoutes);
 app.use('/api/solicitacoes-autor', solicitacaoAutorRoutes);
 app.use('/api/contratos', contratoRoutes);
-app.use('/api/contratos-aceites', contratoAceiteRoutes);
 app.use('/api/preferencias', preferenciaRoute);
 app.use('/api/usuario-preferencias',usuarioPreferenciaRoute);
 app.use( '/api/usuario-categorias-preferidas',usuarioCategoriaPreferidaRoute);
+app.use('/api/pessoas', pessoaRoutes);
+app.use('/api/telefones',telefoneRoutes);
+app.use('/api/enderecos', enderecoRoutes);
 
 // Error handling
 app.use(errorHandler);

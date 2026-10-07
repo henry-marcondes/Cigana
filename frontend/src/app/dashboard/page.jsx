@@ -197,6 +197,19 @@ return ( <main className="min-h-screen bg-gray-100 p-6"> <div className="mx-auto
         >
           Alterar senha
         </button>
+        <Link
+            href="/dashboard/telefones"
+            className="rounded bg-purple-600 px-4 py-2 text-white hover:bg-green-700"
+        >
+            Telefones
+        </Link>
+        <Link
+            href="/dashboard/enderecos"
+            className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+        >
+            Endereços
+        </Link>
+
       </div>
     </section>
 
@@ -237,6 +250,12 @@ return ( <main className="min-h-screen bg-gray-100 p-6"> <div className="mx-auto
             Estúdio
           </Link>
 
+          <Link
+            href="/dashboard/autor/regularizacao"
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            Regularização cadastral
+          </Link>
         </div>
       </section>
     )}

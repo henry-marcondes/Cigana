@@ -1,77 +1,167 @@
 class ContratoValidator {
 
-    static validarId(req, res, next) {
-        const { id } = req.params;
+    // =====================================================
+    // CONTRATO
+    // =====================================================
 
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                message: 'O ID do contrato é obrigatório.'
-            });
+    static criar(dados) {
+        const erros = [];
+
+        if (!dados || typeof dados !== 'object') {
+            return ['Dados do contrato são obrigatórios.'];
         }
 
-        next();
-    }
-
-    static validarCodigo(req, res, next) {
-        const { codigo } = req.params;
-
-        if (!codigo || typeof codigo !== 'string' || !codigo.trim()) {
-            return res.status(400).json({
-                success: false,
-                message: 'O código do contrato é obrigatório.'
-            });
+        if (!dados.tipo || typeof dados.tipo !== 'string') {
+            erros.push('O tipo do contrato é obrigatório.');
         }
 
-        next();
-    }
-
-    static validarContratoId(req, res, next) {
-        const { contrato_id } = req.params;
-
-        if (!contrato_id) {
-            return res.status(400).json({
-                success: false,
-                message: 'O ID do contrato é obrigatório.'
-            });
+        if (!dados.codigo || typeof dados.codigo !== 'string') {
+            erros.push('O código do contrato é obrigatório.');
         }
 
-        next();
-    }
-
-    static validarVinculoContratoObra(req, res, next) {
-        const { contrato_id, livro_id } = req.body;
-
-        if (!contrato_id) {
-            return res.status(400).json({
-                success: false,
-                message: 'O ID do contrato é obrigatório.'
-            });
+        if (!dados.nome || typeof dados.nome !== 'string') {
+            erros.push('O nome do contrato é obrigatório.');
         }
 
-        if (!livro_id) {
-            return res.status(400).json({
-                success: false,
-                message: 'O ID da obra é obrigatório.'
-            });
+        if (
+            dados.descricao !== undefined &&
+            dados.descricao !== null &&
+            typeof dados.descricao !== 'string'
+        ) {
+            erros.push('A descrição do contrato deve ser um texto.');
         }
 
-        next();
+        return erros;
     }
 
-static validarLivroId(req, res, next) {
-    const { livro_id } = req.params;
+    static atualizar(dados) {
+        const erros = [];
 
-    if (!livro_id) {
-        return res.status(400).json({
-            success: false,
-            message: 'O ID da obra é obrigatório.'
-        });
+        if (!dados || typeof dados !== 'object') {
+            return ['Dados do contrato são obrigatórios.'];
+        }
+
+        if (!dados.tipo || typeof dados.tipo !== 'string') {
+            erros.push('O tipo do contrato é obrigatório.');
+        }
+
+        if (!dados.codigo || typeof dados.codigo !== 'string') {
+            erros.push('O código do contrato é obrigatório.');
+        }
+
+        if (!dados.nome || typeof dados.nome !== 'string') {
+            erros.push('O nome do contrato é obrigatório.');
+        }
+
+        if (
+            dados.descricao !== undefined &&
+            dados.descricao !== null &&
+            typeof dados.descricao !== 'string'
+        ) {
+            erros.push('A descrição do contrato deve ser um texto.');
+        }
+
+        return erros;
     }
 
-    next();
-}
+    // =====================================================
+    // VERSÃO
+    // =====================================================
 
+    static criarVersao(dados) {
+        const erros = [];
+
+        if (!dados || typeof dados !== 'object') {
+            return ['Dados da versão são obrigatórios.'];
+        }
+
+        if (!dados.contrato_id || typeof dados.contrato_id !== 'string') {
+            erros.push('O contrato_id é obrigatório.');
+        }
+
+        if (!dados.versao || typeof dados.versao !== 'string') {
+            erros.push('A versão é obrigatória.');
+        }
+
+        if (!dados.titulo || typeof dados.titulo !== 'string') {
+            erros.push('O título da versão é obrigatório.');
+        }
+
+        if (!dados.conteudo || typeof dados.conteudo !== 'string') {
+            erros.push('O conteúdo da versão é obrigatório.');
+        }
+
+        return erros;
+    }
+
+    static atualizarVersao(dados) {
+        const erros = [];
+
+        if (!dados || typeof dados !== 'object') {
+            return ['Dados da versão são obrigatórios.'];
+        }
+
+        if (!dados.versao || typeof dados.versao !== 'string') {
+            erros.push('A versão é obrigatória.');
+        }
+
+        if (!dados.titulo || typeof dados.titulo !== 'string') {
+            erros.push('O título da versão é obrigatório.');
+        }
+
+        if (!dados.conteudo || typeof dados.conteudo !== 'string') {
+            erros.push('O conteúdo da versão é obrigatório.');
+        }
+
+        return erros;
+    }
+
+    // =====================================================
+    // VÍNCULO COM OBRA
+    // =====================================================
+
+    static vincularObra(dados) {
+        const erros = [];
+
+        if (!dados || typeof dados !== 'object') {
+            return ['Dados do vínculo são obrigatórios.'];
+        }
+
+        if (!dados.contrato_id || typeof dados.contrato_id !== 'string') {
+            erros.push('O contrato_id é obrigatório.');
+        }
+
+        if (!dados.livro_id || typeof dados.livro_id !== 'string') {
+            erros.push('O livro_id é obrigatório.');
+        }
+
+        return erros;
+    }
+
+    // =====================================================
+    // ACEITE
+    // =====================================================
+
+    static registrarAceite(dados) {
+        const erros = [];
+
+        if (!dados || typeof dados !== 'object') {
+            return ['Dados do aceite são obrigatórios.'];
+        }
+
+        if (
+            !dados.contrato_versao_id ||
+            typeof dados.contrato_versao_id !== 'string'
+        ) {
+            erros.push('O contrato_versao_id é obrigatório.');
+        }
+
+        if (!dados.livro_id || typeof dados.livro_id !== 'string') {
+            erros.push('O livro_id é obrigatório.');
+        }
+
+        return erros;
+    }
 }
 
 module.exports = ContratoValidator;

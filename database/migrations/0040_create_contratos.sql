@@ -79,7 +79,9 @@ CREATE TABLE contratos_aceites (
         REFERENCES contrato_versoes(id) ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_contratos_aceites_usuario FOREIGN KEY (usuario_id)
         REFERENCES usuarios(id) ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT uq_contratos_aceites_registro UNIQUE (registro_eletronico)
+    CONSTRAINT uq_contratos_aceites_registro UNIQUE (registro_eletronico),
+    CONSTRAINT uq_contratos_aceites_usuario_versao
+        UNIQUE (usuario_id, contrato_versao_id)
 );
 
 CREATE INDEX idx_contratos_aceites_versao ON contratos_aceites (contrato_versao_id);
