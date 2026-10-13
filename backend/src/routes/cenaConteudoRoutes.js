@@ -7,6 +7,7 @@ const CenaConteudoController = require('../controllers/cenaConteudoController');
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
 const autorizarObra = require('../middleware/autorizarObra');
+const protegerLeituraObra = require('../middleware/protegerLeituraObra');
 
 const EscopoObraService = require('../services/escopoObraService');
 
@@ -22,6 +23,12 @@ const {
 // Listar conteúdos de uma cena
 router.get(
     '/cena/:cena_id',
+    protegerLeituraObra(
+        EscopoObraService.comParametro(
+            EscopoObraService.porCenaParam,
+            'cena_id'
+        )
+    ),
     validarIdCena,
     CenaConteudoController.listarPorCena
 );
@@ -29,6 +36,7 @@ router.get(
 // Buscar conteúdo por ID
 router.get(
     '/:id',
+    protegerLeituraObra(EscopoObraService.porCenaConteudoParam),
     validarIdCenaConteudo,
     CenaConteudoController.buscarPorId
 );

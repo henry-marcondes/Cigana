@@ -1,27 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
+import { apiFetch } from '../../../services/api';
 
 import {
     listarContratos,
-    buscarContratoPorId,
-    criarContrato,
-    atualizarContrato,
-    ativarContrato,
-    desativarContrato,
     listarVersoesContrato,
-    buscarVersaoPorId,
-    criarVersaoContrato,
-    atualizarVersaoContrato,
-    publicarVersaoContrato,
-    encerrarVersaoContrato,
     buscarVersaoAtiva,
-    aceitarContrato,
+    solicitarCodigoAceite,
+    confirmarCodigoAceite,
     listarAceitesPorUsuario,
 } from '../../../services/contratos';
 
 export default function ContratosPage() {
+    const searchParams = useSearchParams();
+    const livroId = searchParams.get('livro_id');
+    const contratoIdQuery = searchParams.get('contrato_id');
     const [contratos, setContratos] = useState([]);
     const [versoes, setVersoes] = useState([]);
 
@@ -29,937 +26,481 @@ export default function ContratosPage() {
     const [versaoSelecionada, setVersaoSelecionada] = useState(null);
 
     const [aceites, setAceites] = useState([]);
+
     const [aceiteConfirmado, setAceiteConfirmado] = useState(false);
+    const [codigoEnviado, setCodigoEnviado] = useState(false);
+    const [codigo, setCodigo] = useState('');
 
     const [mensagem, setMensagem] = useState('');
     const [erro, setErro] = useState('');
     const [carregando, setCarregando] = useState(false);
+    const [tituloObra, setTituloObra] = useState('');
 
-    const [formContrato, setFormContrato] = useState({
-        tipo: 'DIREITOS_AUTORAIS',
-        codigo: '',
-        nome: '',
-        descricao: '',
-    });
+    useEffect(() => {
+        carregarObra();
+        carregarContratos();
+        carregarMeusAceites();
+    }, [livroId]);
 
-    const [formVersao, setFormVersao] = useState({
-        versao: '',
-        titulo: '',
-        conteudo: '',
-    });
-
-    function limparMensagens() {
-        setMensagem('');
-        setErro('');
-    }
-
-    function mostrarErro(error) {
-        setErro(
-            error?.data?.message ||
-            error?.message ||
-            'Ocorreu um erro na operação.'
-        );
-    }
-
-    async function executar(operacao) {
-        limparMensagens();
-        setCarregando(true);
+    async function carregarObra() {
+        setTituloObra('');
+        if (!livroId) return;
 
         try {
-            await operacao();
-        } catch (error) {
-            console.error(error);
-            mostrarErro(error);
+            const resposta = await apiFetch(`/api/livros/${livroId}`);
+            setTituloObra(resposta?.data?.titulo || 'Obra indisponível');
+        } catch (err) {
+            setTituloObra('Obra indisponível ou sem acesso.');
+        }
+    }
+
+    async function executar(callback) {
+        setCarregando(true);
+        setMensagem('');
+        setErro('');
+
+        try {
+            await callback();
+        } catch (err) {
+            console.error(err);
+
+            setErro(
+                err?.data?.message ||
+                err?.message ||
+                'Ocorreu um erro ao realizar a operação.'
+            );
         } finally {
             setCarregando(false);
         }
     }
 
-    // =====================================================
-    // CONTRATOS
-    // =====================================================
-
     async function carregarContratos() {
         await executar(async () => {
-            const resposta = await listarContratos();
+            let listaContratos = [];
 
-            setContratos(resposta.data || []);
-            setMensagem('Contratos carregados com sucesso.');
+            if (livroId) {
+                const resposta = await listarContratos({
+                    ativo: true,
+                    tipo: 'DIREITOS_AUTORAIS'
+                });
+                listaContratos = (resposta?.data || []).filter(
+                    (contrato) => contrato?.tipo === 'DIREITOS_AUTORAIS' && contrato.ativo
+                );
+            } else {
+                const resposta = await listarContratos();
+                listaContratos = resposta.data || [];
+            }
+
+            setContratos(listaContratos);
+
+            const contratoPreselecionado = contratoIdQuery
+                ? listaContratos.find((contrato) => contrato.id === contratoIdQuery)
+                : listaContratos.length === 1 ? listaContratos[0] : null;
+
+            if (contratoPreselecionado) {
+                await selecionarContrato(contratoPreselecionado);
+            } else if (livroId) {
+                setContratoSelecionado(null);
+                setVersaoSelecionada(null);
+                setVersoes([]);
+            }
         });
     }
 
     async function selecionarContrato(contrato) {
-        await executar(async () => {
-            const resposta = await buscarContratoPorId(contrato.id);
-
-            setContratoSelecionado(resposta.data);
-
-            setFormContrato({
-                tipo: resposta.data.tipo || '',
-                codigo: resposta.data.codigo || '',
-                nome: resposta.data.nome || '',
-                descricao: resposta.data.descricao || '',
-            });
-
-            setVersaoSelecionada(null);
-
-            const respostaVersoes =
-                await listarVersoesContrato(contrato.id);
-
-            setVersoes(respostaVersoes.data || []);
-
-            setMensagem(
-                'Contrato selecionado e suas versões carregadas.'
-            );
-        });
-    }
-
-    async function criarNovoContrato() {
-        await executar(async () => {
-            const resposta = await criarContrato(formContrato);
-
-            setContratoSelecionado(resposta.data);
-
-            await carregarContratos();
-
-            setMensagem('Contrato criado com sucesso.');
-        });
-    }
-
-    async function salvarContrato() {
-        if (!contratoSelecionado) {
-            setErro('Selecione um contrato primeiro.');
-            return;
-        }
+        setContratoSelecionado(contrato);
+        setVersaoSelecionada(null);
+        setVersoes([]);
+        setAceiteConfirmado(false);
+        setCodigoEnviado(false);
+        setCodigo('');
 
         await executar(async () => {
-            const resposta = await atualizarContrato(
-                contratoSelecionado.id,
-                {
-                    tipo: formContrato.tipo,
-                    codigo: formContrato.codigo,
-                    nome: formContrato.nome,
-                    descricao: formContrato.descricao,
-                }
-            );
-
-            setContratoSelecionado(resposta.data);
-
-            await carregarContratos();
-
-            setMensagem('Contrato atualizado com sucesso.');
-        });
-    }
-
-    async function ativar() {
-        if (!contratoSelecionado) return;
-
-        await executar(async () => {
-            const resposta = await ativarContrato(
-                contratoSelecionado.id
-            );
-
-            setContratoSelecionado(resposta.data);
-
-            await carregarContratos();
-
-            setMensagem('Contrato ativado com sucesso.');
-        });
-    }
-
-    async function desativar() {
-        if (!contratoSelecionado) return;
-
-        await executar(async () => {
-            const resposta = await desativarContrato(
-                contratoSelecionado.id
-            );
-
-            setContratoSelecionado(resposta.data);
-
-            await carregarContratos();
-
-            setMensagem('Contrato desativado com sucesso.');
-        });
-    }
-
-    // =====================================================
-    // VERSÕES
-    // =====================================================
-
-    async function selecionarVersao(versao) {
-        await executar(async () => {
-            const resposta = await buscarVersaoPorId(
-                versao.id
-            );
-
-            setVersaoSelecionada(resposta.data);
-
-            setFormVersao({
-                versao: resposta.data.versao || '',
-                titulo: resposta.data.titulo || '',
-                conteudo: resposta.data.conteudo || '',
-            });
-
-            setMensagem('Versão selecionada.');
-        });
-    }
-
-    async function carregarVersoes() {
-        if (!contratoSelecionado) {
-            setErro('Selecione um contrato primeiro.');
-            return;
-        }
-
-        await executar(async () => {
-            const resposta = await listarVersoesContrato(
-                contratoSelecionado.id
-            );
+            const resposta = await listarVersoesContrato(contrato.id);
 
             setVersoes(resposta.data || []);
 
-            setMensagem('Versões carregadas.');
+            const ativa = await buscarVersaoAtiva(contrato.id);
+
+            if (ativa?.data) {
+                setVersaoSelecionada(ativa.data);
+            }
         });
     }
 
-    async function criarNovaVersao() {
-        if (!contratoSelecionado) {
-            setErro('Selecione um contrato primeiro.');
+    async function carregarMeusAceites() {
+        const token =
+            typeof window !== 'undefined'
+                ? localStorage.getItem('token')
+                : null;
+
+        if (!token) {
             return;
         }
 
-        await executar(async () => {
-            const resposta = await criarVersaoContrato(
-                contratoSelecionado.id,
-                formVersao
+        try {
+            const payload = JSON.parse(
+                atob(token.split('.')[1])
             );
 
-            setVersaoSelecionada(resposta.data);
+            const resposta = await listarAceitesPorUsuario(payload.id);
 
-            await carregarVersoes();
-
-            setMensagem('Versão criada com sucesso.');
-        });
+            setAceites(resposta.data || []);
+        } catch (err) {
+            console.error('Erro ao carregar aceites:', err);
+        }
     }
 
-    async function salvarVersao() {
-        if (!versaoSelecionada) {
-            setErro('Selecione uma versão primeiro.');
+    async function solicitarCodigo() {
+        if (!livroId) {
+            setErro('Selecione uma obra antes de solicitar o aceite do contrato.');
             return;
         }
 
-        await executar(async () => {
-            const resposta = await atualizarVersaoContrato(
-                versaoSelecionada.id,
-                {
-                    versao: formVersao.versao,
-                    titulo: formVersao.titulo,
-                    conteudo: formVersao.conteudo,
-                }
-            );
-
-            setVersaoSelecionada(resposta.data);
-
-            await carregarVersoes();
-
-            setMensagem('Versão atualizada com sucesso.');
-        });
-    }
-
-    async function publicarVersao() {
-        if (!versaoSelecionada) {
-            setErro('Selecione uma versão primeiro.');
-            return;
-        }
-
-        await executar(async () => {
-            const resposta = await publicarVersaoContrato(
-                versaoSelecionada.id
-            );
-
-            setVersaoSelecionada(resposta.data);
-
-            await carregarVersoes();
-
-            setMensagem('Versão publicada com sucesso.');
-        });
-    }
-
-    async function encerrarVersao() {
-        if (!versaoSelecionada) {
-            setErro('Selecione uma versão primeiro.');
-            return;
-        }
-
-        await executar(async () => {
-            const resposta = await encerrarVersaoContrato(
-                versaoSelecionada.id
-            );
-
-            setVersaoSelecionada(resposta.data);
-
-            await carregarVersoes();
-
-            setMensagem('Versão encerrada com sucesso.');
-        });
-    }
-
-    async function carregarVersaoAtiva() {
-        if (!contratoSelecionado) {
-            setErro('Selecione um contrato primeiro.');
-            return;
-        }
-
-        await executar(async () => {
-            const resposta = await buscarVersaoAtiva(
-                contratoSelecionado.id
-            );
-
-            setVersaoSelecionada(resposta.data);
-
-            setFormVersao({
-                versao: resposta.data.versao || '',
-                titulo: resposta.data.titulo || '',
-                conteudo: resposta.data.conteudo || '',
-            });
-
-            setMensagem('Versão ativa carregada.');
-        });
-    }
-
-    async function registrarAceite() {
         if (!versaoSelecionada) {
             setErro('Nenhuma versão selecionada.');
             return;
         }
 
         if (versaoSelecionada.status !== 'ATIVA') {
-            setErro('Somente uma versão ATIVA pode ser aceita.');
+            setErro('Somente uma versão ATIVA pode receber aceite.');
             return;
         }
 
         if (!aceiteConfirmado) {
             setErro(
-            'É necessário confirmar que você leu e concorda com o Termo.'
+                'É necessário confirmar que você leu e concorda com o Termo.'
             );
             return;
         }
 
         await executar(async () => {
-            const resposta = await aceitarContrato(
+            const resposta = await solicitarCodigoAceite(
                 versaoSelecionada.id,
-                {
-                    livro_id: '8733e2c9-2a5b-49a6-a6fe-1a4ac988cc45'
-                }
+                livroId
             );
+
+            setCodigoEnviado(true);
 
             setMensagem(
-                'Aceite registrado com sucesso.'
+                resposta.message ||
+                'Código enviado para o e-mail cadastrado.'
             );
-
-            setAceiteConfirmado(false);
-
-            console.log('Aceite registrado:', resposta.data);
         });
     }
 
-    async function carregarMeusAceites() {
+    async function confirmarCodigo() {
+        if (codigo.length !== 6) {
+            setErro(
+                'Informe o código de 6 dígitos recebido por e-mail.'
+            );
+            return;
+        }
+
         await executar(async () => {
-            const token = localStorage.getItem('token');
-
-            if (!token) {
-                throw new Error(
-                    'Nenhum usuário autenticado.'
-                );
-            }
-
-            const partes = token.split('.');
-
-            if (partes.length !== 3) {
-                throw new Error(
-                    'Token de autenticação inválido.'
-                );
-            }
-
-            const payload = JSON.parse(
-                atob(partes[1])
-            );
-
-            if (!payload.id) {
-                throw new Error(
-                    'O token não contém a identificação do usuário.'
-                );
-            }
-
-            const resposta = await listarAceitesPorUsuario(
-                payload.id
-            );
-
-            setAceites(resposta.data || []);
+            const resposta = await confirmarCodigoAceite(codigo);
 
             setMensagem(
-                'Aceites do usuário carregados.'
+                resposta.message ||
+                'Código confirmado e aceite registrado com sucesso.'
+            );
+
+            setCodigo('');
+            setCodigoEnviado(false);
+            setAceiteConfirmado(false);
+
+            await carregarMeusAceites();
+
+            console.log(
+                'Aceite registrado:',
+                resposta.data
             );
         });
     }
 
     return (
-        <main className="min-h-screen bg-gray-100 p-6">
-            <div className="mx-auto max-w-7xl space-y-6">
+        <main className="mx-auto max-w-6xl p-6">
+            <h1 className="mb-6 text-3xl font-bold">
+                Contratos
+            </h1>
 
-                <header>
-                    <h1 className="text-2xl font-bold">
-                        Validação de Contratos
-                    </h1>
+    <div className="mb-6 rounded border bg-blue-50 p-4">
+        <h3 className="font-semibold">
+            Obra
+        </h3>
 
-                    <p className="mt-1 text-sm text-gray-600">
-                        Validação funcional de contratos e versões.
-                    </p>
-                </header>
+    <p className="mt-1">
+        {livroId
+            ? tituloObra || 'Carregando obra...'
+            : 'Para solicitar um aceite, abra esta tela a partir da regularização de uma obra.'}
+    </p>
+</div>
 
-                {mensagem && (
-                    <div className="rounded border border-green-300 bg-green-50 p-3 text-green-700">
-                        {mensagem}
+            {mensagem && (
+                <div className="mb-6 rounded border border-green-300 bg-green-50 p-4 text-green-800">
+                    {mensagem}
+                </div>
+            )}
+
+            {erro && (
+                <div className="mb-6 rounded border border-red-300 bg-red-50 p-4 text-red-800">
+                    {erro}
+                </div>
+            )}
+
+            <section className="mb-8">
+                <h2 className="mb-3 text-xl font-semibold">
+                    Contratos disponíveis
+                </h2>
+
+                {contratos.length === 0 ? (
+                    <p>Nenhum contrato disponível.</p>
+                ) : (
+                    <div className="space-y-3">
+                        {contratos.map((contrato) => (
+                            <button
+                                key={contrato.id}
+                                onClick={() =>
+                                    selecionarContrato(contrato)
+                                }
+                                className={`block w-full rounded border p-4 text-left hover:bg-gray-50 ${
+                                    contratoSelecionado?.id === contrato.id
+                                        ? 'border-blue-500 bg-blue-50'
+                                        : ''
+                                }`}
+                            >
+                                <div className="font-semibold">
+                                    {contrato.nome}
+                                </div>
+
+                                <div className="mt-1 text-sm text-gray-600">
+                                    {contrato.codigo}
+                                </div>
+
+                                {contrato.descricao && (
+                                    <div className="mt-2 text-sm text-gray-600">
+                                        {contrato.descricao}
+                                    </div>
+                                )}
+                            </button>
+                        ))}
                     </div>
                 )}
+            </section>
 
-                {erro && (
-                    <div className="rounded border border-red-300 bg-red-50 p-3 text-red-700">
-                        {erro}
-                    </div>
-                )}
+            {contratoSelecionado && (
+                <section className="mb-8">
+                    <h2 className="mb-4 text-xl font-semibold">
+                        Versões do contrato
+                    </h2>
 
-                {/* =====================================================
-                    LISTAGEM
-                ===================================================== */}
-
-                <section className="rounded-lg bg-white p-5 shadow">
-
-                    <div className="mb-4 flex items-center justify-between">
-
-                        <h2 className="text-lg font-semibold">
-                            1. Contratos cadastrados
-                        </h2>
-
-                        <button
-                            onClick={carregarContratos}
-                            disabled={carregando}
-                            className="rounded bg-gray-700 px-4 py-2 text-white disabled:opacity-50"
-                        >
-                            Atualizar lista
-                        </button>
-
-                    </div>
-
-                    {contratos.length === 0 ? (
-                        <p className="text-gray-500">
-                            Nenhum contrato carregado.
-                        </p>
+                    {versoes.length === 0 ? (
+                        <p>Nenhuma versão encontrada.</p>
                     ) : (
                         <div className="space-y-3">
-
-                            {contratos.map((contrato) => (
+                            {versoes.map((versao) => (
                                 <button
-                                    key={contrato.id}
+                                    key={versao.id}
                                     onClick={() =>
-                                        selecionarContrato(contrato)
+                                        setVersaoSelecionada(versao)
                                     }
                                     className={`block w-full rounded border p-4 text-left ${
-                                        contratoSelecionado?.id === contrato.id
-                                            ? 'border-blue-500 bg-blue-50'
-                                            : 'hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <div className="flex flex-wrap justify-between gap-3">
-
-                                        <div>
-                                            <strong>
-                                                {contrato.nome}
-                                            </strong>
-
-                                            <div className="mt-1 text-sm text-gray-600">
-                                                Código: {contrato.codigo}
-                                            </div>
-
-                                            <div className="text-sm text-gray-600">
-                                                Tipo: {contrato.tipo}
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <span
-                                                className={`rounded px-3 py-1 text-sm ${
-                                                    contrato.ativo
-                                                        ? 'bg-green-100 text-green-700'
-                                                        : 'bg-gray-200 text-gray-700'
-                                                }`}
-                                            >
-                                                {contrato.ativo
-                                                    ? 'ATIVO'
-                                                    : 'INATIVO'}
-                                            </span>
-                                        </div>
-
-                                    </div>
-                                </button>
-                            ))}
-
-                        </div>
-                    )}
-
-                </section>
-
-                {/* =====================================================
-                    CONTRATO SELECIONADO
-                ===================================================== */}
-
-                {contratoSelecionado && (
-                    <section className="rounded-lg bg-white p-5 shadow">
-
-                        <h2 className="mb-4 text-lg font-semibold">
-                            2. Editar contrato
-                        </h2>
-
-                        <div className="grid gap-4 md:grid-cols-2">
-
-                            <div>
-                                <label className="mb-1 block text-sm font-medium">
-                                    Tipo
-                                </label>
-
-                                <input
-                                    className="w-full rounded border p-2"
-                                    value={formContrato.tipo}
-                                    onChange={(e) =>
-                                        setFormContrato({
-                                            ...formContrato,
-                                            tipo: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-sm font-medium">
-                                    Código
-                                </label>
-
-                                <input
-                                    className="w-full rounded border p-2"
-                                    value={formContrato.codigo}
-                                    onChange={(e) =>
-                                        setFormContrato({
-                                            ...formContrato,
-                                            codigo: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-sm font-medium">
-                                    Nome
-                                </label>
-
-                                <input
-                                    className="w-full rounded border p-2"
-                                    value={formContrato.nome}
-                                    onChange={(e) =>
-                                        setFormContrato({
-                                            ...formContrato,
-                                            nome: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-sm font-medium">
-                                    Descrição
-                                </label>
-
-                                <input
-                                    className="w-full rounded border p-2"
-                                    value={formContrato.descricao}
-                                    onChange={(e) =>
-                                        setFormContrato({
-                                            ...formContrato,
-                                            descricao: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-
-                        </div>
-
-                        <div className="mt-4 flex flex-wrap gap-3">
-
-                            <button
-                                onClick={salvarContrato}
-                                disabled={carregando}
-                                className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
-                            >
-                                Salvar alterações
-                            </button>
-
-                            {contratoSelecionado.ativo ? (
-                                <button
-                                    onClick={desativar}
-                                    disabled={carregando}
-                                    className="rounded bg-red-600 px-4 py-2 text-white disabled:opacity-50"
-                                >
-                                    Desativar contrato
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={ativar}
-                                    disabled={carregando}
-                                    className="rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
-                                >
-                                    Ativar contrato
-                                </button>
-                            )}
-
-                        </div>
-
-                    </section>
-                )}
-
-                {/* =====================================================
-                    VERSÕES
-                ===================================================== */}
-
-                {contratoSelecionado && (
-                    <section className="rounded-lg bg-white p-5 shadow">
-
-                        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-
-                            <h2 className="text-lg font-semibold">
-                                3. Versões do contrato
-                            </h2>
-
-                            <div className="flex flex-wrap gap-2">
-
-                                <button
-                                    onClick={carregarVersoes}
-                                    disabled={carregando}
-                                    className="rounded bg-gray-700 px-3 py-2 text-sm text-white disabled:opacity-50"
-                                >
-                                    Atualizar versões
-                                </button>
-
-                                <button
-                                    onClick={carregarVersaoAtiva}
-                                    disabled={carregando}
-                                    className="rounded bg-purple-600 px-3 py-2 text-sm text-white disabled:opacity-50"
-                                >
-                                    Buscar versão ativa
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                        <div className="space-y-3">
-
-                            {versoes.map((versao) => (
-                                <div
-                                    key={versao.id}
-                                    className={`rounded border p-4 ${
                                         versaoSelecionada?.id === versao.id
-                                            ? 'border-purple-500 bg-purple-50'
+                                            ? 'border-blue-500 bg-blue-50'
                                             : ''
                                     }`}
                                 >
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-semibold">
+                                            Versão {versao.versao}
+                                        </span>
 
-                                    <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <span className="text-sm">
+                                            {versao.status}
+                                        </span>
+                                    </div>
 
+                                    <div className="mt-1 text-sm text-gray-600">
+                                        {versao.titulo}
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            )}
+
+            {versaoSelecionada && (
+                <section className="mb-8 rounded border p-6">
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-bold">
+                            {versaoSelecionada.titulo}
+                        </h2>
+
+                        <p className="mt-1 text-sm text-gray-500">
+                            Versão {versaoSelecionada.versao} —{' '}
+                            {versaoSelecionada.status}
+                        </p>
+                    </div>
+
+                    <div className="prose prose-lg max-w-none leading-8">
+                        <ReactMarkdown>
+                            {versaoSelecionada.conteudo}
+                        </ReactMarkdown>
+                    </div>
+
+                    {versaoSelecionada.status === 'ATIVA' && (
+                        <div className="mt-8 border-t pt-6">
+                            <label className="flex items-start gap-3">
+                                <input
+                                    type="checkbox"
+                                    checked={aceiteConfirmado}
+                                    disabled={codigoEnviado}
+                                    onChange={(e) =>
+                                        setAceiteConfirmado(
+                                            e.target.checked
+                                        )
+                                    }
+                                    className="mt-1 h-5 w-5"
+                                />
+
+                                <span>
+                                    Declaro que li e concordo com os termos
+                                    deste contrato.
+                                </span>
+                            </label>
+
+                            {!codigoEnviado && (
+                                <button
+                                    onClick={solicitarCodigo}
+                                    disabled={
+                                        carregando ||
+                                        !livroId ||
+                                        !aceiteConfirmado
+                                    }
+                                    className="mt-5 rounded bg-blue-600 px-5 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {!livroId
+                                        ? 'Selecione uma obra para assinar'
+                                        : carregando
+                                        ? 'Enviando...'
+                                        : 'Solicitar código de confirmação'}
+                                </button>
+                            )}
+
+                            {codigoEnviado && (
+                                <div className="mt-6 rounded border bg-gray-50 p-5">
+                                    <h3 className="mb-2 font-semibold">
+                                        Confirmação do aceite
+                                    </h3>
+
+                                    <p className="mb-4 text-sm text-gray-600">
+                                        Enviamos um código de 6 dígitos para
+                                        o seu e-mail cadastrado.
+                                    </p>
+
+                                    <div className="flex flex-wrap items-end gap-3">
                                         <div>
-                                            <strong>
-                                                {versao.titulo}
-                                            </strong>
+                                            <label
+                                                htmlFor="codigo-aceite"
+                                                className="mb-1 block text-sm font-medium"
+                                            >
+                                                Código de confirmação
+                                            </label>
 
-                                            <div className="text-sm text-gray-600">
-                                                Versão: {versao.versao}
-                                            </div>
-
-                                            <div className="text-sm text-gray-600">
-                                                Status: {versao.status}
-                                            </div>
-
-                                            {versao.publicado_em && (
-                                                <div className="text-sm text-gray-600">
-                                                    Publicado em:{' '}
-                                                    {versao.publicado_em}
-                                                </div>
-                                            )}
+                                            <input
+                                                id="codigo-aceite"
+                                                type="text"
+                                                inputMode="numeric"
+                                                maxLength={6}
+                                                value={codigo}
+                                                onChange={(e) =>
+                                                    setCodigo(
+                                                        e.target.value
+                                                            .replace(/\D/g, '')
+                                                            .slice(0, 6)
+                                                    )
+                                                }
+                                                placeholder="000000"
+                                                className="w-40 rounded border px-3 py-2 text-center text-lg tracking-widest"
+                                            />
                                         </div>
 
                                         <button
-                                            onClick={() =>
-                                                selecionarVersao(versao)
+                                            onClick={confirmarCodigo}
+                                            disabled={
+                                                carregando ||
+                                                codigo.length !== 6
                                             }
-                                            className="rounded bg-gray-600 px-3 py-2 text-sm text-white"
+                                            className="rounded bg-green-600 px-5 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
                                         >
-                                            Selecionar
+                                            {carregando
+                                                ? 'Confirmando...'
+                                                : 'Confirmar aceite'}
                                         </button>
-
                                     </div>
-
                                 </div>
-                            ))}
-
-                        </div>
-
-                    </section>
-                )}
-
-                {/* =====================================================
-                    EDIÇÃO DA VERSÃO
-                ===================================================== */}
-
-                {versaoSelecionada && (
-                    <section className="rounded-lg bg-white p-5 shadow">
-
-                        <h2 className="mb-4 text-lg font-semibold">
-                            4. Versão selecionada
-                        </h2>
-
-                        <div className="mb-4 rounded bg-gray-50 p-3 text-sm">
-
-                            <strong>
-                                Status atual:
-                            </strong>{' '}
-
-                            {versaoSelecionada.status}
-
-                            {versaoSelecionada.status === 'ATIVA' && (
-                                <p className="mt-1 text-yellow-700">
-                                    Esta versão está ATIVA e não deve ser
-                                    alterada.
-                                </p>
                             )}
-
                         </div>
-
-                        <div className="space-y-4">
-
-                            <div>
-                                <label className="mb-1 block text-sm font-medium">
-                                    Versão
-                                </label>
-
-                                <input
-                                    className="w-full rounded border p-2"
-                                    value={formVersao.versao}
-                                    onChange={(e) =>
-                                        setFormVersao({
-                                            ...formVersao,
-                                            versao: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-sm font-medium">
-                                    Título
-                                </label>
-
-                                <input
-                                    className="w-full rounded border p-2"
-                                    value={formVersao.titulo}
-                                    onChange={(e) =>
-                                        setFormVersao({
-                                            ...formVersao,
-                                            titulo: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-sm font-medium">
-                                    Conteúdo
-                                </label>
-
-                                <textarea
-                                    rows={12}
-                                    className="w-full rounded border p-2 font-mono text-sm"
-                                    value={formVersao.conteudo}
-                                    onChange={(e) =>
-                                        setFormVersao({
-                                            ...formVersao,
-                                            conteudo: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-
-                        </div>
-
-                        <div className="mt-4 flex flex-wrap gap-3">
-
-                            <button
-                                onClick={salvarVersao}
-                                disabled={carregando}
-                                className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
-                            >
-                                Salvar versão
-                            </button>
-
-                            {versaoSelecionada.status === 'RASCUNHO' && (
-                                <button
-                                    onClick={publicarVersao}
-                                    disabled={carregando}
-                                    className="rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
-                                >
-                                    Publicar versão
-                                </button>
-                            )}
-
-                            {versaoSelecionada.status === 'ATIVA' && (
-                                <button
-                                    onClick={encerrarVersao}
-                                    disabled={carregando}
-                                    className="rounded bg-orange-600 px-4 py-2 text-white disabled:opacity-50"
-                                >
-                                    Encerrar versão
-                                </button>
-                            )}
-
-                        </div>
-
-                    </section>
-                )}
-
-{/* =====================================================
-    ACEITE ELETRÔNICO
-===================================================== */}
-
-{versaoSelecionada?.status === 'ATIVA' && (
-    <section className="rounded-lg bg-white p-5 shadow">
-
-        <h2 className="mb-4 text-lg font-semibold">
-            5. Aceite eletrônico
+                    )}
+                </section>
+            )}
+{/* Cabeçalho flexível para alinhar título e botão */}
+ <section>
+    <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl font-semibold">
+            Meus aceites
         </h2>
 
-        <div className="mb-5 rounded border bg-gray-50 p-5">
+        <Link
+            href="/dashboard"
+            className="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-900"
+        >
+            Dashboard
+        </Link>
+    </div>
 
-            <h3 className="mb-3 text-xl font-semibold">
-                {versaoSelecionada.titulo}
-            </h3>
+    {aceites.length === 0 ? (
+        <p className="text-gray-600">
+            Nenhum aceite registrado.
+        </p>
+    ) : (
+        <div className="space-y-3">
+            {aceites.map((aceite) => (
+                <div
+                    key={aceite.id}
+                    className="rounded border p-4"
+                >
+                    <div className="font-semibold">
+                        Aceite registrado
+                    </div>
 
-            <div className="mb-4 text-sm text-gray-600">
-                Versão: {versaoSelecionada.versao}
-            </div>
+                    <div className="mt-2 text-sm text-gray-600">
+                        Registro eletrônico:{' '}
+                        {aceite.registro_eletronico}
+                    </div>
 
-            <div className="max-h-[500px] overflow-y-auto rounded border bg-white p-5">
-                <div className="prose max-w-none text-lg leading-8">
-                  <ReactMarkdown>
-                    {versaoSelecionada.conteudo}
-                  </ReactMarkdown>
-                </div>
-            </div>
+                    <div className="text-sm text-gray-600">
+                        Data:{' '}
+                        {aceite.aceito_em
+                            ? new Date(
+                                  aceite.aceito_em
+                              ).toLocaleString('pt-BR')
+                            : '-'}
+                    </div>
 
-        </div>
-
-        <label className="flex cursor-pointer items-start gap-3 rounded border p-4 hover:bg-gray-50">
-
-            <input
-                type="checkbox"
-                checked={aceiteConfirmado}
-                onChange={(e) =>
-                    setAceiteConfirmado(e.target.checked)
-                }
-                className="mt-1 h-5 w-5"
-            />
-
-            <span className="text-sm">
-                Li e concordo com o Termo de Autorização para
-                Publicação e Disponibilização de Obra na
-                Plataforma Leitura.
-            </span>
-
-        </label>
-
-        <div className="mt-4 flex flex-wrap gap-3">
-
-            <button
-                onClick={registrarAceite}
-                disabled={
-                    carregando ||
-                    !aceiteConfirmado
-                }
-                className="rounded bg-green-600 px-5 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
-            >
-                Confirmar aceite
-            </button>
-
-            <button
-                onClick={carregarMeusAceites}
-                disabled={carregando}
-                className="rounded bg-gray-600 px-5 py-2 text-white disabled:opacity-50"
-            >
-                Consultar meus aceites
-            </button>
-
-        </div>
-
-        {aceites.length > 0 && (
-            <div className="mt-6">
-
-                <h3 className="mb-3 font-semibold">
-                    Aceites registrados
-                </h3>
-
-                <div className="space-y-3">
-
-                    {aceites.map((aceite) => (
-                        <div
-                            key={aceite.id}
-                            className="rounded border p-4 text-sm"
-                        >
-
-                            <div>
-                                <strong>ID:</strong>{' '}
-                                {aceite.id}
-                            </div>
-
-                            <div>
-                                <strong>Versão:</strong>{' '}
-                                {aceite.contrato_versao_id}
-                            </div>
-
-                            <div>
-                                <strong>Aceito em:</strong>{' '}
-                                {aceite.aceito_em}
-                            </div>
-
-                            <div>
-                                <strong>Registro eletrônico:</strong>{' '}
-                                {aceite.registro_eletronico}
-                            </div>
-
-                            <div>
-                                <strong>IP:</strong>{' '}
-                                {aceite.ip_origem || 'não informado'}
-                            </div>
-
+                    {aceite.hash_conteudo && (
+                        <div className="mt-2 break-all text-xs text-gray-500">
+                            SHA-256:{' '}
+                            {aceite.hash_conteudo}
                         </div>
-                    ))}
-
+                    )}
                 </div>
+            ))}
+        </div>
+    )}
+</section>   
 
-            </div>
-        )}
-
-    </section>
-)}
-
-            </div>
-        </main>
+    </main>
     );
-
 }
-

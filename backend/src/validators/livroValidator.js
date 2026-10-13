@@ -86,6 +86,30 @@ function validarAlteracaoCapaLivro(req, res, next) {
     return next();
 }
 
+function validarDecisaoEditorial(req, res, next) {
+    const { decisao, motivo_rejeicao } = req.body || {};
+
+    if (!['APROVADA', 'REJEITADA'].includes(decisao)) {
+        return res.status(400).json({
+            success: false,
+            message: 'A decisão editorial deve ser APROVADA ou REJEITADA.'
+        });
+    }
+
+    if (
+        motivo_rejeicao !== undefined &&
+        motivo_rejeicao !== null &&
+        typeof motivo_rejeicao !== 'string'
+    ) {
+        return res.status(400).json({
+            success: false,
+            message: 'motivo_rejeicao deve ser um texto.'
+        });
+    }
+
+    return next();
+}
+
 function validarCriacaoLivroParaAutor(req, res, next) {
     const {
         categoria_id,
@@ -118,5 +142,6 @@ module.exports = {
     validarAlteracaoStatusLivro,
     validarAlteracaoVisibilidadeLivro,
     validarAlteracaoCapaLivro,
-    validarCriacaoLivroParaAutor
+    validarCriacaoLivroParaAutor,
+    validarDecisaoEditorial
 };

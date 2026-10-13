@@ -8,6 +8,7 @@ const CenaImagemController = require('../controllers/CenaImagemController');
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
 const autorizarObra = require('../middleware/autorizarObra');
+const protegerLeituraObra = require('../middleware/protegerLeituraObra');
 const EscopoObraService = require('../services/escopoObraService');
 
 const {
@@ -22,6 +23,12 @@ const {
 // Listar imagens de uma cena
 router.get(
     '/cena/:cena_id',
+    protegerLeituraObra(
+        EscopoObraService.comParametro(
+            EscopoObraService.porCenaParam,
+            'cena_id'
+        )
+    ),
     validarListagemPorCena,
     CenaImagemController.listarPorCena
 );
@@ -29,6 +36,7 @@ router.get(
 // Buscar imagem por ID
 router.get(
     '/:id',
+    protegerLeituraObra(EscopoObraService.porCenaImagemParam),
     validarBuscaPorId,
     CenaImagemController.buscarPorId
 );
@@ -65,7 +73,6 @@ router.delete(
     '/:id',
     autenticar,
     autorizarObra(EscopoObraService.porCenaImagemParam),
-    autorizar('obra.excluir'),
     validarDesativacao,
     CenaImagemController.desativar
 );

@@ -6,6 +6,7 @@ const CapituloController = require('../controllers/CapituloController');
 const autorizar = require('../middleware/autorizacao')
 const autenticar = require('../middleware/autenticar')
 const autorizarObra = require('../middleware/autorizarObra');
+const protegerLeituraObra = require('../middleware/protegerLeituraObra');
 const EscopoObraService = require('../services/escopoObraService');
 
 const {
@@ -17,18 +18,26 @@ const {
 // Listar capítulos de um livro
 router.get(
     '/livro/:livro_id',
+    protegerLeituraObra((req) => req.params.livro_id),
     CapituloController.listarPorLivro
 );
 
 // Buscar capítulo por ID
 router.get(
     '/:id',
+    protegerLeituraObra(
+        EscopoObraService.comParametro(
+            EscopoObraService.porCapituloParam,
+            'id'
+        )
+    ),
     CapituloController.buscarPorId
 );
 
 // Buscar capítulo por slug dentro do livro
 router.get(
     '/livro/:livro_id/slug/:slug',
+    protegerLeituraObra((req) => req.params.livro_id),
     CapituloController.buscarPorSlug
 );
 

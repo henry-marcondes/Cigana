@@ -78,6 +78,19 @@ export default function AdminPage() {
                         </p>
                     </Link>
 
+                    <Link
+                        href="/admin/obras"
+                        className="rounded-lg border p-5 transition hover:bg-gray-50"
+                    >
+                        <h2 className="text-xl font-semibold">
+                            Obras
+                        </h2>
+
+                        <p className="mt-2 text-sm text-gray-600">
+                            Analisar, aprovar ou rejeitar obras e publicar as aprovadas.
+                        </p>
+                    </Link>
+
                 </div>
         </main>
     );

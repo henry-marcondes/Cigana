@@ -1,9 +1,18 @@
 const express = require('express');
 const PessoaController = require('../controllers/PessoaController');
 const autenticar = require('../middleware/autenticar');
-const { validarPessoa } = require('../validators/PessoaValidator');
+const {
+    validarCriacaoPessoa,
+    validarAtualizacaoPessoa
+} = require('../validators/PessoaValidator');
 
 const router = express.Router();
+
+router.get(
+    '/minha/regularizacao',
+    autenticar,
+    PessoaController.verificarRegularizacao
+);
 
 router.get(
     '/minha',
@@ -14,14 +23,14 @@ router.get(
 router.post(
     '/',
     autenticar,
-    validarPessoa,
+    validarCriacaoPessoa,
     PessoaController.criar
 );
 
 router.put(
     '/minha',
     autenticar,
-    validarPessoa,
+    validarAtualizacaoPessoa,
     PessoaController.atualizar
 );
 

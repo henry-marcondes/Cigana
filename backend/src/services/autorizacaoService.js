@@ -2,6 +2,19 @@ const LivroAutor = require('../models/LivroAutor');
 
 class AutorizacaoService {
 
+    static async podeVisualizarObra(usuario_id, livro_id) {
+        const ehAutor = await LivroAutor.usuarioEhAutorDaObra(
+            usuario_id,
+            livro_id
+        );
+
+        if (ehAutor) {
+            return true;
+        }
+
+        return this.temPermissao(usuario_id, 'moderacao.visualizar');
+    }
+
     static async temPermissao(usuario_id, codigoPermissao) {
         const pool = require('../db/connection');
 

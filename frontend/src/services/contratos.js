@@ -156,6 +156,12 @@ export async function verificarAceite(
     );
 }
 
+export async function verificarAceitePorObra(livroId, contratoVersaoId) {
+    return apiFetch(
+        `/api/contratos/aceites/minha/obra/${livroId}/versao/${contratoVersaoId}`
+    );
+}
+
 export async function aceitarContrato(contratoVersaoId, dados = {}) {
     return apiFetch(
         `/api/contratos/versoes/${contratoVersaoId}/aceite`,
@@ -164,4 +170,30 @@ export async function aceitarContrato(contratoVersaoId, dados = {}) {
             body: JSON.stringify(dados),
         }
     );
+}
+
+export async function solicitarCodigoAceite(
+    contratoVersaoId,
+    livroId
+) {
+    return apiFetch('/api/contratos/aceites/solicitar-codigo', {
+        method: 'POST',
+        body: JSON.stringify({
+            contrato_versao_id: contratoVersaoId,
+            livro_id: livroId,
+        }),
+    });
+}
+
+export async function confirmarCodigoAceite(
+    codigo,
+    dados = {}
+) {
+    return apiFetch('/api/contratos/aceites/confirmar-codigo', {
+        method: 'POST',
+        body: JSON.stringify({
+            codigo,
+            ...dados,
+        }),
+    });
 }

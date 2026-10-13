@@ -11,6 +11,16 @@ const Escolha = require('../models/Escolha');
 
 class EscopoObraService {
 
+    static comParametro(resolver, nomeParametro) {
+        return (req) => resolver({
+            ...req,
+            params: {
+                ...req.params,
+                id: req.params[nomeParametro]
+            }
+        });
+    }
+
     // Obra identificada pelo parâmetro :id
     static async porLivroParam(req) {
         const livro = await Livro.buscarPorId(req.params.id);

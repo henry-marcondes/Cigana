@@ -3,12 +3,12 @@ const express = require('express');
 
 const router = express.Router();
 
-const CenaVideoController =
-require('../controllers/CenaVideoController');
+const CenaVideoController = require('../controllers/CenaVideoController');
 
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
 const autorizarObra = require('../middleware/autorizarObra');
+const protegerLeituraObra = require('../middleware/protegerLeituraObra');
 
 const EscopoObraService =
 require('../services/escopoObraService');
@@ -24,6 +24,12 @@ validarDesativacao
 // Listar vídeos de uma cena
 router.get(
 '/cena/:cena_id',
+protegerLeituraObra(
+EscopoObraService.comParametro(
+EscopoObraService.porCenaParam,
+'cena_id'
+)
+),
 validarCenaId,
 CenaVideoController.listarPorCena
 );
@@ -31,6 +37,7 @@ CenaVideoController.listarPorCena
 // Buscar vídeo por ID
 router.get(
 '/:id',
+protegerLeituraObra(EscopoObraService.porCenaVideoParam),
 CenaVideoController.buscarPorId
 );
 
@@ -69,14 +76,10 @@ CenaVideoController.alterarVideo
 
 // Desativar vídeo
 router.delete(
-'/:id',
-autenticar,
-autorizarObra(
-EscopoObraService.porCenaVideoParam
-),
-autorizar('obra.excluir'),
-validarDesativacao,
-CenaVideoController.desativar
+    '/:id',
+    autenticar,
+    autorizarObra(EscopoObraService.porCenaVideoParam),
+    validarDesativacao,
+    CenaVideoController.desativar
 );
-
 module.exports = router;

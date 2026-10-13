@@ -6,6 +6,10 @@ const pessoaService = {
         return apiFetch('/api/pessoas/minha');
     },
 
+    async verificarRegularizacao() {
+        return apiFetch('/api/pessoas/minha/regularizacao');
+    },
+
     async criar(dados) {
         return apiFetch('/api/pessoas', {
             method: 'POST',

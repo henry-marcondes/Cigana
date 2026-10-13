@@ -48,42 +48,76 @@ export default function TextosCena() {
     }
   }, [cenaId]);
 
-  async function criarTexto(event) {
-    event.preventDefault();
+async function criarTexto(event) {
+  event.preventDefault();
 
-    try {
-      setCriando(true);
-      setErroCriacao('');
-      setSucesso('');
+  try {
+    setCriando(true);
+    setErroCriacao('');
+    setSucesso('');
 
-      const resposta = await apiFetch(
-        '/api/cena-textos',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            cena_id: cenaId,
-            texto_url: textoUrl,
-          }),
-        }
-      );
+    // 1. Cria o texto
+    const resposta = await apiFetch(
+      '/api/cena-textos',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          cena_id: cenaId,
+          texto_url: textoUrl,
+        }),
+      }
+    );
 
-      setTextos((atuais) => [
-        ...atuais,
-        resposta.data,
-      ]);
+    const textoCriado = resposta.data;
 
-      setTextoUrl('');
-      setMostrarNovo(false);
+    // 2. Descobre a próxima posição da composição
+    const respostaComposicao = await apiFetch(
+      `/api/cena-conteudos/cena/${cenaId}`
+    );
 
-      setSucesso(
-        'Texto adicionado com sucesso.'
-      );
-    } catch (error) {
-      setErroCriacao(error.message);
-    } finally {
-      setCriando(false);
-    }
+    const conteudos = respostaComposicao.data || [];
+
+    const proximaOrdem =
+      conteudos.length > 0
+        ? Math.max(
+            ...conteudos.map(
+              (conteudo) => Number(conteudo.ordem_exibicao)
+            )
+          ) + 1
+        : 1;
+
+    // 3. Adiciona o texto à composição
+    await apiFetch(
+      '/api/cena-conteudos',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          cena_id: cenaId,
+          tipo_conteudo: 'TEXTO',
+          conteudo_id: textoCriado.id,
+          ordem_exibicao: proximaOrdem,
+        }),
+      }
+    );
+
+    setTextos((atuais) => [
+      ...atuais,
+      textoCriado,
+    ]);
+
+    setTextoUrl('');
+    setMostrarNovo(false);
+
+    setSucesso(
+      'Texto adicionado com sucesso.'
+    );
+
+  } catch (error) {
+    setErroCriacao(error.message);
+  } finally {
+    setCriando(false);
   }
+}
 
   function iniciarEdicao(texto) {
     setErroEdicao('');

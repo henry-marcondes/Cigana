@@ -4,6 +4,7 @@ const CenaController = require('../controllers/CenaController');
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
 const autorizarObra = require('../middleware/autorizarObra');
+const protegerLeituraObra = require('../middleware/protegerLeituraObra');
 const EscopoObraService = require('../services/escopoObraService');
 const {
     validarCriacaoCena,
@@ -56,6 +57,12 @@ router.delete(
 // =====================================================
 router.get(
     '/capitulo/:capitulo_id',
+    protegerLeituraObra(
+        EscopoObraService.comParametro(
+            EscopoObraService.porCapituloParam,
+            'capitulo_id'
+        )
+    ),
     validarCapituloCena,
     CenaController.listarPorCapitulo
 );
@@ -66,6 +73,12 @@ router.get(
 // =====================================================
 router.get(
     '/capitulo/:capitulo_id/inicial',
+    protegerLeituraObra(
+        EscopoObraService.comParametro(
+            EscopoObraService.porCapituloParam,
+            'capitulo_id'
+        )
+    ),
     validarCapituloCena,
     CenaController.buscarCenaInicial
 );
@@ -76,6 +89,12 @@ router.get(
 // =====================================================
 router.get(
     '/capitulo/:capitulo_id/slug/:slug',
+    protegerLeituraObra(
+        EscopoObraService.comParametro(
+            EscopoObraService.porCapituloParam,
+            'capitulo_id'
+        )
+    ),
     validarSlugCena,
     CenaController.buscarPorSlug
 );
@@ -86,6 +105,7 @@ router.get(
 // =====================================================
 router.get(
     '/:id',
+    protegerLeituraObra(EscopoObraService.porCenaParam),
     validarIdCena,
     CenaController.buscarPorId
 );

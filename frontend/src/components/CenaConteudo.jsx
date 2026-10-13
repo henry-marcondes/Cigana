@@ -1,3 +1,4 @@
+import ReactMarkdown from 'react-markdown';
 export default function CenaConteudo({ conteudo }) {
   if (!conteudo) {
     return null;
@@ -11,14 +12,86 @@ export default function CenaConteudo({ conteudo }) {
    * ============================================================
    */
 
-  if (tipo_conteudo === 'TEXTO') {
-    return (
-      <div className="whitespace-pre-line text-lg leading-8 text-gray-700">
-        {dados.texto}
-      </div>
+
+    if (tipo_conteudo === 'TEXTO') {
+      return (
+      <article className="font-mono text-base leading-8 text-gray-700">
+        <ReactMarkdown
+          components={{
+            h1: ({ children, ...props }) => (
+              <h1
+                className="mb-6 mt-8 text-3xl font-bold leading-tight text-gray-900"
+                {...props}
+              >
+                {children}
+              </h1>
+            ),
+
+            h2: ({ children, ...props }) => (
+              <h2
+                className="mb-4 mt-7 text-2xl font-bold leading-tight text-gray-800"
+                {...props}
+              >
+                {children}
+              </h2>
+            ),
+
+            h3: ({ children, ...props }) => (
+              <h3
+                className="mb-3 mt-6 text-xl font-bold text-gray-800"
+                 {...props}
+              >
+                {children}
+              </h3>
+            ),
+
+            p: ({ children, ...props }) => (
+              <p
+                className="mb-5"
+                {...props}
+              >
+                {children}
+              </p>
+            ),
+
+            ul: ({ children, ...props }) => (
+              <ul
+                className="mb-5 list-disc space-y-2 pl-6"
+                {...props}
+              >
+                {children}
+              </ul>
+            ),
+
+            ol: ({ children, ...props }) => (
+              <ol
+                className="mb-5 list-decimal space-y-2 pl-6"
+                {...props}
+              >
+                {children}
+              </ol>
+            ),
+
+            blockquote: ({ children, ...props }) => (
+              <blockquote
+                className="my-6 border-l-4 border-gray-300 pl-4 italic text-gray-600"
+                {...props}
+              >
+                {children}
+              </blockquote>
+            ),
+
+            hr: (props) => (
+              <hr className="my-8 border-gray-300" {...props} />
+            ),
+          }}
+        >
+          {dados.texto || ''}
+        </ReactMarkdown>
+      </article>
     );
   }
-
+ 
   /*
    * ============================================================
    * IMAGEM

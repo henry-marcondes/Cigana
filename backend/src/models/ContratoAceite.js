@@ -91,6 +91,29 @@ class ContratoAceite {
 
         return result.rows[0];
     }
+
+    static async buscarPorUsuarioVersaoELivro(
+        usuarioId,
+        contratoVersaoId,
+        livroId,
+        client = pool
+    ) {
+        const result = await client.query(`
+            SELECT ${CAMPOS}
+            FROM contratos_aceites
+            WHERE usuario_id = $1
+            AND contrato_versao_id = $2
+            AND livro_id = $3
+        `, [
+            usuarioId,
+            contratoVersaoId,
+            livroId
+        ]);
+
+        return result.rows[0] || null;
+    }
 }
+
+
 
 module.exports = ContratoAceite;

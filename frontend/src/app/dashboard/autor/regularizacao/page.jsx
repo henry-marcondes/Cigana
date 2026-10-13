@@ -1,7 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import pessoaService from '../../../../services/pessoa';
+import { obterUsuario } from '../../../../services/autenticacao';
+import { buscarAutorPorUsuario } from '../../../../services/autor';
+import { listarLivrosPorAutor } from '../../../../services/livroAutor';
+import { apiFetch } from '../../../../services/api';
+import {
+    buscarVersaoAtiva,
+    listarContratos,
+    verificarAceitePorObra,
+} from '../../../../services/contratos';
 
 const estadoInicialFisica = {
     nome: '',
@@ -22,6 +33,8 @@ const estadoInicialJuridica = {
 };
 
 export default function RegularizacaoAutorPage() {
+    const searchParams = useSearchParams();
+    const livroIdQuery = searchParams.get('livro_id');
     const [tipoPessoa, setTipoPessoa] = useState('');
     const [possuiPessoaFisica, setPossuiPessoaFisica] = useState(false);
     const [possuiPessoaJuridica, setPossuiPessoaJuridica] = useState(false);
@@ -33,15 +46,169 @@ export default function RegularizacaoAutorPage() {
     const [mensagem, setMensagem] = useState('');
     const [erro, setErro] = useState('');
     const [cadastrada, setCadastrada] = useState(false);
+    const [regularizacao, setRegularizacao] = useState(null);
+    const [erroRegularizacao, setErroRegularizacao] = useState('');
+    const [obrasAutor, setObrasAutor] = useState([]);
+    const [carregandoObras, setCarregandoObras] = useState(true);
+    const [erroObras, setErroObras] = useState('');
+    const [livroSelecionadoId, setLivroSelecionadoId] = useState('');
+    const [contratoObra, setContratoObra] = useState({ status: 'selecionar' });
+    const [atualizacaoContrato, setAtualizacaoContrato] = useState(0);
 
     useEffect(() => {
         carregarPessoa();
     }, []);
 
+    useEffect(() => {
+        let ativa = true;
+
+        async function carregarObrasAutor() {
+            setCarregandoObras(true);
+            setErroObras('');
+            setLivroSelecionadoId('');
+            setContratoObra({ status: 'selecionar' });
+
+            try {
+                const usuario = obterUsuario();
+                if (!usuario?.id) {
+                    throw new Error('Não foi possível identificar o usuário autenticado.');
+                }
+
+                const respostaAutor = await buscarAutorPorUsuario(usuario.id);
+                const autor = respostaAutor?.data;
+                if (!autor?.id) {
+                    if (ativa) {
+                        setObrasAutor([]);
+                        setLivroSelecionadoId('');
+                    }
+                    return;
+                }
+
+                const respostaRelacoes = await listarLivrosPorAutor(autor.id);
+                const livros = await Promise.all(
+                    (respostaRelacoes?.data || []).map(async (relacao) => {
+                        const respostaLivro = await apiFetch(`/api/livros/${relacao.livro_id}`);
+                        return respostaLivro?.data;
+                    })
+                );
+                const livrosValidos = livros.filter((livro) => livro?.id);
+
+                if (ativa) {
+                    setObrasAutor(livrosValidos);
+                    setLivroSelecionadoId(
+                        livroIdQuery && livrosValidos.some((livro) => livro.id === livroIdQuery)
+                            ? livroIdQuery
+                            : ''
+                    );
+                    if (livroIdQuery && !livrosValidos.some((livro) => livro.id === livroIdQuery)) {
+                        setErroObras('A obra informada não foi encontrada entre as obras deste Autor.');
+                    }
+                }
+            } catch (error) {
+                if (ativa) {
+                    setObrasAutor([]);
+                    setLivroSelecionadoId('');
+                    setErroObras(error.message || 'Não foi possível carregar suas obras.');
+                }
+            } finally {
+                if (ativa) setCarregandoObras(false);
+            }
+        }
+
+        carregarObrasAutor();
+        return () => { ativa = false; };
+    }, [livroIdQuery]);
+
+    useEffect(() => {
+        let ativa = true;
+        const livroSelecionado = obrasAutor.find((livro) => livro.id === livroSelecionadoId);
+
+        if (!livroSelecionadoId || !livroSelecionado) {
+            setContratoObra({ status: 'selecionar' });
+            return () => { ativa = false; };
+        }
+
+        async function carregarContratoObra() {
+            setContratoObra({ status: 'carregando' });
+            try {
+                const respostaContratos = await listarContratos({
+                    ativo: true,
+                    tipo: 'DIREITOS_AUTORAIS'
+                });
+                const contratosDireitos = (respostaContratos?.data || []).filter(
+                    (contrato) => contrato?.tipo === 'DIREITOS_AUTORAIS' && contrato.ativo
+                );
+
+                if (contratosDireitos.length === 0) {
+                    if (ativa) setContratoObra({ status: 'pendente', mensagem: 'Não há contrato ativo de Direitos Autorais disponível.' });
+                    return;
+                }
+
+                const contratosComVersaoAtiva = await Promise.all(
+                    contratosDireitos.map(async (contrato) => {
+                        const respostaVersao = await buscarVersaoAtiva(contrato.id);
+                        return { contrato, versao: respostaVersao?.data || null };
+                    })
+                );
+                const contratosComVersao = contratosComVersaoAtiva.filter(({ versao }) => versao?.id);
+
+                if (contratosComVersao.length === 0) {
+                    if (ativa) {
+                        setContratoObra({
+                            status: 'pendente',
+                            mensagem: 'O contrato ativo disponível não possui versão ativa para aceite.'
+                        });
+                    }
+                    return;
+                }
+
+                if (contratosComVersao.length > 1) {
+                    if (ativa) setContratoObra({ status: 'erro', mensagem: 'Há mais de um contrato ativo de Direitos Autorais disponível. Não foi possível determinar qual se aplica.' });
+                    return;
+                }
+
+                const { contrato, versao } = contratosComVersao[0];
+                const respostaAceite = await verificarAceitePorObra(livroSelecionadoId, versao.id);
+                if (typeof respostaAceite?.data?.aceito !== 'boolean') {
+                    throw new Error('Resposta de aceite inválida.');
+                }
+                const aceito = respostaAceite.data.aceito;
+
+                if (ativa) {
+                    setContratoObra({
+                        status: aceito ? 'concluido' : 'pendente',
+                        contrato,
+                        versao,
+                        mensagem: aceito ? '' : 'O aceite desta versão ainda está pendente para esta obra.'
+                    });
+                }
+            } catch (error) {
+                if (ativa) {
+                    setContratoObra({
+                        status: 'erro',
+                        mensagem: 'Não foi possível verificar o aceite desta obra. Tente atualizar a situação.'
+                    });
+                }
+            }
+        }
+
+        carregarContratoObra();
+        return () => { ativa = false; };
+    }, [livroSelecionadoId, obrasAutor, atualizacaoContrato]);
+
     async function carregarPessoa() {
         try {
             setCarregando(true);
             setErro('');
+
+            try {
+                const resultadoRegularizacao = await pessoaService.verificarRegularizacao();
+                setRegularizacao(resultadoRegularizacao?.data || null);
+                setErroRegularizacao('');
+            } catch (errorRegularizacao) {
+                setRegularizacao(null);
+                setErroRegularizacao('Não foi possível consultar a situação cadastral.');
+            }
 
             const resposta = await pessoaService.buscarMinhaPessoa();
 
@@ -87,9 +254,42 @@ export default function RegularizacaoAutorPage() {
         } catch (error) {
             console.error(error);
             setErro('Não foi possível carregar o cadastro.');
+            setErroRegularizacao('Não foi possível consultar a situação cadastral.');
         } finally {
             setCarregando(false);
         }
+    }
+
+    const pendencias = regularizacao?.pendencias || [];
+    const pendente = (prefixos) => pendencias.some(({ requisito = '' }) =>
+        prefixos.some((prefixo) => requisito === prefixo || requisito.startsWith(`${prefixo}.`))
+    );
+    const statusPessoa = !regularizacao ? 'aguardando' :
+        !pendente(['pessoa', 'especializacao', 'tipo_pessoa', 'pessoa_fisica', 'pessoa_juridica']) ? 'concluido' : 'pendente';
+    const statusTelefone = !regularizacao ? 'aguardando' : pendente(['telefone']) ? 'pendente' : 'concluido';
+    const statusEndereco = !regularizacao ? 'aguardando' : pendente(['endereco']) ? 'pendente' : 'concluido';
+
+    function checkpointStatus(status) {
+        if (status === 'concluido') return { texto: 'Concluído', classe: 'border-green-200 bg-green-50 text-green-800' };
+        if (status === 'pendente') return { texto: 'Pendente', classe: 'border-amber-200 bg-amber-50 text-amber-900' };
+        if (status === 'erro') return { texto: 'Não foi possível verificar', classe: 'border-red-200 bg-red-50 text-red-800' };
+        if (status === 'carregando') return { texto: 'Verificando...', classe: 'border-blue-200 bg-blue-50 text-blue-800' };
+        if (status === 'selecionar') return { texto: 'Selecione uma obra', classe: 'border-gray-200 bg-gray-100 text-gray-700' };
+        return { texto: 'Aguardando integração', classe: 'border-gray-200 bg-gray-100 text-gray-700' };
+    }
+
+    function renderCheckpoint(numero, titulo, status, descricao, href, rotulo) {
+        const visual = checkpointStatus(status);
+        return (
+            <li key={numero} className="rounded-lg border border-gray-200 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="font-semibold text-gray-900">Etapa {numero} — {titulo}</h3>
+                    <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${visual.classe}`}>{visual.texto}</span>
+                </div>
+                <p className="mt-2 text-sm text-gray-600">{descricao}</p>
+                {href && <Link href={href} className="mt-3 inline-block text-sm font-medium text-blue-700 underline">{rotulo}</Link>}
+            </li>
+        );
     }
 
     function alterarPessoaFisica(event) {
@@ -158,6 +358,7 @@ export default function RegularizacaoAutorPage() {
                 setPossuiPessoaJuridica(true);
             }
             setTipoPessoa('');
+            await carregarPessoa();
 
         } catch (error) {
             console.error(error);
@@ -212,6 +413,109 @@ export default function RegularizacaoAutorPage() {
                 </div>
             )}
 
+            <section className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <h2 className="text-xl font-semibold text-gray-900">Etapas da regularização</h2>
+                        <p className="mt-2 text-sm text-gray-600">
+                            O cadastro regularizado é reutilizado nas suas obras. Cada obra, porém, exige seu próprio contrato assinado.
+                        </p>
+                    </div>
+                    <button type="button" onClick={carregarPessoa} disabled={carregando} className="rounded-md border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50">
+                        {carregando ? 'Atualizando...' : 'Atualizar situação'}
+                    </button>
+                </div>
+                {erroRegularizacao && <p role="alert" className="mt-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">{erroRegularizacao}</p>}
+                {regularizacao && !regularizacao.regularizado && (
+                    <p className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                        Há pendências no cadastro. Consulte as etapas abaixo para saber o que falta.
+                    </p>
+                )}
+                {regularizacao?.regularizado && (
+                    <p className="mt-4 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                        Cadastro do Autor regularizado. Essa situação pode ser aproveitada em novas obras.
+                    </p>
+                )}
+                <div className="mt-5 max-w-xl">
+                    <label htmlFor="obra-contrato" className="mb-2 block text-sm font-semibold text-gray-800">
+                        Obra do contrato de Direitos Autorais
+                    </label>
+                    <select
+                        id="obra-contrato"
+                        value={livroSelecionadoId}
+                        onChange={(event) => {
+                            setContratoObra({ status: 'carregando' });
+                            setLivroSelecionadoId(event.target.value);
+                        }}
+                        disabled={carregandoObras}
+                        className="w-full rounded-md border border-gray-300 bg-white p-2.5 text-sm disabled:bg-gray-100"
+                    >
+                        <option value="">{carregandoObras ? 'Carregando suas obras...' : 'Selecione uma obra'}</option>
+                        {obrasAutor.map((livro) => (
+                            <option key={livro.id} value={livro.id}>{livro.titulo}</option>
+                        ))}
+                    </select>
+                    {erroObras && <p role="alert" className="mt-2 text-sm text-red-700">{erroObras}</p>}
+                    {!carregandoObras && !erroObras && obrasAutor.length === 0 && (
+                        <p className="mt-2 text-sm text-gray-600">Não há obras disponíveis para selecionar neste cadastro de Autor.</p>
+                    )}
+                </div>
+                <ol className="mt-5 space-y-3">
+                    {renderCheckpoint(1, 'Dados pessoais e documentos', statusPessoa,
+                        `${possuiPessoaFisica ? 'Pessoa Física cadastrada' : ''}${possuiPessoaFisica && possuiPessoaJuridica ? ' e ' : ''}${possuiPessoaJuridica ? 'Pessoa Jurídica cadastrada' : ''}${!possuiPessoaFisica && !possuiPessoaJuridica ? 'Informe os dados e documentos da especialização cadastrada.' : '. CPF/CNPJ e os campos obrigatórios são conferidos pelo cadastro.'}`,
+                        '/dashboard/autor/regularizacao', 'Completar ou corrigir cadastro')}
+                    {renderCheckpoint(2, 'Telefone', statusTelefone,
+                        statusTelefone === 'pendente' ? 'Cadastre ao menos um telefone ativo. Não é necessária verificação por SMS ou WhatsApp.' : 'É necessário manter ao menos um telefone ativo. Não há exigência de verificação por SMS ou WhatsApp.',
+                        '/dashboard/telefones', 'Gerenciar telefones')}
+                    {renderCheckpoint(3, 'Endereço', statusEndereco,
+                        'É necessário manter ao menos um endereço ativo.', '/dashboard/enderecos', 'Gerenciar endereços')}
+                    <li className="rounded-lg border border-gray-200 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <h3 className="font-semibold text-gray-900">Etapa 4 — Contrato de Direitos Autorais</h3>
+                            <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${checkpointStatus(contratoObra.status).classe}`}>
+                                {checkpointStatus(contratoObra.status).texto}
+                            </span>
+                        </div>
+                        {livroSelecionadoId ? (
+                            <div className="mt-3 space-y-1 text-sm text-gray-700">
+                                <p><span className="font-medium">Obra:</span> {obrasAutor.find((livro) => livro.id === livroSelecionadoId)?.titulo}</p>
+                                {contratoObra.contrato && <p><span className="font-medium">Contrato:</span> {contratoObra.contrato.nome}</p>}
+                                {contratoObra.versao && <p><span className="font-medium">Versão:</span> {contratoObra.versao.versao}{contratoObra.versao.titulo ? ` — ${contratoObra.versao.titulo}` : ''}</p>}
+                                {contratoObra.mensagem && <p className={contratoObra.status === 'erro' ? 'text-red-700' : 'text-gray-600'}>{contratoObra.mensagem}</p>}
+                            </div>
+                        ) : (
+                            <p className="mt-2 text-sm text-gray-600">Selecione uma obra para consultar o contrato e o aceite específicos dela.</p>
+                        )}
+                        {contratoObra.status === 'pendente' && contratoObra.contrato && contratoObra.versao && (
+                            <Link
+                                href={`/dashboard/contratos?livro_id=${encodeURIComponent(livroSelecionadoId)}&contrato_id=${encodeURIComponent(contratoObra.contrato.id)}`}
+                                className="mt-3 inline-block text-sm font-medium text-blue-700 underline"
+                            >
+                                Acessar fluxo de aceite desta obra
+                            </Link>
+                        )}
+                        {livroSelecionadoId && (
+                            <button
+                                type="button"
+                                onClick={() => setAtualizacaoContrato((valor) => valor + 1)}
+                                disabled={contratoObra.status === 'carregando'}
+                                className="mt-3 ml-4 text-sm text-gray-700 underline disabled:opacity-50"
+                            >
+                                Atualizar aceite
+                            </button>
+                        )}
+                    </li>
+                </ol>
+                {regularizacao?.pendencias?.length > 0 && (
+                    <div className="mt-5">
+                        <h3 className="text-sm font-semibold text-gray-800">Pendências informadas pelo cadastro</h3>
+                        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-600">
+                            {regularizacao.pendencias.map((item, index) => <li key={`${item.requisito}-${index}`}>{item.mensagem}</li>)}
+                        </ul>
+                    </div>
+                )}
+            </section>
+
             {!tipoPessoa && (
                 <section className="mb-8">
                 <h2 className="text-lg font-semibold mb-4">
@@ -222,7 +526,7 @@ export default function RegularizacaoAutorPage() {
                 </p>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                    {!possuiPessoaFisica && (
+                    {(
                         <button
                             type="button"
                             onClick={() => selecionarTipo('FISICA')}
@@ -233,12 +537,12 @@ export default function RegularizacaoAutorPage() {
                     </h3>
 
                     <p className="mt-2 text-sm text-gray-600">
-                        Cadastro para atuação como pessoa física.
+                        {possuiPessoaFisica ? 'Revise ou corrija os dados da pessoa física.' : 'Cadastro para atuação como pessoa física.'}
                     </p>
                 </button>
             )}
 
-            {!possuiPessoaJuridica && (
+            {(
                 <button
                     type="button"
                     onClick={() => selecionarTipo('JURIDICA')}
@@ -249,7 +553,7 @@ export default function RegularizacaoAutorPage() {
                     </h3>
 
                     <p className="mt-2 text-sm text-gray-600">
-                        Cadastro para atuação por empresa ou organização.
+                        {possuiPessoaJuridica ? 'Revise ou corrija os dados da pessoa jurídica.' : 'Cadastro para atuação por empresa ou organização.'}
                     </p>
                 </button>
                 )}

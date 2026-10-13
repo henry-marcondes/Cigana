@@ -21,6 +21,23 @@ class PessoaController {
         }
     }
 
+    static async verificarRegularizacao(req, res) {
+        try {
+            const resultado = await PessoaService.verificarRegularizacao(
+                req.usuario.id
+            );
+
+            return apiResponse.success(res, resultado);
+        } catch (error) {
+            console.error('Erro ao verificar regularização cadastral:', error);
+
+            return apiResponse.error(
+                res,
+                'Erro ao verificar regularização cadastral.'
+            );
+        }
+    }
+
     static async criar(req, res) {
         try {
             const usuarioId = req.usuario.id;

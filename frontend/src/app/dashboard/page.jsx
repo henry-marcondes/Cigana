@@ -283,7 +283,7 @@ return ( <main className="min-h-screen bg-gray-100 p-6"> <div className="mx-auto
       </p>
 
       <Link
-        href="/dashboard/autor"
+        href="/dashboard/autor/inicio"
         className="mt-3 inline-block rounded bg-gray-500 px-4 py-2 text-sm text-white hover:bg-gray-600"
       >
         Quero ser Autor

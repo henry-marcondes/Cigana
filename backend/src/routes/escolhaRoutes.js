@@ -3,6 +3,7 @@ const EscolhaController = require('../controllers/EscolhaController');
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
 const autorizarObra = require('../middleware/autorizarObra');
+const protegerLeituraObra = require('../middleware/protegerLeituraObra');
 const EscopoObraService = require('../services/escopoObraService');
 
 const {
@@ -21,6 +22,12 @@ const router = express.Router();
 // Listar escolhas de uma cena de origem
 router.get(
     '/cena/:cena_origem_id',
+    protegerLeituraObra(
+        EscopoObraService.comParametro(
+            EscopoObraService.porCenaParam,
+            'cena_origem_id'
+        )
+    ),
     validarListagemPorCenaOrigem,
     EscolhaController.listarPorCenaOrigem
 );
@@ -28,6 +35,7 @@ router.get(
 // Buscar escolha por ID
 router.get(
     '/:id',
+    protegerLeituraObra(EscopoObraService.porEscolhaParam),
     validarBuscaPorId,
     EscolhaController.buscarPorId
 );

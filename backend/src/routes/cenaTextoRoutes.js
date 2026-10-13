@@ -7,6 +7,7 @@ const CenaTextoController = require('../controllers/cenaTextoController');
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
 const autorizarObra = require('../middleware/autorizarObra');
+const protegerLeituraObra = require('../middleware/protegerLeituraObra');
 const EscopoObraService = require('../services/escopoObraService');
 
 const {
@@ -18,12 +19,19 @@ const {
 
 router.get(
     '/cena/:cena_id',
+    protegerLeituraObra(
+        EscopoObraService.comParametro(
+            EscopoObraService.porCenaParam,
+            'cena_id'
+        )
+    ),
     validarIdCena,
     CenaTextoController.listarPorCena
 );
 
 router.get(
     '/:id',
+    protegerLeituraObra(EscopoObraService.porCenaTextoParam),
     validarIdCenaTexto,
     CenaTextoController.buscarPorId
 );
@@ -46,9 +54,8 @@ router.patch(
 router.delete(
     '/:id',
     autenticar,
-    autorizar('obra.excluir'),
+    autorizarObra(EscopoObraService.porCenaTextoParam),
     validarIdCenaTexto,
     CenaTextoController.desativar
 );
-
 module.exports = router;

@@ -255,6 +255,96 @@ export default function EnderecosPage() {
                     </div>
                 )}
 
+                {/* Lista */}
+                <section className="rounded-lg bg-white p-6 shadow">
+                    <h2 className="mb-6 text-xl font-semibold text-gray-900">
+                        Endereços cadastrados
+                    </h2>
+
+                    {carregando ? (
+                        <p className="text-gray-600">
+                            Carregando endereços...
+                        </p>
+                    ) : enderecos.length === 0 ? (
+                        <p className="text-gray-600">
+                            Nenhum endereço cadastrado.
+                        </p>
+                    ) : (
+                        <div className="space-y-4">
+                            {enderecos.map((endereco) => (
+                                <div
+                                    key={endereco.id}
+                                    className="rounded-lg border border-gray-200 p-5"
+                                >
+                                    <div className="flex flex-col justify-between gap-4 md:flex-row">
+
+                                        <div>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <h3 className="font-semibold text-gray-900">
+                                                    {endereco.tipo}
+                                                </h3>
+
+                                                {endereco.principal && (
+                                                    <span className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+                                                        Principal
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <p className="mt-2 text-gray-800">
+                                                {endereco.logradouro}, {endereco.numero}
+                                                {endereco.complemento &&
+                                                    ` - ${endereco.complemento}`}
+                                            </p>
+
+                                            <p className="text-gray-600">
+                                                {endereco.bairro} - {endereco.cidade}/{endereco.uf}
+                                            </p>
+
+                                            <p className="text-gray-600">
+                                                CEP: {endereco.cep} — {endereco.pais}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex flex-wrap items-start gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => editarEndereco(endereco)}
+                                                className="rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
+                                            >
+                                                Editar
+                                            </button>
+
+                                            {!endereco.principal && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        tornarPrincipal(endereco.id)
+                                                    }
+                                                    className="rounded bg-green-600 px-3 py-2 text-sm text-white hover:bg-green-700"
+                                                >
+                                                    Tornar principal
+                                                </button>
+                                            )}
+
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    removerEndereco(endereco.id)
+                                                }
+                                                className="rounded bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
+                                            >
+                                                Desativar
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+
                 {/* Formulário */}
                 <section className="mb-6 rounded-lg bg-white p-6 shadow">
                     <div className="mb-6 flex items-center justify-between">
@@ -487,95 +577,6 @@ export default function EnderecosPage() {
                     </form>
                 </section>
 
-                {/* Lista */}
-                <section className="rounded-lg bg-white p-6 shadow">
-                    <h2 className="mb-6 text-xl font-semibold text-gray-900">
-                        Endereços cadastrados
-                    </h2>
-
-                    {carregando ? (
-                        <p className="text-gray-600">
-                            Carregando endereços...
-                        </p>
-                    ) : enderecos.length === 0 ? (
-                        <p className="text-gray-600">
-                            Nenhum endereço cadastrado.
-                        </p>
-                    ) : (
-                        <div className="space-y-4">
-                            {enderecos.map((endereco) => (
-                                <div
-                                    key={endereco.id}
-                                    className="rounded-lg border border-gray-200 p-5"
-                                >
-                                    <div className="flex flex-col justify-between gap-4 md:flex-row">
-
-                                        <div>
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <h3 className="font-semibold text-gray-900">
-                                                    {endereco.tipo}
-                                                </h3>
-
-                                                {endereco.principal && (
-                                                    <span className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                                                        Principal
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <p className="mt-2 text-gray-800">
-                                                {endereco.logradouro}, {endereco.numero}
-                                                {endereco.complemento &&
-                                                    ` - ${endereco.complemento}`}
-                                            </p>
-
-                                            <p className="text-gray-600">
-                                                {endereco.bairro} - {endereco.cidade}/{endereco.uf}
-                                            </p>
-
-                                            <p className="text-gray-600">
-                                                CEP: {endereco.cep} — {endereco.pais}
-                                            </p>
-                                        </div>
-
-                                        <div className="flex flex-wrap items-start gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => editarEndereco(endereco)}
-                                                className="rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
-                                            >
-                                                Editar
-                                            </button>
-
-                                            {!endereco.principal && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        tornarPrincipal(endereco.id)
-                                                    }
-                                                    className="rounded bg-green-600 px-3 py-2 text-sm text-white hover:bg-green-700"
-                                                >
-                                                    Tornar principal
-                                                </button>
-                                            )}
-
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    removerEndereco(endereco.id)
-                                                }
-                                                className="rounded bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
-                                            >
-                                                Desativar
-                                            </button>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </section>
 
             </div>
         </main>

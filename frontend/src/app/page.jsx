@@ -51,7 +51,7 @@ export default function Home() {
               Biblioteca
             </h1>
 
-            <p className="mt-2 text-pink-600">
+            <p className="mt-2 text-gray-900">
               Livros disponíveis na plataforma Ciganas.
             </p>
           </div>
@@ -61,6 +61,18 @@ export default function Home() {
             className="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-900"
           >
             Dashboard
+          </Link> 
+           <Link
+            href="/login"
+            className="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-900"
+          >
+            Login
+          </Link> 
+          <Link
+            href="/cadastro"
+            className="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-900"
+          >
+            Cadastro
           </Link>
         </header>
 

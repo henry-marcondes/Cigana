@@ -114,6 +114,24 @@ router.delete(
 // =====================================================
 
 router.get(
+    '/aceites/minha/obra/:livroId/versao/:contratoVersaoId',
+    autenticar,
+    ContratoController.verificarAceitePorObra
+);
+
+router.post(
+    '/aceites/solicitar-codigo',
+    autenticar,
+    ContratoController.solicitarCodigoAceite
+);
+
+router.post(
+    '/aceites/confirmar-codigo',
+    autenticar,
+    ContratoController.confirmarCodigoAceite
+);
+
+router.get(
     '/aceites/usuario/:usuarioId',
     ContratoController.listarAceitesPorUsuario
 );

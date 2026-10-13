@@ -7,6 +7,7 @@ require('../controllers/CenaAudioController');
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
 const autorizarObra = require('../middleware/autorizarObra');
+const protegerLeituraObra = require('../middleware/protegerLeituraObra');
 
 const EscopoObraService =
 require('../services/escopoObraService');
@@ -23,12 +24,19 @@ const router = express.Router();
 
 router.get(
 '/cena/:cena_id',
+protegerLeituraObra(
+EscopoObraService.comParametro(
+EscopoObraService.porCenaParam,
+'cena_id'
+)
+),
 validarCenaId,
 CenaAudioController.listarPorCena
 );
 
 router.get(
 '/:id',
+protegerLeituraObra(EscopoObraService.porCenaAudioParam),
 validarDesativacao,
 CenaAudioController.buscarPorId
 );
@@ -66,10 +74,7 @@ CenaAudioController.alterarAudio
 router.delete(
 '/:id',
 autenticar,
-autorizarObra(
-EscopoObraService.porCenaAudioParam
-),
-autorizar('obra.excluir'),
+autorizarObra(EscopoObraService.porCenaAudioParam),
 validarDesativacao,
 CenaAudioController.desativar
 );

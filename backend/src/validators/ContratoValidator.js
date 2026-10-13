@@ -162,6 +162,31 @@ class ContratoValidator {
 
         return erros;
     }
+
+    static solicitarCodigoAceite(dados) {
+        const erros = [];
+        const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+        if (!dados || typeof dados !== 'object') {
+            return ['Dados para solicitar o código são obrigatórios.'];
+        }
+        if (typeof dados.contrato_versao_id !== 'string' ||
+            !uuid.test(dados.contrato_versao_id)) {
+            erros.push('O contrato_versao_id deve ser um UUID válido.');
+        }
+        if (typeof dados.livro_id !== 'string' || !uuid.test(dados.livro_id)) {
+            erros.push('O livro_id deve ser um UUID válido.');
+        }
+        return erros;
+    }
+
+    static confirmarCodigoAceite(dados) {
+        if (!dados || typeof dados.codigo !== 'string' ||
+            !/^\d{6}$/.test(dados.codigo)) {
+            return ['O código deve conter 6 dígitos.'];
+        }
+        return [];
+    }
 }
 
 module.exports = ContratoValidator;

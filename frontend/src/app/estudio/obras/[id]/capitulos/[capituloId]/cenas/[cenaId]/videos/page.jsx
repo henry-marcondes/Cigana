@@ -204,42 +204,74 @@ try {
     setSucesso(
       'Vídeo atualizado com sucesso.'
     );
-  } else {
-    const resposta = await apiFetch(
-      '/api/cena-videos',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          cena_id: cenaId,
-          titulo,
-          legenda: legenda || null,
-          descricao: descricao || null,
-          video_url: videoUrl,
-          miniatura_url:
-            miniaturaUrl || null,
-          reproducao_automatica:
-            reproducaoAutomatica,
-          reproducao_em_loop:
-            reproducaoEmLoop,
-          ordem_exibicao:
-            Number(ordemExibicao),
-        }),
-      }
-    );
+} else {
+  const resposta = await apiFetch(
+    '/api/cena-videos',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        cena_id: cenaId,
+        titulo,
+        legenda: legenda || null,
+        descricao: descricao || null,
+        video_url: videoUrl,
+        miniatura_url:
+          miniaturaUrl || null,
+        reproducao_automatica:
+          reproducaoAutomatica,
+        reproducao_em_loop:
+          reproducaoEmLoop,
+        ordem_exibicao:
+          Number(ordemExibicao),
+      }),
+    }
+  );
 
-    setVideos((atuais) =>
-      [...atuais, resposta.data].sort(
-        (a, b) =>
-          a.ordem_exibicao -
-          b.ordem_exibicao
-      )
-    );
+  const videoCriado = resposta.data;
 
-    setSucesso(
-      'Vídeo criado com sucesso.'
-    );
-  }
+  // Descobre a próxima posição da composição
+  const respostaComposicao = await apiFetch(
+    `/api/cena-conteudos/cena/${cenaId}`
+  );
 
+  const conteudos = respostaComposicao.data || [];
+
+  const proximaOrdem =
+    conteudos.length > 0
+      ? Math.max(
+          ...conteudos.map(
+            (conteudo) =>
+              Number(conteudo.ordem_exibicao)
+          )
+        ) + 1
+      : 1;
+
+  // Adiciona o vídeo à composição
+  await apiFetch(
+    '/api/cena-conteudos',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        cena_id: cenaId,
+        tipo_conteudo: 'VIDEO',
+        conteudo_id: videoCriado.id,
+        ordem_exibicao: proximaOrdem,
+      }),
+    }
+  );
+
+  setVideos((atuais) =>
+    [...atuais, videoCriado].sort(
+      (a, b) =>
+        a.ordem_exibicao -
+        b.ordem_exibicao
+    )
+  );
+
+  setSucesso(
+    'Vídeo criado com sucesso.'
+  );
+}
   setMostrarFormulario(false);
   limparFormulario();
 } catch (error) {

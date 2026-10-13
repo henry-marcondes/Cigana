@@ -5,6 +5,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { listarCapitulosPorLivro } from '../../../../services/capitulo';
 
 import { apiFetch } from '../../../../services/api';
+import { obterUsuario } from '../../../../services/autenticacao';
+import { usuarioTemPermissao } from '../../../../services/permissoesEfetivas';
+import {
+  enviarLivroParaRevisao,
+  publicarLivro,
+} from '../../../../services/livro';
 
 export default function EditarObra() {
   const params = useParams();
@@ -28,6 +34,19 @@ export default function EditarObra() {
   });
   const [criandoCapitulo, setCriandoCapitulo] = useState(false);
   const [erroCriacaoCapitulo, setErroCriacaoCapitulo] = useState('');
+  const [podePublicar, setPodePublicar] = useState(false);
+  const [podeEnviarRevisao, setPodeEnviarRevisao] = useState(false);
+  const [estadoPublicacao, setEstadoPublicacao] = useState({
+    status: '',
+    visibilidade: '',
+  });
+  const [decisaoEditorial, setDecisaoEditorial] = useState(null);
+  const [publicando, setPublicando] = useState(false);
+  const [erroPublicacao, setErroPublicacao] = useState('');
+  const [sucessoPublicacao, setSucessoPublicacao] = useState('');
+  const [enviandoRevisao, setEnviandoRevisao] = useState(false);
+  const [erroRevisao, setErroRevisao] = useState('');
+  const [sucessoRevisao, setSucessoRevisao] = useState('');
 
   useEffect(() => {
     async function carregarObra() {
@@ -35,6 +54,63 @@ export default function EditarObra() {
         const resposta = await apiFetch(`/api/livros/${id}`);
 
         setObra(resposta.data);
+
+        const usuario = obterUsuario();
+        if (usuario?.id) {
+          try {
+            setPodePublicar(
+              await usuarioTemPermissao(usuario.id, 'obra.publicar')
+            );
+          } catch {
+            setPodePublicar(false);
+          }
+
+          try {
+            const [podeEditar, respostaAutor, respostaAutoresDaObra] =
+              await Promise.all([
+                usuarioTemPermissao(usuario.id, 'obra.editar'),
+                apiFetch(`/api/autores/usuario/${usuario.id}`),
+                apiFetch(`/api/livro-autores/livro/${id}`),
+              ]);
+            const autorVinculado = (respostaAutoresDaObra.data || []).some(
+              (vinculo) => vinculo.autor_id === respostaAutor.data?.id
+            );
+            setPodeEnviarRevisao(podeEditar || autorVinculado);
+          } catch {
+            setPodeEnviarRevisao(false);
+          }
+        }
+
+        try {
+          const [respostaStatus, respostaVisibilidade] = await Promise.all([
+            apiFetch('/api/status-livro'),
+            apiFetch('/api/visibilidade-livro'),
+          ]);
+
+          const status = respostaStatus.data?.find(
+            (item) => item.id === resposta.data.status_livro_id
+          );
+          const visibilidade = respostaVisibilidade.data?.find(
+            (item) => item.id === resposta.data.visibilidade_livro_id
+          );
+
+          setEstadoPublicacao({
+            status: status?.slug || '',
+            visibilidade: visibilidade?.slug || '',
+          });
+        } catch {
+          setEstadoPublicacao({ status: '', visibilidade: '' });
+        }
+
+        try {
+          const respostaDecisao = await apiFetch(
+            `/api/livros/${id}/decisao-editorial`
+          );
+          setDecisaoEditorial(respostaDecisao.data?.decisao || null);
+        } catch {
+          setDecisaoEditorial(null);
+        }
+
         const respostaCapitulos = await listarCapitulosPorLivro(id);
         setCapitulos(respostaCapitulos.data);
       } catch (error) {
@@ -150,6 +226,51 @@ export default function EditarObra() {
   }
 }
 
+  async function publicarObra() {
+    if (!window.confirm(
+      `Publicar “${obra.titulo}”? A obra ficará disponível publicamente na Biblioteca.`
+    )) return;
+
+    setPublicando(true);
+    setErroPublicacao('');
+    setSucessoPublicacao('');
+    try {
+      const resposta = await publicarLivro(id);
+      setObra(resposta.data);
+      setEstadoPublicacao({ status: 'publicado', visibilidade: 'publica' });
+      setSucessoPublicacao(
+        resposta.message || 'Obra publicada e disponibilizada na Biblioteca.'
+      );
+    } catch (error) {
+      setErroPublicacao(
+        error.message || 'Não foi possível publicar a obra.'
+      );
+    } finally {
+      setPublicando(false);
+    }
+  }
+
+  async function enviarParaRevisao() {
+    if (!window.confirm(
+      `Enviar “${obra.titulo}” para revisão editorial? A obra permanecerá privada e não será aprovada nem publicada automaticamente.`
+    )) return;
+
+    setEnviandoRevisao(true);
+    setErroRevisao('');
+    setSucessoRevisao('');
+    try {
+      const resposta = await enviarLivroParaRevisao(id);
+      setObra(resposta.data);
+      setEstadoPublicacao((estado) => ({ ...estado, status: 'em-revisao' }));
+      setDecisaoEditorial(null);
+      setSucessoRevisao(resposta.message || 'Obra enviada para revisão editorial.');
+    } catch (errorRevisao) {
+      setErroRevisao(errorRevisao.message || 'Não foi possível enviar a obra para revisão.');
+    } finally {
+      setEnviandoRevisao(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-gray-100 p-4 sm:p-6">
       <div className="mx-auto max-w-4xl">
@@ -204,6 +325,58 @@ export default function EditarObra() {
             <p className="mt-3 text-gray-600">
               {obra.resumo}
             </p>
+          )}
+
+          {podeEnviarRevisao &&
+            estadoPublicacao.visibilidade === 'rascunho' &&
+            ((estadoPublicacao.status === 'em-elaboracao' &&
+              decisaoEditorial === null) ||
+              (estadoPublicacao.status === 'em-revisao' &&
+                decisaoEditorial === 'REJEITADA')) && (
+            <div className="mt-6 border-t border-gray-200 pt-5">
+              <button
+                type="button"
+                disabled={enviandoRevisao}
+                onClick={enviarParaRevisao}
+                className="rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium text-white hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {enviandoRevisao
+                  ? 'Enviando para revisão...'
+                  : decisaoEditorial === 'REJEITADA'
+                    ? 'Reenviar para revisão'
+                    : 'Enviar para revisão'}
+              </button>
+              {erroRevisao && (
+                <p role="alert" className="mt-2 text-sm text-red-700">{erroRevisao}</p>
+              )}
+              {sucessoRevisao && (
+                <p role="status" className="mt-2 text-sm text-green-700">{sucessoRevisao}</p>
+              )}
+            </div>
+          )}
+
+          {podePublicar && estadoPublicacao.status === 'em-revisao' &&
+            decisaoEditorial === 'APROVADA' && (
+            <div className="mt-6 border-t border-gray-200 pt-5">
+              <button
+                type="button"
+                disabled={publicando}
+                onClick={publicarObra}
+                className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {publicando ? 'Publicando...' : 'Publicar obra'}
+              </button>
+              {erroPublicacao && (
+                <p role="alert" className="mt-2 text-sm text-red-700">
+                  {erroPublicacao}
+                </p>
+              )}
+              {sucessoPublicacao && (
+                <p role="status" className="mt-2 text-sm text-green-700">
+                  {sucessoPublicacao}
+                </p>
+              )}
+            </div>
           )}
 
         </section>

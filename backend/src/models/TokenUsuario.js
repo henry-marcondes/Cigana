@@ -6,16 +6,18 @@ class TokenUsuario {
         usuario_id,
         finalidade,
         token_hash,
-        expira_em
+        expira_em,
+        dados_adicionais = null
     }) {
         const query = `
             INSERT INTO tokens_usuario (
                 usuario_id,
                 finalidade,
                 token_hash,
-                expira_em
+                expira_em,
+                dados_adicionais
             )
-            VALUES ($1, $2, $3, $4)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *;
         `;
 
@@ -23,7 +25,8 @@ class TokenUsuario {
             usuario_id,
             finalidade,
             token_hash,
-            expira_em
+            expira_em,
+            dados_adicionais
         ];
 
         const { rows } = await pool.query(query, values);

@@ -80,6 +80,12 @@ export default function AdminUsuariosPage() {
                     >
                         Novo usuário
                     </Link>
+                    <Link
+                        href="/admin"
+                        className="rounded bg-black px-4 py-2 text-white hover:bg-gray-800"
+                    >
+                        Administração
+                    </Link>
                 </header>
 
                 {erro && (

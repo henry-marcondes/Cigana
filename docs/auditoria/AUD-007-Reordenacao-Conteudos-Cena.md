@@ -404,7 +404,124 @@ A Biblioteca não deve precisar conhecer a mecânica de reordenação. Ela apena
 
 ---
 
-## 12. Contrato resumido
+## 12. Integração da criação e exclusão de conteúdos com a composição
+
+### 12.1 Objetivo
+
+Garantir que os conteúdos criados nas telas específicas da cena sejam automaticamente vinculados à composição por meio da tabela `cena_conteudos`.
+
+A composição continua sendo responsável exclusivamente pela ordenação dos conteúdos já vinculados.
+
+### 12.2 Fluxo de criação
+
+As telas de Textos, Imagens, Áudios e Vídeos passaram a executar duas operações ao criar um conteúdo:
+
+1. Criar o registro na tabela específica do tipo de conteúdo.
+2. Criar o vínculo correspondente em `cena_conteudos`.
+
+O fluxo adotado é:
+
+```text
+Cadastro do conteúdo
+        ↓
+POST /api/cena-textos
+POST /api/cena-imagens
+POST /api/cena-audios
+POST /api/cena-videos
+        ↓
+Consultar a composição atual
+        ↓
+Calcular a próxima ordem disponível
+        ↓
+POST /api/cena-conteudos
+        ↓
+Conteúdo disponível na composição
+```
+
+Cada cadastro utiliza apenas o endpoint correspondente ao seu tipo. O fluxo é sequencial, e o vínculo é criado após a criação do registro específico.
+
+### 12.3 Payload de vinculação
+
+O vínculo é criado por meio de:
+
+```http
+POST /api/cena-conteudos
+```
+
+Exemplo para texto:
+
+```json
+{
+  "cena_id": "UUID-DA-CENA",
+  "tipo_conteudo": "TEXTO",
+  "conteudo_id": "UUID-DO-TEXTO",
+  "ordem_exibicao": 5
+}
+```
+
+Para os demais tipos, `tipo_conteudo` recebe `IMAGEM`, `AUDIO` ou `VIDEO`, e `conteudo_id` corresponde ao registro recém-criado.
+
+A próxima ordem é calculada a partir dos conteúdos ativos já existentes na composição. Se não houver conteúdo, a ordem inicial será `1`; caso contrário, será o maior valor atual acrescido de `1`.
+
+### 12.4 Funções do frontend
+
+| Tela | Função responsável | Responsabilidade |
+|---|---|---|
+| Textos | `criarTexto(event)` | Criar o texto, consultar a composição, calcular a próxima ordem e inserir o vínculo. |
+| Imagens | `criarImagem(event)` | Criar a imagem e vinculá-la à composição. |
+| Áudios | `salvarAudio(event)` | No modo de criação, criar o áudio e vinculá-lo à composição; preservar o fluxo de edição existente. |
+| Vídeos | `salvarVideo(event)` | No modo de criação, criar o vídeo e vinculá-lo à composição; preservar o fluxo de edição existente. |
+
+As funções de criação atualizam o estado local da tela após as operações. Nos formulários de Áudio e Vídeo, a lógica de edição permanece separada do novo vínculo de criação.
+
+### 12.5 Exclusão e autorização
+
+Foi identificada uma inconsistência nas rotas `DELETE` dos conteúdos: elas utilizavam `autorizar('obra.excluir')`, embora as operações de criação e alteração utilizassem autorização baseada no escopo da obra.
+
+As rotas foram ajustadas para utilizar `autorizarObra` com o escopo específico de cada recurso:
+
+| Recurso | Escopo de autorização |
+|---|---|
+| Texto | `EscopoObraService.porCenaTextoParam` |
+| Imagem | `EscopoObraService.porCenaImagemParam` |
+| Áudio | `EscopoObraService.porCenaAudioParam` |
+| Vídeo | `EscopoObraService.porCenaVideoParam` |
+
+A alteração alinha a autorização de exclusão ao escopo da obra, sem exigir a permissão genérica `obra.excluir` nessa rota.
+
+As quatro exclusões foram testadas com sucesso pelo fluxo do frontend.
+
+### 12.6 Responsabilidades preservadas
+
+A implementação mantém a separação entre as telas:
+
+- **Telas específicas:** criar, editar e remover os registros de seus respectivos tipos.
+- **Composição:** visualizar e reordenar os conteúdos já vinculados.
+- **Backend:** validar os dados, autorizar as operações e persistir os registros e vínculos.
+
+A tela de Composição não foi alterada para incluir controles de criação ou exclusão.
+
+### 12.7 Testes realizados
+
+Foram validados os seguintes comportamentos:
+
+- criação de Texto com inclusão automática na composição;
+- criação de Imagem com inclusão automática na composição;
+- criação de Áudio com inclusão automática na composição;
+- criação de Vídeo com inclusão automática na composição;
+- composição conjunta dos quatro tipos;
+- reordenação dos conteúdos e persistência da ordem;
+- exclusão dos conteúdos pelo frontend após o ajuste das rotas.
+
+**Status da integração:** validada manualmente.
+
+### 12.8 Observação técnica
+
+A criação do registro específico e a criação do vínculo em `cena_conteudos` são duas requisições distintas. Portanto, o fluxo atual não constitui uma única transação envolvendo as duas operações. Caso a segunda operação falhe, o registro específico poderá existir sem vínculo na composição. O tratamento transacional conjunto poderá ser avaliado em uma etapa futura, se necessário.
+
+---
+
+## 13. Contrato resumido
 
 ```http
 PATCH /api/cena-conteudos/reordenar

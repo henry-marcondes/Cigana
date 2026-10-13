@@ -2,6 +2,9 @@ const pool = require('../db/connection');
 const Pessoa = require('../models/Pessoa');
 const PessoaFisica = require('../models/PessoaFisica');
 const PessoaJuridica = require('../models/PessoaJuridica');
+const Telefone = require('../models/Telefone');
+const Endereco = require('../models/Endereco');
+const { validarCpf, validarCnpj } = require('../validators/PessoaValidator');
 
 function possuiEspecializacao(dados, campo) {
     return dados?.[campo] !== undefined && dados[campo] !== null;
@@ -47,6 +50,96 @@ class PessoaService {
             ...pessoa,
             pessoa_fisica: pessoaFisica,
             pessoa_juridica: pessoaJuridica
+        };
+    }
+
+    static async verificarRegularizacao(usuarioId) {
+        const pendencias = [];
+        const adicionarPendencia = (requisito, mensagem) => {
+            pendencias.push({ requisito, mensagem });
+        };
+
+        const pessoa = await Pessoa.buscarPorUsuarioId(usuarioId);
+
+        if (!pessoa) {
+            adicionarPendencia('pessoa', 'Cadastro de pessoa não encontrado.');
+            adicionarPendencia(
+                'especializacao',
+                'Cadastre uma especialização de pessoa física ou jurídica.'
+            );
+            adicionarPendencia('telefone', 'Cadastre ao menos um telefone ativo.');
+            adicionarPendencia('endereco', 'Cadastre ao menos um endereço ativo.');
+
+            return { regularizado: false, pendencias };
+        }
+
+        const [pessoaFisica, pessoaJuridica, telefones, enderecos] =
+            await Promise.all([
+                PessoaFisica.buscarPorPessoaId(pessoa.id),
+                PessoaJuridica.buscarPorPessoaId(pessoa.id),
+                Telefone.listarPorPessoaId(pessoa.id),
+                Endereco.listarPorPessoaId(pessoa.id)
+            ]);
+
+        const tiposExigidos = new Set();
+
+        if (pessoa.tipo_pessoa === 'FISICA') {
+            tiposExigidos.add('FISICA');
+        } else if (pessoa.tipo_pessoa === 'JURIDICA') {
+            tiposExigidos.add('JURIDICA');
+        } else {
+            adicionarPendencia('tipo_pessoa', 'Tipo de pessoa não definido ou inválido.');
+        }
+
+        // Uma especialização já cadastrada também faz parte da regularização,
+        // mesmo quando a outra é o tipo principal registrado na Pessoa.
+        if (pessoaFisica) tiposExigidos.add('FISICA');
+        if (pessoaJuridica) tiposExigidos.add('JURIDICA');
+
+        if (tiposExigidos.has('FISICA')) {
+            if (!pessoaFisica) {
+                adicionarPendencia('pessoa_fisica', 'Cadastro de pessoa física não encontrado.');
+            } else {
+                if (!pessoaFisica.nome?.trim()) {
+                    adicionarPendencia('pessoa_fisica.nome', 'Nome é obrigatório.');
+                }
+                if (!pessoaFisica.sobrenome?.trim()) {
+                    adicionarPendencia('pessoa_fisica.sobrenome', 'Sobrenome é obrigatório.');
+                }
+                if (!validarCpf(pessoaFisica.cpf)) {
+                    adicionarPendencia('pessoa_fisica.cpf', 'CPF ausente ou inválido.');
+                }
+            }
+        }
+
+        if (tiposExigidos.has('JURIDICA')) {
+            if (!pessoaJuridica) {
+                adicionarPendencia('pessoa_juridica', 'Cadastro de pessoa jurídica não encontrado.');
+            } else {
+                if (!pessoaJuridica.razao_social?.trim()) {
+                    adicionarPendencia('pessoa_juridica.razao_social', 'Razão social é obrigatória.');
+                }
+                if (!validarCnpj(pessoaJuridica.cnpj)) {
+                    adicionarPendencia('pessoa_juridica.cnpj', 'CNPJ ausente ou inválido.');
+                }
+            }
+        }
+
+        if (tiposExigidos.size === 0) {
+            adicionarPendencia('especializacao', 'Cadastre uma especialização de pessoa física ou jurídica.');
+        }
+
+        if (telefones.length === 0) {
+            adicionarPendencia('telefone', 'Cadastre ao menos um telefone ativo.');
+        }
+
+        if (enderecos.length === 0) {
+            adicionarPendencia('endereco', 'Cadastre ao menos um endereço ativo.');
+        }
+
+        return {
+            regularizado: pendencias.length === 0,
+            pendencias
         };
     }
 

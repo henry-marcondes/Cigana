@@ -193,40 +193,72 @@ try {
     setSucesso(
       'Áudio atualizado com sucesso.'
     );
-  } else {
-    const resposta = await apiFetch(
-      '/api/cena-audios',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          cena_id: cenaId,
-          titulo,
-          legenda: legenda || null,
-          descricao: descricao || null,
-          audio_url: audioUrl,
-          reproducao_automatica:
-            reproducaoAutomatica,
-          reproducao_em_loop:
-            reproducaoEmLoop,
-          ordem_exibicao:
-            Number(ordemExibicao),
-        }),
-      }
-    );
+} else {
+  const resposta = await apiFetch(
+    '/api/cena-audios',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        cena_id: cenaId,
+        titulo,
+        legenda: legenda || null,
+        descricao: descricao || null,
+        audio_url: audioUrl,
+        reproducao_automatica:
+          reproducaoAutomatica,
+        reproducao_em_loop:
+          reproducaoEmLoop,
+        ordem_exibicao:
+          Number(ordemExibicao),
+      }),
+    }
+  );
 
-    setAudios((atuais) =>
-      [...atuais, resposta.data].sort(
-        (a, b) =>
-          a.ordem_exibicao -
-          b.ordem_exibicao
-      )
-    );
+  const audioCriado = resposta.data;
 
-    setSucesso(
-      'Áudio criado com sucesso.'
-    );
-  }
+  // Descobre a próxima posição da composição
+  const respostaComposicao = await apiFetch(
+    `/api/cena-conteudos/cena/${cenaId}`
+  );
 
+  const conteudos = respostaComposicao.data || [];
+
+  const proximaOrdem =
+    conteudos.length > 0
+      ? Math.max(
+          ...conteudos.map(
+            (conteudo) =>
+              Number(conteudo.ordem_exibicao)
+          )
+        ) + 1
+      : 1;
+
+  // Adiciona o áudio à composição
+  await apiFetch(
+    '/api/cena-conteudos',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        cena_id: cenaId,
+        tipo_conteudo: 'AUDIO',
+        conteudo_id: audioCriado.id,
+        ordem_exibicao: proximaOrdem,
+      }),
+    }
+  );
+
+  setAudios((atuais) =>
+    [...atuais, audioCriado].sort(
+      (a, b) =>
+        a.ordem_exibicao -
+        b.ordem_exibicao
+    )
+  );
+
+  setSucesso(
+    'Áudio criado com sucesso.'
+  );
+}
   setMostrarFormulario(false);
   limparFormulario();
 } catch (error) {

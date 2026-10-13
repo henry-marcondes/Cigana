@@ -2,6 +2,19 @@ const LivroService = require('../services/livroService');
 
 class LivroController {
 
+    static async listarParaDecisaoEditorial(req, res, next) {
+        try {
+            const livros = await LivroService.listarParaDecisaoEditorial();
+
+            return res.json({
+                success: true,
+                data: livros
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async listar(req, res, next) {
         try {
             const livros = await LivroService.listar();
@@ -143,6 +156,20 @@ class LivroController {
         }
     }
 
+    static async enviarParaRevisao(req, res, next) {
+        try {
+            const livro = await LivroService.enviarParaRevisao(req.params.id);
+
+            return res.json({
+                success: true,
+                message: 'Obra enviada para revisão editorial.',
+                data: livro
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async alterarVisibilidade(req, res, next) {
         try {
             const { id } = req.params;
@@ -163,6 +190,56 @@ class LivroController {
             return res.json({
                 success: true,
                 data: livro
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async publicar(req, res, next) {
+        try {
+            const livro = await LivroService.publicar(req.params.id);
+
+            return res.json({
+                success: true,
+                message: 'Obra publicada com sucesso.',
+                data: livro
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async buscarDecisaoEditorial(req, res, next) {
+        try {
+            const decisao = await LivroService.buscarDecisaoEditorial(
+                req.params.id
+            );
+
+            return res.json({
+                success: true,
+                data: decisao
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async decidirEditorial(req, res, next) {
+        try {
+            const decisao = await LivroService.decidirEditorial(
+                req.params.id,
+                req.body.decisao,
+                req.usuario.id,
+                req.body.motivo_rejeicao
+            );
+
+            return res.json({
+                success: true,
+                message: req.body.decisao === 'APROVADA'
+                    ? 'Obra aprovada editorialmente.'
+                    : 'Obra rejeitada editorialmente.',
+                data: decisao
             });
         } catch (error) {
             next(error);

@@ -113,6 +113,7 @@ return ( <main className="min-h-screen bg-gray-100 p-6">
         >
           Sair
         </button>
+        
       </header>
 
       <section className="rounded-lg bg-white p-6 shadow">
@@ -149,13 +150,21 @@ return ( <main className="min-h-screen bg-gray-100 p-6">
           Espaço para criação e organização das suas obras.
         </p>
       </div>
-
-      <button
+      <div className="mt-4 flex gap-2">
+       <button
+         onClick={() => router.push('/dashboard')}
+         className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          Dashboard
+        </button>
+        <button
         onClick={handleLogout}
         className="rounded bg-gray-700 px-4 py-2 text-white hover:bg-gray-800"
-      >
-        Sair
-      </button>
+        >
+          Sair
+        </button>
+      </div>
+
 
     </header>
 
@@ -273,7 +282,7 @@ return ( <main className="min-h-screen bg-gray-100 p-6">
 
             <button
                 onClick={() =>
-                  router.push(`/livros/${livro.slug}`)
+                  router.push(`/estudio/obras/${livro.id}/visualizar`)
                 }
               className="rounded bg-gray-600 px-4 py-2 text-sm text-white hover:bg-gray-700"
             >

@@ -63,51 +63,83 @@ export default function ImagensCena() {
     }
   }, [cenaId]);
 
-  async function criarImagem(event) {
-    event.preventDefault();
+async function criarImagem(event) {
+  event.preventDefault();
 
-    try {
-      setCriando(true);
-      setErroCriacao('');
-      setSucesso('');
+  try {
+    setCriando(true);
+    setErroCriacao('');
+    setSucesso('');
 
-      const resposta = await apiFetch(
-        '/api/cena-imagens',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            cena_id: cenaId,
-            titulo,
-            legenda: legenda || null,
-            texto_alternativo: textoAlternativo,
-            imagem_url: imagemUrl,
-            ordem_exibicao: Number(ordemExibicao),
-          }),
-        }
-      );
+    // 1. Cria a imagem
+    const resposta = await apiFetch(
+      '/api/cena-imagens',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          cena_id: cenaId,
+          titulo,
+          legenda: legenda || null,
+          texto_alternativo: textoAlternativo,
+          imagem_url: imagemUrl,
+          ordem_exibicao: Number(ordemExibicao),
+        }),
+      }
+    );
 
-      setImagens((atuais) => [
-        ...atuais,
-        resposta.data,
-      ]);
+    const imagemCriada = resposta.data;
 
-      setTitulo('');
-      setLegenda('');
-      setTextoAlternativo('');
-      setImagemUrl('');
-      setOrdemExibicao(1);
-      setMostrarNova(false);
+    // 2. Descobre a próxima posição da composição
+    const respostaComposicao = await apiFetch(
+      `/api/cena-conteudos/cena/${cenaId}`
+    );
 
-      setSucesso(
-        'Imagem adicionada com sucesso.'
-      );
-    } catch (error) {
-      setErroCriacao(error.message);
-    } finally {
-      setCriando(false);
-    }
+    const conteudos = respostaComposicao.data || [];
+
+    const proximaOrdem =
+      conteudos.length > 0
+        ? Math.max(
+            ...conteudos.map(
+              (conteudo) => Number(conteudo.ordem_exibicao)
+            )
+          ) + 1
+        : 1;
+
+    // 3. Adiciona a imagem à composição
+    await apiFetch(
+      '/api/cena-conteudos',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          cena_id: cenaId,
+          tipo_conteudo: 'IMAGEM',
+          conteudo_id: imagemCriada.id,
+          ordem_exibicao: proximaOrdem,
+        }),
+      }
+    );
+
+    setImagens((atuais) => [
+      ...atuais,
+      imagemCriada,
+    ]);
+
+    setTitulo('');
+    setLegenda('');
+    setTextoAlternativo('');
+    setImagemUrl('');
+    setOrdemExibicao(1);
+    setMostrarNova(false);
+
+    setSucesso(
+      'Imagem adicionada com sucesso.'
+    );
+  } catch (error) {
+    setErroCriacao(error.message);
+  } finally {
+    setCriando(false);
   }
-
+}
   function iniciarEdicao(imagem) {
     setErroEdicao('');
     setEditandoId(imagem.id);

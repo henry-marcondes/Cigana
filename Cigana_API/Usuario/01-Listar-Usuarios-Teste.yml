@@ -6,13 +6,16 @@ info:
 http:
   method: GET
   url: http://localhost:3001/api/usuarios
-
   headers:
     - name: Authorization
       value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJmMDNjODZjLWRlMzYtNDQwOS05MzA1LWJhODc1MmVkZDNiMiIsImlhdCI6MTc4NzU3MjQzNCwiZXhwIjoxNzg3NjU4ODM0fQ._VfG1ro698zH39zEKJxcBUaczcwZWeMCX_anNF3aAEs
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImEwYTU2Y2EyLTBlY2UtNGRkOC1iM2M5LTg0ZGM3MDQwNzMzMSIsImlhdCI6MTc5MTM5NzMyMiwiZXhwIjoxNzkxNDgzNzIyfQ.gpdQjFuXLMmVFv2gYd8r0THf0Nc1jfv6DRT6gR_px0w
 
 settings:
   encodeUrl: true
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true

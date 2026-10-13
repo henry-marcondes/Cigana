@@ -3,6 +3,15 @@ const Contrato = require('../models/Contrato');
 const ContratoVersao = require('../models/ContratoVersao');
 const ContratoObra = require('../models/ContratoObra');
 const ContratoAceite = require('../models/ContratoAceite');
+const LivroAutor = require('../models/LivroAutor');
+const Usuario = require('../models/Usuario');
+const Autor = require('../models/Autor');
+const Livro = require('../models/Livro');
+const EmailService = require('./EmailService');
+const {
+    TokenUsuarioService,
+    FINALIDADES
+} = require('./tokenUsuarioService');
 
 class ContratoService {
 
@@ -282,6 +291,142 @@ class ContratoService {
         );
     }
 
+    static async verificarAceitePorObra(
+        usuarioId,
+        livroId,
+        contratoVersaoId
+    ) {
+        const obraAutorizada = await LivroAutor.usuarioEhAutorDaObra(
+            usuarioId,
+            livroId
+        );
+
+        if (!obraAutorizada) {
+            const erro = new Error('Obra não encontrada ou não autorizada.');
+            erro.statusCode = 404;
+            erro.codigo = 'OBRA_NAO_ENCONTRADA_OU_NAO_AUTORIZADA';
+            throw erro;
+        }
+
+        const versao = await ContratoVersao.buscarPorId(contratoVersaoId);
+        if (!versao) {
+            const erro = new Error('Versão do contrato não encontrada.');
+            erro.statusCode = 404;
+            erro.codigo = 'VERSAO_NAO_ENCONTRADA';
+            throw erro;
+        }
+
+        const contrato = await Contrato.buscarPorId(versao.contrato_id);
+        if (!contrato || contrato.tipo !== 'DIREITOS_AUTORAIS' || !contrato.ativo) {
+            const erro = new Error(
+                'A versão informada não pertence a um contrato ativo de Direitos Autorais.'
+            );
+            erro.statusCode = 409;
+            erro.codigo = 'CONTRATO_INCOMPATIVEL';
+            throw erro;
+        }
+
+        if (versao.status !== 'ATIVA') {
+            const erro = new Error(
+                'Somente uma versão ativa pode ser consultada para aceite.'
+            );
+            erro.statusCode = 409;
+            erro.codigo = 'VERSAO_INATIVA';
+            throw erro;
+        }
+
+        const aceite = await ContratoAceite.buscarPorUsuarioVersaoELivro(
+            usuarioId,
+            contratoVersaoId,
+            livroId
+        );
+
+        return {
+            aceito: Boolean(aceite),
+            livro_id: livroId,
+            contrato_id: contrato.id,
+            contrato_versao_id: contratoVersaoId,
+            aceite: aceite ? {
+                id: aceite.id,
+                aceito_em: aceite.aceito_em,
+                registro_eletronico: aceite.registro_eletronico
+            } : null
+        };
+    }
+
+    static async solicitarCodigoAceite(usuarioId, contratoVersaoId, livroId) {
+        const existente = await ContratoAceite.buscarPorUsuarioVersaoELivro(
+            usuarioId,
+            contratoVersaoId,
+            livroId
+        ); 
+        if (existente) {
+            const erro = new Error(
+                'O usuário já aceitou esta versão do contrato.'
+            );
+            erro.statusCode = 409;
+            throw erro;
+        }
+
+        return TokenUsuarioService.solicitarCodigoAceite({
+            usuario_id: usuarioId,
+            contrato_versao_id: contratoVersaoId,
+            livro_id: livroId
+        });
+    }
+
+    static async confirmarCodigoAceite(usuarioId, token, dados = {}) {
+        const registroToken = await TokenUsuarioService.validar({
+            usuario_id: usuarioId,
+            finalidade: FINALIDADES.ACEITE_CONTRATO,
+            token
+        });
+        const contexto = registroToken.dados_adicionais;
+
+        if (!contexto || contexto.usuario_id !== usuarioId ||
+            !contexto.contrato_versao_id || !contexto.livro_id) {
+            const erro = new Error('Contexto do token inválido.');
+            erro.statusCode = 400;
+            throw erro;
+        }
+
+        const aceite = await this.registrarAceite(
+            usuarioId,
+            contexto.contrato_versao_id,
+            contexto.livro_id,
+            dados
+        );
+
+        try {
+            const [usuario, autor, livro, versao] = await Promise.all([
+                Usuario.buscarPorId(usuarioId),
+                Autor.buscarPorUsuarioId(usuarioId),
+                Livro.buscarPorId(contexto.livro_id),
+                ContratoVersao.buscarPorId(contexto.contrato_versao_id)
+            ]);
+            const contrato = versao
+                ? await Contrato.buscarPorId(versao.contrato_id)
+                : null;
+
+            await EmailService.notificarAceiteContrato({
+                nome_autor: autor?.nome_publico || 'Não informado',
+                email_autor: usuario?.email || 'Não informado',
+                titulo_obra: livro?.titulo || 'Não informado',
+                nome_contrato: contrato?.nome || 'Não informado',
+                versao_contrato: versao?.versao || 'Não informada',
+                data_hora: aceite.aceito_em,
+                registro_eletronico: aceite.registro_eletronico
+            });
+        } catch (erroNotificacao) {
+            console.error(
+                'Falha ao enviar notificação institucional de aceite.',
+                erroNotificacao.message
+            );
+        }
+
+        return aceite;
+    }
+
     static async registrarAceite(
         usuarioId,
         contratoVersaoId,
@@ -298,17 +443,41 @@ class ContratoService {
             throw erro;
         }
 
-        const contratoObra = await ContratoObra.buscarPorContratoELivro(
-            versao.contrato_id,
-            livroId
-        );
-
-        if (!contratoObra) {
-            const erro = new Error(
-                'A obra não está vinculada ao contrato desta versão.'
-            );
-            erro.statusCode = 409;
+        const contrato = await Contrato.buscarPorId(versao.contrato_id);
+        if (!contrato) {
+            const erro = new Error('Contrato da versão não encontrado.');
+            erro.statusCode = 404;
             throw erro;
+        }
+
+        if (contrato.tipo === 'DIREITOS_AUTORAIS') {
+            if (!contrato.ativo) {
+                const erro = new Error('O contrato de Direitos Autorais está inativo.');
+                erro.statusCode = 409;
+                throw erro;
+            }
+
+            const ehAutor = await LivroAutor.usuarioEhAutorDaObra(
+                usuarioId,
+                livroId
+            );
+            if (!ehAutor) {
+                const erro = new Error('Obra não encontrada ou não autorizada.');
+                erro.statusCode = 404;
+                throw erro;
+            }
+        } else {
+            const contratoObra = await ContratoObra.buscarPorContratoELivro(
+                versao.contrato_id,
+                livroId
+            );
+            if (!contratoObra) {
+                const erro = new Error(
+                    'A obra não está vinculada ao contrato desta versão.'
+                );
+                erro.statusCode = 409;
+                throw erro;
+            }
         }
 
         const hashConteudo = crypto
@@ -317,9 +486,10 @@ class ContratoService {
             .digest('hex');
 
         const aceiteExistente =
-            await ContratoAceite.buscarPorUsuarioEVersao(
+            await ContratoAceite.buscarPorUsuarioVersaoELivro(
                 usuarioId,
-                contratoVersaoId
+                contratoVersaoId,
+                livroId
             );
 
         if (aceiteExistente) {

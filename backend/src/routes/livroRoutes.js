@@ -5,6 +5,8 @@ const LivroController = require('../controllers/LivroController');
 const autenticar = require('../middleware/autenticar');
 const autorizar = require('../middleware/autorizacao');
 const autorizarObra = require('../middleware/autorizarObra');
+const autorizarLeituraEditorial = require('../middleware/autorizarLeituraEditorial');
+const protegerLeituraObra = require('../middleware/protegerLeituraObra');
 const EscopoObraService = require('../services/escopoObraService');
 
 const {
@@ -13,7 +15,8 @@ const {
     validarAlteracaoStatusLivro,
     validarAlteracaoVisibilidadeLivro,
     validarAlteracaoCapaLivro,
-    validarCriacaoLivroParaAutor
+    validarCriacaoLivroParaAutor,
+    validarDecisaoEditorial
 } = require('../validators/livroValidator');
 
 const router = express.Router();
@@ -21,6 +24,13 @@ const router = express.Router();
 router.get(
     '/',
     LivroController.listar
+);
+
+router.get(
+    '/gestao/editorial',
+    autenticar,
+    autorizar('moderacao.visualizar'),
+    LivroController.listarParaDecisaoEditorial
 );
 
 router.get(
@@ -38,6 +48,7 @@ router.post(
 
 router.get(
     '/:id',
+    protegerLeituraObra(EscopoObraService.porLivroParam),
     LivroController.buscarPorId
 );
 
@@ -63,6 +74,41 @@ router.patch(
     autorizar('obra.editar'),
     validarAlteracaoStatusLivro,
     LivroController.alterarStatus
+);
+
+router.post(
+    '/:id/enviar-revisao',
+    autenticar,
+    autorizarObra(EscopoObraService.porLivroParam, 'obra.editar'),
+    LivroController.enviarParaRevisao
+);
+
+router.get(
+    '/:id/decisao-editorial',
+    autenticar,
+    autorizarLeituraEditorial,
+    LivroController.buscarDecisaoEditorial
+);
+
+router.patch(
+    '/:id/decisao-editorial',
+    autenticar,
+    autorizarObra(
+        async (req) => req.params.id,
+        'obra.aprovar'
+    ),
+    validarDecisaoEditorial,
+    LivroController.decidirEditorial
+);
+
+router.post(
+    '/:id/publicar',
+    autenticar,
+    autorizarObra(
+        async (req) => req.params.id,
+        'obra.publicar'
+    ),
+    LivroController.publicar
 );
 
 router.patch(

@@ -494,6 +494,34 @@ class ContratoController {
         }
     }
 
+    static async verificarAceitePorObra(req, res) {
+        try {
+            const erros = ContratoValidator.solicitarCodigoAceite({
+                contrato_versao_id: req.params.contratoVersaoId,
+                livro_id: req.params.livroId
+            });
+
+            if (!validar(erros, res)) {
+                return;
+            }
+
+            const resultado = await ContratoService.verificarAceitePorObra(
+                req.usuario.id,
+                req.params.livroId,
+                req.params.contratoVersaoId
+            );
+
+            return success(res, resultado);
+        } catch (err) {
+            return error(
+                res,
+                err.message || 'Erro ao verificar aceite da obra.',
+                err.statusCode || 500,
+                err.codigo ? { codigo: err.codigo } : null
+            );
+        }
+    }
+
     static async registrarAceite(req, res) {
         try {
             const dados = {
@@ -501,8 +529,7 @@ class ContratoController {
                 livro_id: req.body.livro_id
             };
 
-            const erros =
-                ContratoValidator.registrarAceite(dados);
+            const erros = ContratoValidator.solicitarCodigoAceite(dados);
 
             if (!validar(erros, res)) {
                 return;
@@ -514,28 +541,80 @@ class ContratoController {
              */
             const usuarioId = req.usuario.id;
 
-            const aceite =
-                await ContratoService.registrarAceite(
-                    usuarioId,
-                    req.params.contratoVersaoId,
-                    dados.livro_id,
-                    {
-                        ip_origem: req.ip,
-                        user_agent: req.get('user-agent'),
-                        dados_tecnicos: req.body.dados_tecnicos
-                    }
-                );
+            const resultado = await ContratoService.solicitarCodigoAceite(
+                usuarioId,
+                dados.contrato_versao_id,
+                dados.livro_id
+            );
+
+            return success(
+                res,
+                { expira_em: resultado.expira_em },
+                'Código enviado ao e-mail cadastrado do usuário.'
+            );
+        } catch (err) {
+            return error(
+                res,
+                err.message || 'Erro ao solicitar código de confirmação.',
+                err.statusCode || 500
+            );
+        }
+    }
+
+    static async solicitarCodigoAceite(req, res) {
+        try {
+            const dados = {
+                contrato_versao_id: req.body.contrato_versao_id,
+                livro_id: req.body.livro_id
+            };
+            const erros = ContratoValidator.solicitarCodigoAceite(dados);
+            if (!validar(erros, res)) return;
+
+            const resultado = await ContratoService.solicitarCodigoAceite(
+                req.usuario.id,
+                dados.contrato_versao_id,
+                dados.livro_id
+            );
+
+            return success(
+                res,
+                { expira_em: resultado.expira_em },
+                'Código enviado ao e-mail cadastrado do usuário.'
+            );
+        } catch (err) {
+            return error(
+                res,
+                err.message || 'Erro ao solicitar código de confirmação.',
+                err.statusCode || 500
+            );
+        }
+    }
+
+    static async confirmarCodigoAceite(req, res) {
+        try {
+            const erros = ContratoValidator.confirmarCodigoAceite(req.body);
+            if (!validar(erros, res)) return;
+
+            const aceite = await ContratoService.confirmarCodigoAceite(
+                req.usuario.id,
+                req.body.codigo,
+                {
+                    ip_origem: req.ip,
+                    user_agent: req.get('user-agent'),
+                    dados_tecnicos: req.body.dados_tecnicos
+                }
+            );
 
             return success(
                 res,
                 aceite,
-                'Contrato aceito com sucesso.',
+                'Código confirmado e aceite registrado com sucesso.',
                 201
             );
         } catch (err) {
             return error(
                 res,
-                err.message || 'Erro ao registrar aceite.',
+                err.message || 'Erro ao confirmar código de aceite.',
                 err.statusCode || 500
             );
         }

@@ -1,12 +1,8 @@
 import Link from 'next/link';
 
-export default function CapituloCard({ livro, capitulo }) {
-  return (
-    <Link
-      href={`/livros/${livro.slug}/capitulos/${capitulo.slug}`}
-      className="block overflow-hidden rounded-lg bg-white shadow-md transition hover:scale-[1.02]"
-    >
-      <article>
+export default function CapituloCard({ livro, capitulo, onSelect }) {
+  const conteudo = (
+    <article className="overflow-hidden rounded-lg bg-white text-left shadow-md transition hover:scale-[1.02]">
         <div className="flex h-40 items-center justify-center bg-gray-200">
           {capitulo.capa_url ? (
             <img
@@ -37,6 +33,23 @@ export default function CapituloCard({ livro, capitulo }) {
           )}
         </div>
       </article>
+  );
+
+  if (onSelect) {
+    return (
+      <button
+        type="button"
+        onClick={() => onSelect(capitulo)}
+        className="block w-full"
+      >
+        {conteudo}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={`/livros/${livro.slug}/capitulos/${capitulo.slug}`}>
+      {conteudo}
     </Link>
   );
 }
