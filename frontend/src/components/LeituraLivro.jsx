@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import CapituloCard from './CapituloCard';
+import AvaliacoesLivro from './AvaliacoesLivro';
+import HistoricoFinais from './HistoricoFinais';
 
 export default function LeituraLivro({
   livro,
@@ -7,6 +9,8 @@ export default function LeituraLivro({
   onSelecionarCapitulo,
   linkVoltar = '/',
   textoVoltar = '← Voltar para a Biblioteca',
+  mostrarAvaliacoes = false,
+  mostrarHistoricoFinais = false,
 }) {
   return (
     <main className="min-h-screen bg-gray-100 p-6">
@@ -45,6 +49,9 @@ export default function LeituraLivro({
             )}
           </div>
         </section>
+
+        {mostrarAvaliacoes && <AvaliacoesLivro livroId={livro.id} />}
+        {mostrarHistoricoFinais && <HistoricoFinais livroId={livro.id} />}
 
         <section className="mt-10">
           <h2 className="mb-6 text-2xl font-bold text-gray-900">

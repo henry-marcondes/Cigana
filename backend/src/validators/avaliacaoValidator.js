@@ -51,6 +51,7 @@ const validarUsuarioELivro = [
 
 const validarCriacaoAvaliacao = [
     body('usuario_id')
+        .optional()
         .isUUID()
         .withMessage('usuario_id deve ser um UUID válido.'),
 
@@ -65,7 +66,9 @@ const validarCriacaoAvaliacao = [
     body('comentario')
         .optional({ nullable: true })
         .isString()
-        .withMessage('Comentário deve ser um texto.'),
+        .bail()
+        .isLength({ max: 1000 })
+        .withMessage('Comentário deve ser um texto de até 1.000 caracteres.'),
 
     validarResultado
 ];
@@ -88,8 +91,11 @@ const validarAlteracaoComentario = [
         .withMessage('ID da avaliação deve ser um UUID válido.'),
 
     body('comentario')
+        .optional({ nullable: true })
         .isString()
-        .withMessage('Comentário deve ser um texto.'),
+        .bail()
+        .isLength({ max: 1000 })
+        .withMessage('Comentário deve ser um texto de até 1.000 caracteres.'),
 
     validarResultado
 ];

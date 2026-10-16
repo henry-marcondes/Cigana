@@ -19,6 +19,7 @@ export default function EditarCena() {
     slug: '',
     texto: '',
     ordem_exibicao: '',
+    cena_final: false,
   });
 
   const [salvando, setSalvando] = useState(false);
@@ -37,6 +38,7 @@ export default function EditarCena() {
           slug: resposta.data.slug || '',
           texto: resposta.data.texto || '',
           ordem_exibicao: resposta.data.ordem_exibicao || '',
+          cena_final: Boolean(resposta.data.cena_final),
         });
 
       } catch (error) {
@@ -70,6 +72,7 @@ export default function EditarCena() {
             ordem_exibicao: Number(
               dadosCena.ordem_exibicao
             ),
+            cena_final: dadosCena.cena_final,
           }),
         }
       );
@@ -80,6 +83,7 @@ export default function EditarCena() {
         texto: resposta.data.texto || '',
         ordem_exibicao:
           resposta.data.ordem_exibicao || '',
+        cena_final: Boolean(resposta.data.cena_final),
       });
 
       setSucessoSalvamento(
@@ -181,6 +185,19 @@ export default function EditarCena() {
           )}
 
           <div className="mt-5 space-y-5">
+
+            <label className="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={dadosCena.cena_final}
+                onChange={(event) => setDadosCena({
+                  ...dadosCena,
+                  cena_final: event.target.checked,
+                })}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              Cena Final
+            </label>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">

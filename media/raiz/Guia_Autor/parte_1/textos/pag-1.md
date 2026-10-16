@@ -2,14 +2,14 @@
 
 ### *Seja bem vindo !*
 
-Se você esta tem acesso a nosso Guia do Autor é porque no mínimo fez uma 
+Se você esta com acesso a nosso Guia do Autor é porque no mínimo fez uma 
 proposta para atuar como Autor na plataforma.
 
 Assim que nossa equipe aprovar a proposta você terá acesso ao nosso Estúdio de 
 edição.
 
 Mas já podemos começar a produzir e organizar o material para introduzir na 
-*Plataforma de Livros Interativos*
+*Cigana Plataforma de Livros Interativos*
 
 Essa talvés seja a etapa mais importante para sua evolução na plataforma
 
@@ -18,7 +18,7 @@ vamos sugerir algumas formas estruturadas para dividir seu material e facilitar
 a composição do Obra.
 
 Primeiramente vamos entender como funciona o mecanismo dentro da 
-*Plataforma de Livro Interativos* , não importa o conteúdo, pode sugerir
+*Cigana Plataforma de Livro Interativos* , não importa o conteúdo, pode sugerir
 um artigo escolar, um romance, um curso, uma novela ... o importante e estar
 bem organizado para facilitar e ser produtivo, afinal nosso tempo é pecioso.
 

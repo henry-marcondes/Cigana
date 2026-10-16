@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import CenaConteudo from './CenaConteudo';
+import ConfirmarFinal from './ConfirmarFinal';
 
 export default function LeituraCena({
   livro,
@@ -11,6 +12,7 @@ export default function LeituraCena({
   onVoltar,
   linkVoltar,
   textoVoltar = '← Voltar para o capítulo',
+  mostrarAcaoFinal = false,
 }) {
   return (
     <main className="min-h-screen bg-gray-100 p-6">
@@ -113,6 +115,10 @@ export default function LeituraCena({
             )}
           </div>
         </article>
+
+        {mostrarAcaoFinal && cena.cena_final && (
+          <ConfirmarFinal livroId={livro.id} cena={cena} />
+        )}
       </div>
     </main>
   );

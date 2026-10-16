@@ -1,5 +1,16 @@
 
-const { body, param } = require('express-validator');
+const { body, param, validationResult } = require('express-validator');
+
+const validarResultado = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            errors: errors.array()
+        });
+    }
+    return next();
+};
 
 const validarCriacaoCena = [
 body('capitulo_id')
@@ -35,7 +46,14 @@ body('ordem_exibicao')
 body('cena_inicial')
     .optional()
     .isBoolean()
-    .withMessage('cena_inicial deve ser um valor booleano.')
+    .withMessage('cena_inicial deve ser um valor booleano.'),
+
+body('cena_final')
+    .optional()
+    .isBoolean()
+    .withMessage('cena_final deve ser um valor booleano.'),
+
+validarResultado
 
 ];
 
@@ -66,7 +84,14 @@ body('ordem_exibicao')
     .notEmpty()
     .withMessage('A ordem de exibição é obrigatória.')
     .isInt({ min: 1 })
-    .withMessage('A ordem de exibição deve ser um número inteiro maior que zero.')
+    .withMessage('A ordem de exibição deve ser um número inteiro maior que zero.'),
+
+body('cena_final')
+    .optional()
+    .isBoolean()
+    .withMessage('cena_final deve ser um valor booleano.'),
+
+validarResultado
 
 ];
 

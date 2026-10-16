@@ -16,5 +16,12 @@ export default async function LivroPage({ params }) {
 
   const capitulos = respostaCapitulos.data;
 
-  return <LeituraLivro livro={livro} capitulos={capitulos} />;
+  return (
+    <LeituraLivro
+      livro={livro}
+      capitulos={capitulos}
+      mostrarAvaliacoes
+      mostrarHistoricoFinais
+    />
+  );
 }

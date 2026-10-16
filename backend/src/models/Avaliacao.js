@@ -37,13 +37,14 @@ class Avaliacao {
         return result.rows;
     }
 
-    static async buscarPorId(id) {
+    static async buscarPorId(id, usuario_id) {
         const result = await pool.query(`
             SELECT ${CAMPOS_PUBLICOS}
               FROM avaliacoes
              WHERE id = $1
+               AND usuario_id = $2
                AND ativo = TRUE
-        `, [id]);
+        `, [id, usuario_id]);
 
         return result.rows[0];
     }
@@ -81,6 +82,11 @@ class Avaliacao {
                 comentario
             )
             VALUES ($1,$2,$3,$4)
+            ON CONFLICT (usuario_id, livro_id)
+            DO UPDATE SET
+                ativo = TRUE,
+                atualizado_em = NOW()
+            WHERE avaliacoes.ativo = FALSE
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
@@ -90,56 +96,65 @@ class Avaliacao {
             comentario
         ]);
 
-        return result.rows[0];
+        if (result.rows[0]) return result.rows[0];
+
+        const erro = new Error('Já existe uma avaliação ativa para esta obra.');
+        erro.statusCode = 409;
+        throw erro;
     }
 
-    static async alterarNota(id, nota, client = pool) {
+    static async alterarNota(id, usuario_id, nota, client = pool) {
 
         const result = await client.query(`
             UPDATE avaliacoes
                SET nota = $1,
                    atualizado_em = NOW()
              WHERE id = $2
+               AND usuario_id = $3
                AND ativo = TRUE
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
             nota,
-            id
+            id,
+            usuario_id
         ]);
 
         return result.rows[0];
     }
 
-    static async alterarComentario(id, comentario, client = pool) {
+    static async alterarComentario(id, usuario_id, comentario, client = pool) {
 
         const result = await client.query(`
             UPDATE avaliacoes
                SET comentario = $1,
                    atualizado_em = NOW()
              WHERE id = $2
+               AND usuario_id = $3
                AND ativo = TRUE
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
             comentario,
-            id
+            id,
+            usuario_id
         ]);
 
         return result.rows[0];
     }
 
-    static async desativar(id, client = pool) {
+    static async desativar(id, usuario_id, client = pool) {
 
         const result = await client.query(`
             UPDATE avaliacoes
                SET ativo = FALSE,
                    atualizado_em = NOW()
              WHERE id = $1
+               AND usuario_id = $2
                AND ativo = TRUE
             RETURNING
                 ${CAMPOS_PUBLICOS}
-        `, [id]);
+        `, [id, usuario_id]);
 
         return result.rows[0];
     }

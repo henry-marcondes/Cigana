@@ -3,11 +3,11 @@ const { success, error } = require('../utils/apiResponse');
 
 class FavoritoController {
 
-    static async listarPorUsuario(req, res) {
+    static async listar(req, res) {
         try {
-            const { usuario_id } = req.params;
+            const usuario_id = req.usuario.id;
 
-            const favoritos = await FavoritoService.listarPorUsuario(
+            const favoritos = await FavoritoService.listar(
                 usuario_id
             );
 
@@ -21,38 +21,22 @@ class FavoritoController {
         }
     }
 
-    static async buscarPorId(req, res) {
+    static async buscarPorLivro(req, res) {
         try {
-            const { id } = req.params;
+            const usuario_id = req.usuario.id;
+            const { livro_id } = req.params;
 
-            const favorito = await FavoritoService.buscarPorId(id);
-
-            if (!favorito) {
-                return error(res, 'Favorito não encontrado.', 404);
-            }
-
-            return success(
-                res,
-                favorito,
-                'Favorito encontrado com sucesso'
+            const favorito = await FavoritoService.buscarPorLivro(
+                usuario_id,
+                livro_id
             );
-        } catch (err) {
-            return error(res, err.message, 400);
-        }
-    }
-
-    static async buscarPorUsuarioELivro(req, res) {
-        try {
-            const { usuario_id, livro_id } = req.params;
-
-            const favorito =
-                await FavoritoService.buscarPorUsuarioELivro(
-                    usuario_id,
-                    livro_id
-                );
 
             if (!favorito) {
-                return error(res, 'Favorito não encontrado.', 404);
+                return error(
+                    res,
+                    'Favorito não encontrado.',
+                    404
+                );
             }
 
             return success(
@@ -67,7 +51,13 @@ class FavoritoController {
 
     static async criar(req, res) {
         try {
-            const favorito = await FavoritoService.criar(req.body);
+            const usuario_id = req.usuario.id;
+            const { livro_id } = req.body;
+
+            const favorito = await FavoritoService.criar(
+                usuario_id,
+                livro_id
+            );
 
             return success(
                 res,
@@ -80,20 +70,28 @@ class FavoritoController {
         }
     }
 
-    static async desativar(req, res) {
+    static async removerPorLivro(req, res) {
         try {
-            const { id } = req.params;
+            const usuario_id = req.usuario.id;
+            const { livro_id } = req.params;
 
-            const favorito = await FavoritoService.desativar(id);
+            const favorito = await FavoritoService.removerPorLivro(
+                usuario_id,
+                livro_id
+            );
 
             if (!favorito) {
-                return error(res, 'Favorito não encontrado.', 404);
+                return error(
+                    res,
+                    'Favorito não encontrado.',
+                    404
+                );
             }
 
             return success(
                 res,
                 favorito,
-                'Favorito desativado com sucesso'
+                'Favorito removido com sucesso'
             );
         } catch (err) {
             return error(res, err.message, 400);

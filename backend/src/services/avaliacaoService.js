@@ -10,8 +10,8 @@ class AvaliacaoService {
         return await Avaliacao.listarPorUsuario(usuario_id);
     }
 
-    static async buscarPorId(id) {
-        return await Avaliacao.buscarPorId(id);
+    static async buscarPorId(id, usuario_id) {
+        return await Avaliacao.buscarPorId(id, usuario_id);
     }
 
     static async buscarPorUsuarioELivro(usuario_id, livro_id) {
@@ -25,16 +25,16 @@ class AvaliacaoService {
         return await Avaliacao.criar(avaliacao);
     }
 
-    static async alterarNota(id, nota) {
-        return await Avaliacao.alterarNota(id, nota);
+    static async alterarNota(id, usuario_id, nota) {
+        return await Avaliacao.alterarNota(id, usuario_id, nota);
     }
 
-    static async alterarComentario(id, comentario) {
-        return await Avaliacao.alterarComentario(id, comentario);
+    static async alterarComentario(id, usuario_id, comentario) {
+        return await Avaliacao.alterarComentario(id, usuario_id, comentario);
     }
 
-    static async desativar(id) {
-        return await Avaliacao.desativar(id);
+    static async desativar(id, usuario_id) {
+        return await Avaliacao.desativar(id, usuario_id);
     }
 
 }

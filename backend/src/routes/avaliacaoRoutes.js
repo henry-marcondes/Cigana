@@ -1,6 +1,7 @@
 const express = require('express');
 
 const AvaliacaoController = require('../controllers/AvaliacaoController');
+const autenticar = require('../middleware/autenticar');
 
 const {
     validarId,
@@ -32,6 +33,7 @@ router.get(
 */
 router.get(
     '/usuario/:usuario_id',
+    autenticar,
     validarUsuarioId,
     AvaliacaoController.listarPorUsuario
 );
@@ -43,6 +45,7 @@ router.get(
 */
 router.get(
     '/usuario/:usuario_id/livro/:livro_id',
+    autenticar,
     validarUsuarioELivro,
     AvaliacaoController.buscarPorUsuarioELivro
 );
@@ -54,6 +57,7 @@ router.get(
 */
 router.get(
     '/:id',
+    autenticar,
     validarId,
     AvaliacaoController.buscarPorId
 );
@@ -65,6 +69,7 @@ router.get(
 */
 router.post(
     '/',
+    autenticar,
     validarCriacaoAvaliacao,
     AvaliacaoController.criar
 );
@@ -76,6 +81,7 @@ router.post(
 */
 router.patch(
     '/:id/nota',
+    autenticar,
     validarAlteracaoNota,
     AvaliacaoController.alterarNota
 );
@@ -87,6 +93,7 @@ router.patch(
 */
 router.patch(
     '/:id/comentario',
+    autenticar,
     validarAlteracaoComentario,
     AvaliacaoController.alterarComentario
 );
@@ -98,6 +105,7 @@ router.patch(
 */
 router.patch(
     '/:id/desativar',
+    autenticar,
     validarId,
     AvaliacaoController.desativar
 );

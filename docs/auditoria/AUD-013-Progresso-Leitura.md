@@ -207,3 +207,9 @@ O mecanismo registra a cena atual, contabiliza cenas distintas, evita duplicidad
 A conclusão narrativa permanece independente do percentual.
 
 Este documento registra as decisões técnicas e as regras de negócio que devem orientar futuras manutenções da Biblioteca e do leitor de obras interativas.
+
+## 9. Finais narrativos
+
+As confirmações de finais narrativos são persistidas em `finais_leitura`, separadamente do percentual global e do campo `progresso_leitura.concluido`. A confirmação não altera o percentual nem reinicializa o progresso. O detalhamento da implementação está em `AUD-016-Cenas-Finais.md`.
+
+Esta seção documenta a separação estrutural implementada; a validação visual do fluxo de finais ainda depende da execução manual na interface.

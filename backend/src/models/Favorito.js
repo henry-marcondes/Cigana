@@ -23,17 +23,6 @@ class Favorito {
         return result.rows;
     }
 
-    static async buscarPorId(id) {
-        const result = await pool.query(`
-            SELECT ${CAMPOS_PUBLICOS}
-              FROM favoritos
-             WHERE id = $1
-               AND ativo = TRUE
-        `, [id]);
-
-        return result.rows[0];
-    }
-
     static async buscarPorUsuarioELivro(usuario_id, livro_id) {
         const result = await pool.query(`
             SELECT ${CAMPOS_PUBLICOS}
@@ -46,12 +35,23 @@ class Favorito {
         return result.rows[0];
     }
 
-    static async criar(favorito, client = pool) {
+    static async buscarIncluindoInativo(
+        usuario_id,
+        livro_id,
+        client = pool
+    ) {
+        const result = await client.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM favoritos
+             WHERE usuario_id = $1
+               AND livro_id = $2
+        `, [usuario_id, livro_id]);
 
-        const {
-            usuario_id,
-            livro_id
-        } = favorito;
+        return result.rows[0];
+    }
+
+    static async criar(favorito, client = pool) {
+        const { usuario_id, livro_id } = favorito;
 
         const result = await client.query(`
             INSERT INTO favoritos (
@@ -59,27 +59,39 @@ class Favorito {
                 livro_id
             )
             VALUES ($1, $2)
-            RETURNING
-                ${CAMPOS_PUBLICOS}
-        `, [
-            usuario_id,
-            livro_id
-        ]);
+            RETURNING ${CAMPOS_PUBLICOS}
+        `, [usuario_id, livro_id]);
 
         return result.rows[0];
     }
 
-    static async desativar(id, client = pool) {
+    static async reativar(id, client = pool) {
+        const result = await client.query(`
+            UPDATE favoritos
+               SET ativo = TRUE,
+                   atualizado_em = NOW()
+             WHERE id = $1
+               AND ativo = FALSE
+            RETURNING ${CAMPOS_PUBLICOS}
+        `, [id]);
 
+        return result.rows[0];
+    }
+
+    static async removerPorUsuarioELivro(
+        usuario_id,
+        livro_id,
+        client = pool
+    ) {
         const result = await client.query(`
             UPDATE favoritos
                SET ativo = FALSE,
                    atualizado_em = NOW()
-             WHERE id = $1
+             WHERE usuario_id = $1
+               AND livro_id = $2
                AND ativo = TRUE
-            RETURNING
-                ${CAMPOS_PUBLICOS}
-        `, [id]);
+            RETURNING ${CAMPOS_PUBLICOS}
+        `, [usuario_id, livro_id]);
 
         return result.rows[0];
     }

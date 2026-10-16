@@ -26,7 +26,7 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.96401684"
-     inkscape:cx="392.10933"
+     inkscape:cx="321.05248"
      inkscape:cy="319.49649"
      inkscape:window-width="1366"
      inkscape:window-height="719"
@@ -211,7 +211,7 @@
        x="18.374262"
        y="27.462908"
        ry="2.7878206"
-       inkscape:export-filename="../../raiz/Guia_Autor/parte_1/imagens/009-capa-1.png"
+       inkscape:export-filename="../../raiz/Guia_Dev/cap-1/imagens/001-capa-1.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" /><g
        id="g292"
@@ -283,4 +283,4 @@
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:13.7397px;font-family:'Ubuntu Mono';-inkscape-font-specification:'Ubuntu Mono, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#00ffff;stroke:#ffffff;stroke-width:0;stroke-dasharray:none"
          x="107.66684"
          y="80.437233"
-         id="tspan689">Guia do Autor</tspan></text></g></svg>
+         id="tspan689">Guia Dev</tspan></text></g></svg>

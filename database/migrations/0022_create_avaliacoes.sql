@@ -1,5 +1,5 @@
 -- =====================================================
--- Migration: 0021_create_avaliacoes.sql
+-- Migration: 0022_create_avaliacoes.sql
 -- Descrição : Criação da tabela de favoritos dos livros
 -- Projeto   : Plataforma Ciganas
 -- PostgreSQL: 16+

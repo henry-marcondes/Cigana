@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { apiFetch } from '../../../../../../services/api';
+import { apiFetch } from '../../../../../../../services/api';
 
 export default function EditarCapitulo() {
 const params = useParams();
@@ -35,6 +35,7 @@ titulo: '',
 slug: '',
 texto: '',
 cena_inicial: false,
+cena_final: false,
 });
 
 const [criandoCena, setCriandoCena] = useState(false);
@@ -143,6 +144,7 @@ setDadosNovaCena({
   slug: '',
   texto: '',
   cena_inicial: cenas.length === 0,
+    cena_final: false,
 });
 
 setMostrarNovaCena(true);
@@ -188,6 +190,7 @@ try {
         texto: dadosNovaCena.texto,
         ordem_exibicao: proximaOrdem,
         cena_inicial: dadosNovaCena.cena_inicial,
+        cena_final: dadosNovaCena.cena_final,
       }),
     }
   );
@@ -209,6 +212,7 @@ try {
     slug: '',
     texto: '',
     cena_inicial: false,
+    cena_final: false,
   });
 } catch (error) {
   setErroCriacaoCena(error.message);
@@ -543,6 +547,19 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
                 Definir como cena inicial
               </label>
 
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={dadosNovaCena.cena_final}
+                  onChange={(event) => setDadosNovaCena({
+                    ...dadosNovaCena,
+                    cena_final: event.target.checked,
+                  })}
+                  className="h-4 w-4 rounded border-gray-300"
+                />
+                Cena Final
+              </label>
+
             </div>
 
             <div className="mt-6 flex justify-end gap-3">
@@ -611,6 +628,12 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
                           </span>
                         )}
 
+                        {cena.cena_final && (
+                          <span className="rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-800">
+                            Cena Final
+                          </span>
+                        )}
+
                       </div>
 
                       <p className="mt-1 text-sm text-gray-500">
@@ -621,6 +644,9 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
 
                     <button
                       type="button"
+                      onClick={() => router.push(
+                        `/estudio/obras/${id}/capitulos/${capituloId}/cenas/${cena.id}`
+                      )}
                       className="shrink-0 text-sm text-gray-600 hover:text-gray-900"
                     >
                       Editar cena

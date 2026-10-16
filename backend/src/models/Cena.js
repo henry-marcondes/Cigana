@@ -8,6 +8,7 @@ const CAMPOS_PUBLICOS = `
     texto,
     ordem_exibicao,
     cena_inicial,
+    cena_final,
     ativo,
     criado_em,
     atualizado_em
@@ -70,7 +71,8 @@ class Cena {
             slug,
             texto,
             ordem_exibicao,
-            cena_inicial
+            cena_inicial,
+            cena_final
         } = cena;
 
         const result = await client.query(`
@@ -80,9 +82,10 @@ class Cena {
                 slug,
                 texto,
                 ordem_exibicao,
-                cena_inicial
+                cena_inicial,
+                cena_final
             )
-            VALUES ($1, $2, $3, $4, $5, $6)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
@@ -91,7 +94,8 @@ class Cena {
             slug,
             texto,
             ordem_exibicao,
-            cena_inicial
+            cena_inicial,
+            cena_final ?? false
         ]);
 
         return result.rows[0];
@@ -103,7 +107,8 @@ class Cena {
             titulo,
             slug,
             texto,
-            ordem_exibicao
+            ordem_exibicao,
+            cena_final
         } = cena;
 
         const result = await client.query(`
@@ -112,8 +117,9 @@ class Cena {
                    slug = $2,
                    texto = $3,
                    ordem_exibicao = $4,
+                   cena_final = COALESCE($5, cena_final),
                    atualizado_em = NOW()
-             WHERE id = $5
+             WHERE id = $6
                AND ativo = TRUE
             RETURNING
                 ${CAMPOS_PUBLICOS}
@@ -122,6 +128,7 @@ class Cena {
             slug,
             texto,
             ordem_exibicao,
+            cena_final ?? null,
             id
         ]);
 

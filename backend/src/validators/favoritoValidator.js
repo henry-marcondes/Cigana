@@ -1,4 +1,8 @@
-const { body, param, validationResult } = require('express-validator');
+const {
+    body,
+    param,
+    validationResult
+} = require('express-validator');
 
 const validarResultado = (req, res, next) => {
     const errors = validationResult(req);
@@ -13,19 +17,18 @@ const validarResultado = (req, res, next) => {
     next();
 };
 
-const validarId = [
-    param('id')
+// Valida o livro_id recebido pela URL.
+const validarLivroIdParam = [
+    param('livro_id')
         .isUUID()
-        .withMessage('ID do favorito deve ser um UUID válido.'),
+        .withMessage('ID da obra deve ser um UUID válido.'),
 
     validarResultado
 ];
 
+// Valida a criação de um favorito.
+// O usuario_id não é recebido do cliente.
 const validarCriacaoFavorito = [
-    body('usuario_id')
-        .isUUID()
-        .withMessage('usuario_id deve ser um UUID válido.'),
-
     body('livro_id')
         .isUUID()
         .withMessage('livro_id deve ser um UUID válido.'),
@@ -33,29 +36,7 @@ const validarCriacaoFavorito = [
     validarResultado
 ];
 
-const validarUsuarioELivro = [
-    param('usuario_id')
-        .isUUID()
-        .withMessage('usuario_id deve ser um UUID válido.'),
-
-    param('livro_id')
-        .isUUID()
-        .withMessage('livro_id deve ser um UUID válido.'),
-
-    validarResultado
-];
-
-const validarUsuarioId = [
-    param('usuario_id')
-        .isUUID()
-        .withMessage('usuario_id deve ser um UUID válido.'),
-
-    validarResultado
-];
-
 module.exports = {
-    validarId,
-    validarCriacaoFavorito,
-    validarUsuarioELivro,
-    validarUsuarioId
+    validarLivroIdParam,
+    validarCriacaoFavorito
 };

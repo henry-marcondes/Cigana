@@ -79,12 +79,13 @@ Corporativa (caso surja futuramente)
 | atualizada_em           | Data da última alteração           |
 
 ### Relacionamento
-
+```text 
 tipos_biblioteca
         │
         │ 1
         │
         └────────────── N bibliotecas
+```
 
 Regras aprovadas
 

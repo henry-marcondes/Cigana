@@ -60,6 +60,7 @@ export default async function CenaPage({ params }) {
         conteudos={conteudos}
         escolhas={escolhas}
         linkVoltar={`/livros/${slug}/capitulos/${capituloSlug}`}
+        mostrarAcaoFinal
       />
     </>
   );
