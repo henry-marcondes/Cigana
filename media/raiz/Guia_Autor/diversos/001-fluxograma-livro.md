@@ -1,8 +1,8 @@
 ```mermaid
 
 flowchart TD
-    A([Livro]) --> B[Capitulos]
-    B --> C[/paginas\]
+    A([Livro]) --> B[Capitulo]
+    B --> C[/cena\]
     C --> D[textos]
     C --> E[audios]
     C --> F[imagens]

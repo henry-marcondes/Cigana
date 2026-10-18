@@ -1,4 +1,4 @@
-Etapa 2.3 — Modelo Lógico do Banco de Dados (MLD)
+Etapa — Modelo Lógico do Banco de Dados (MLD)
 
 ## Bloco A — Catálogo
 1.  Biblioteca
@@ -104,19 +104,19 @@ Regras aprovadas
 Há uma decisão que considero importante registrar desde já, pois influenciará as próximas tabelas.
 
 Nas etapas anteriores definimos a hierarquia conceitual:
-
+```text
 Biblioteca
     └── Categoria
             └── Livro
-
+```
 No modelo lógico, isso significa que cada nível referencia apenas seu pai imediato:
-
+```text
 bibliotecas
       │
       └── categorias
               │
               └── livros
-
+```
 Ou seja:
 
 categorias terá biblioteca_id como FK.
@@ -146,6 +146,7 @@ outra biblioteca diferente).
 | atualizada_em         | Sim         | Data da última alteração               |
 
 ### Relacionamentos
+```text
 tipos_biblioteca
         │
         └── bibliotecas
@@ -153,40 +154,40 @@ tipos_biblioteca
                  └── categorias
                          │
                          └── categorias (auto-relacionamento)
-
+```
 Ou, detalhando o auto-relacionamento:
 
 categorias
-
+```text
 1
 │
 ├────────────── N categorias
-
+```
 Uma categoria pode possuir várias subcategorias.
 
 Uma subcategoria pertence a apenas uma categoria pai.
 
 ### Exemplo
 Biblioteca Pública
-
+```text
 Literatura
 │
 ├── Romance
 ├── Fantasia
 ├── Terror
 └── Ficção Científica
-
+```
 Outro exemplo:
 
 Empresa ABC
-
+```text
 Manuais
 │
 ├── RH
 ├── Financeiro
 ├── Comercial
 └── TI
-
+```
 ---
 
 ## MLD-003 — Tabela livros (Aprovado)
@@ -211,14 +212,15 @@ Manuais
 | atualizado_em                    | Sim         | Data da última alteração         |
 
 Relacionamentos
+```text
 categorias
       │
       │ 1
       │
       └────────────── N livros
-
+```
 Relacionamentos futuros:
-
+```text
 livros
 │
 ├── 1 → N capítulos
@@ -228,7 +230,7 @@ livros
 ├── 1 → N avaliações
 ├── 1 → N mídias
 └── 1 → N coleções
-
+```
 ## Tabelas auxiliares aprovadas
 
 ### status_livro
@@ -282,13 +284,13 @@ conteúdo adulto.
 Decisão importante registrada
 
 Cada livro pertence a uma única categoria principal.
-
+```text
 Biblioteca
      │
 Categoria
      │
 Livro
-
+```
 Caso, no futuro, a plataforma precise classificar um mesmo livro em várias categorias, criaremos 
 uma entidade associativa livro_categorias, preservando a compatibilidade com o modelo atual.
 
@@ -307,14 +309,15 @@ uma entidade associativa livro_categorias, preservando a compatibilidade com o m
 | atualizado_em   | Sim         | Data da última alteração                     |
 
 Relacionamento
+```text
 usuarios
      │
      │ 1
      │
      └────────── 0..1 autores
-
+```
 E futuramente:
-
+```text
 autores
      │
      │ 1
@@ -322,6 +325,7 @@ autores
      ├────────── N livro_autores
      │
      └────────── N autor_links
+```
 Nova entidade planejada
 
 Já deixaremos registrada para os próximos MLDs:
@@ -395,27 +399,27 @@ Esta tabela representa uma participação editorial, e não apenas uma associaç
 
 Relacionamentos
 livros
-
+```text
 1
 │
 │
 └────────────── N livro_autores
-
+```
 autores
-
+```text
 1
 │
 │
 └────────────── N livro_autores
-
+```
 Relacionamento com funções
 funcoes_autor
-
+```text
 1
 │
 │
 └────────────── N livro_autores
-
+```
 Cada participação possui exatamente uma função.
 
 Exemplo
@@ -505,13 +509,13 @@ Livro A	João Silva	Tradutor
 | atualizada_em  | Sim         | Data da última alteração              |
 
 Relacionamento
-
+```text
 funcoes_autor
         │
         │ 1
         │
         └────────────── N livro_autores
-
+```
 
 Uma função pode ser utilizada em milhares de participações editoriais.
 

@@ -1,7 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import { apiFetch } from '../../../services/api';
@@ -15,7 +16,7 @@ import {
     listarAceitesPorUsuario,
 } from '../../../services/contratos';
 
-export default function ContratosPage() {
+function ContratosConteudo() {
     const searchParams = useSearchParams();
     const livroId = searchParams.get('livro_id');
     const contratoIdQuery = searchParams.get('contrato_id');
@@ -502,5 +503,19 @@ export default function ContratosPage() {
 </section>   
 
     </main>
+    );
+}
+
+export default function ContratosPage() {
+    return (
+        <Suspense
+            fallback={
+                <main className="mx-auto max-w-6xl p-6">
+                    Carregando contratos...
+                </main>
+            }
+        >
+            <ContratosConteudo />
+        </Suspense>
     );
 }

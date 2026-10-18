@@ -261,7 +261,7 @@ Quiz
 Puzzle
 Hotspot
 Formulário
-Mini Game
+Mini Game (futuro)
 Entrada de Texto
 Arrastar e Soltar
 IA Conversacional (futuro)
@@ -326,7 +326,7 @@ Interação
 A plataforma não precisa conhecer antecipadamente todos os tipos de interação.
 
 Ela precisa conhecer apenas a entidade Interação.
-
+:w:
 Novos tipos poderão surgir no futuro sem alterar o núcleo do domínio.
 
 ## Decisão Validada nº 007

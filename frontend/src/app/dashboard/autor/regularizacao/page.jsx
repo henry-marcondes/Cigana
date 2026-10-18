@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import pessoaService from '../../../../services/pessoa';
@@ -32,7 +32,7 @@ const estadoInicialJuridica = {
     inscricao_municipal: '',
 };
 
-export default function RegularizacaoAutorPage() {
+function RegularizacaoAutorConteudo() {
     const searchParams = useSearchParams();
     const livroIdQuery = searchParams.get('livro_id');
     const [tipoPessoa, setTipoPessoa] = useState('');
@@ -786,5 +786,19 @@ export default function RegularizacaoAutorPage() {
                 </form>
             )}
         </main>
+    );
+}
+
+export default function RegularizacaoAutorPage() {
+    return (
+        <Suspense
+            fallback={
+                <main className="mx-auto max-w-6xl p-6">
+                    Carregando regularização...
+                </main>
+            }
+        >
+            <RegularizacaoAutorConteudo />
+        </Suspense>
     );
 }

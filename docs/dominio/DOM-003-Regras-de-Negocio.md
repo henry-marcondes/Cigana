@@ -48,11 +48,13 @@ uma ação que altere seu estado de leitura. O usuário não precisa executar um
    nunca ter métodos "genéricos" que alterm campos de natureza difentes.
 
 2. Nomes de parâmetros devem expressar sua finalidade.
-   sempre que um parâmetro representar uma alteração específica, seu nome deverá deixar isso explícito.
+   sempre que um parâmetro representar uma alteração específica, seu nome deverá 
+   deixar isso explícito.
 
 3. Parâmetros representam a entidade
-   Os parâmetros dos métodos representarão a entidade que está sendo manipulada, e não nomes genéricos 
-   como dados.
+   Os parâmetros dos métodos representarão a entidade que está sendo manipulada, 
+   e não nomes genéricos como dados. 
+
    Exemplos:
    ❌ Evitar
    criar(dados)
