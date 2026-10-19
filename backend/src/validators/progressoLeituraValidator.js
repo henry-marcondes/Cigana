@@ -75,6 +75,12 @@ const validarCriacao = [
         .isBoolean()
         .withMessage(
             'Concluído deve ser verdadeiro ou falso.'
+        )
+        .bail()
+        .toBoolean()
+        .custom((valor) => valor === false)
+        .withMessage(
+            'A conclusão deve ser registrada pela operação explícita de conclusão.'
         ),
 
     validarResultado

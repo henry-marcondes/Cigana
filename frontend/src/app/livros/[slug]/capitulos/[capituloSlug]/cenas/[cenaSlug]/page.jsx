@@ -52,7 +52,6 @@ export default async function CenaPage({ params }) {
 
   return (
     <>
-      <RegistroProgresso livroId={livro.id} cenaId={cena.id} />
       <LeituraCena
         livro={livro}
         capitulo={capitulo}
@@ -62,6 +61,7 @@ export default async function CenaPage({ params }) {
         linkVoltar={`/livros/${slug}/capitulos/${capituloSlug}`}
         mostrarAcaoFinal
       />
+      <RegistroProgresso livroId={livro.id} cenaId={cena.id} />
     </>
   );
 }

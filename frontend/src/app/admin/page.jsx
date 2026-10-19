@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { estaAutenticado, logout, } from '../../services/autenticacao';
+import { estaAutenticado, logout, obterUsuario } from '../../services/autenticacao';
+import { usuarioTemPermissao } from '../../services/permissoesEfetivas';
 
 export default function AdminPage() {
     const router = useRouter();
+    const [podeVisualizarAnalise, setPodeVisualizarAnalise] = useState(false);
 
     function sair() {
         logout();
@@ -16,6 +18,14 @@ export default function AdminPage() {
     useEffect(() => {
         if (!estaAutenticado()) {
             router.push('/login');
+            return;
+        }
+
+        const usuario = obterUsuario();
+        if (usuario?.id) {
+            usuarioTemPermissao(usuario.id, 'analise_dados.visualizar')
+                .then(setPodeVisualizarAnalise)
+                .catch(() => setPodeVisualizarAnalise(false));
         }
     }, [router]);
 
@@ -90,6 +100,21 @@ export default function AdminPage() {
                             Analisar, aprovar ou rejeitar obras e publicar as aprovadas.
                         </p>
                     </Link>
+
+                    {podeVisualizarAnalise && (
+                        <Link
+                            href="/admin/analise-dados"
+                            className="rounded-lg border p-5 transition hover:bg-gray-50"
+                        >
+                            <h2 className="text-xl font-semibold">
+                                Análise de Dados
+                            </h2>
+
+                            <p className="mt-2 text-sm text-gray-600">
+                                Consultar indicadores administrativos da plataforma.
+                            </p>
+                        </Link>
+                    )}
 
                 </div>
         </main>

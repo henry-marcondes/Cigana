@@ -360,3 +360,17 @@ A prioridade é:
 6. documentar decisões importantes.
 
 O Codex deve contribuir principalmente com **visibilidade, análise e segurança técnica**, enquanto a evolução efetiva do projeto permanece sob controle do usuário.
+
+## Build de produção — Next.js
+
+- O frontend utiliza Next.js 16.4.2.
+- O build de produção foi validado com sucesso usando Webpack:
+  `npm run build -- --webpack`
+- O build bem-sucedido confirmou compilação, verificação de TypeScript, geração das páginas e finalização da otimização de produção.
+- O comando padrão `npm run build` apresentou falha `Operation not permitted` durante o processamento CSS com Turbopack. A causa ainda não foi determinada e não há confirmação de correção.
+- Para validações de produção que exigirem um build, utilizar `npm run build -- --webpack` enquanto essa situação permanecer.
+- Não alterar o compilador padrão, dependências, CSS ou configurações de segurança para contornar essa falha sem análise prévia e autorização explícita.
+- Não repetir investigações já concluídas nem tratar a falha do Turbopack como evidência de que o build de produção está totalmente indisponível.
+- O aviso de desatualização do Browserslist não impediu o build validado e não justifica, por si só, atualizar dependências.
+- Um build bem-sucedido não substitui a validação funcional no navegador.
+- Preservar a metodologia do projeto: inspecionar → analisar → decidir → implementar → validar → documentar.

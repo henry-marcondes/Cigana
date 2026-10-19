@@ -45,6 +45,7 @@ const usuarioCategoriaPreferidaRoute =
 const pessoaRoutes = require('./routes/pessoaRoutes');
 const telefoneRoutes = require('./routes/TelefoneRoutes');
 const enderecoRoutes = require('./routes/EnderecoRoutes');
+const analiseDadosRoutes = require('./routes/analiseDadosRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -106,6 +107,7 @@ app.use( '/api/usuario-categorias-preferidas',usuarioCategoriaPreferidaRoute);
 app.use('/api/pessoas', pessoaRoutes);
 app.use('/api/telefones',telefoneRoutes);
 app.use('/api/enderecos', enderecoRoutes);
+app.use('/api/admin/analise-dados', analiseDadosRoutes);
 
 // Error handling
 app.use(errorHandler);
