@@ -18,9 +18,8 @@ vamos sugerir algumas formas estruturadas para dividir seu material e facilitar
 a composição do Obra.
 
 Primeiramente vamos entender como funciona o mecanismo dentro da 
-*Cigana Plataforma de Livro Interativos* , não importa o conteúdo, pode sugerir
-um artigo escolar, um romance, um curso, uma novela ... o importante e estar
-bem organizado para facilitar e ser produtivo, afinal nosso tempo é pecioso.
+*Cigana Plataforma de Livro Interativos* , não importa o conteúdo da Obra, 
+pode sugerir um artigo escolar, um romance, um curso, uma novela ... o importante 
+e estar bem organizado para facilitar e ser produtivo, afinal nosso tempo é pecioso.
 
-Como exemplo vamos demonstrar a organização desse conteúdo que você esta lendo
-agora.
+Como demonstrar com vários exemplos de estrturas.

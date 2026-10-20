@@ -5,7 +5,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { estaAutenticado, obterUsuario } from '../../../services/autenticacao';
 import { usuarioTemPermissao } from '../../../services/permissoesEfetivas';
-import { obterIndicadoresProgressoLeitura } from '../../../services/analiseDados';
+import {
+  obterIndicadoresAvaliacoesComentarios,
+  obterIndicadoresProgressoLeitura,
+} from '../../../services/analiseDados';
 
 const formatarNumero = (valor) =>
   new Intl.NumberFormat('pt-BR').format(Number.isFinite(Number(valor)) ? Number(valor) : 0);
@@ -20,6 +23,47 @@ const formatarPercentual = (valor) =>
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(Number(valor ?? 0))}%`;
+
+function formatarDataInput(data) {
+  const ano = data.getFullYear();
+  const mes = String(data.getMonth() + 1).padStart(2, '0');
+  const dia = String(data.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+}
+
+function obterPeriodoPadrao() {
+  const hoje = new Date();
+  const dataFinal = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+  const dataInicial = new Date(dataFinal);
+  dataInicial.setDate(dataInicial.getDate() - 29);
+
+  return {
+    dataInicial: formatarDataInput(dataInicial),
+    dataFinal: formatarDataInput(dataFinal),
+    agrupamento: 'dia',
+  };
+}
+
+function formatarPeriodo(periodo, agrupamento) {
+  if (agrupamento === 'ano') return periodo.slice(0, 4);
+  if (agrupamento === 'mes') return `${periodo.slice(5, 7)}/${periodo.slice(0, 4)}`;
+
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${periodo}T00:00:00Z`));
+}
+
+const formatarMedia = (valor) => (
+  valor === null || valor === undefined
+    ? '—'
+    : new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(Number(valor))
+);
 
 function GraficoBarrasHorizontais({
   titulo,
@@ -102,12 +146,12 @@ function GraficoBarrasHorizontais({
   );
 }
 
-function Indicador({ titulo, valor }) {
+function Indicador({ titulo, valor, formatador = formatarNumero }) {
   return (
     <article className="rounded-lg border bg-white p-5 shadow-sm">
       <h2 className="text-sm font-medium text-gray-600">{titulo}</h2>
       <p className="mt-2 text-3xl font-bold text-gray-900">
-        {formatarNumero(valor)}
+        {formatador(valor)}
       </p>
     </article>
   );
@@ -118,6 +162,12 @@ export default function AnaliseDadosPage() {
   const [indicadores, setIndicadores] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
+  const [podeConsultar, setPodeConsultar] = useState(false);
+  const [filtros, setFiltros] = useState(obterPeriodoPadrao);
+  const [periodoAplicado, setPeriodoAplicado] = useState(filtros);
+  const [indicadoresAvaliacoes, setIndicadoresAvaliacoes] = useState(null);
+  const [carregandoAvaliacoes, setCarregandoAvaliacoes] = useState(true);
+  const [erroAvaliacoes, setErroAvaliacoes] = useState('');
 
   useEffect(() => {
     if (!estaAutenticado()) {
@@ -139,6 +189,8 @@ export default function AnaliseDadosPage() {
           if (ativo) setErro('Sua conta não tem permissão para consultar esta área.');
           return;
         }
+
+        if (ativo) setPodeConsultar(true);
 
         const resposta = await obterIndicadoresProgressoLeitura();
         if (ativo) setIndicadores(resposta.data);
@@ -162,6 +214,35 @@ export default function AnaliseDadosPage() {
     return () => { ativo = false; };
   }, [router]);
 
+  useEffect(() => {
+    if (!podeConsultar) return undefined;
+
+    let ativo = true;
+    setCarregandoAvaliacoes(true);
+    setErroAvaliacoes('');
+
+    obterIndicadoresAvaliacoesComentarios(periodoAplicado)
+      .then((resposta) => {
+        if (ativo) setIndicadoresAvaliacoes(resposta.data);
+      })
+      .catch((falha) => {
+        if (!ativo) return;
+
+        setErroAvaliacoes(
+          falha.status === 403
+            ? 'Sua conta não tem permissão para consultar esta área.'
+            : falha.status === 401
+              ? 'Sua sessão expirou. Entre novamente para continuar.'
+              : falha.message || 'Não foi possível carregar avaliações e comentários.'
+        );
+      })
+      .finally(() => {
+        if (ativo) setCarregandoAvaliacoes(false);
+      });
+
+    return () => { ativo = false; };
+  }, [podeConsultar, periodoAplicado]);
+
   const registrosAtivos = obterNumero(indicadores?.registros_progresso_ativos);
   const categorias = indicadores?.categorias ?? [];
   const obras = indicadores?.obras ?? [];
@@ -181,7 +262,9 @@ export default function AnaliseDadosPage() {
             <h1 className="mt-2 text-3xl font-bold text-gray-900">
               Análise de Dados
             </h1>
-            <p className="mt-2 text-gray-600">Progresso de Leitura e Favoritos</p>
+            <p className="mt-2 text-gray-600">
+              Progresso de Leitura, Favoritos, Avaliações e Comentários
+            </p>
           </div>
         </header>
 
@@ -470,6 +553,228 @@ export default function AnaliseDadosPage() {
                   classeAltura="max-h-80"
                 />
               </div>
+            </section>
+
+            <section className="mt-8 rounded-lg border bg-white p-6 shadow-sm" aria-labelledby="avaliacoes-comentarios-titulo">
+              <header>
+                <h2 id="avaliacoes-comentarios-titulo" className="text-xl font-semibold text-gray-900">
+                  Análise de Avaliações e Comentários
+                </h2>
+                <p className="mt-2 text-sm text-gray-600">
+                  Os cartões mostram o estado atual dos registros ativos. A evolução mostra criações no período e não representa alterações ou reativações.
+                </p>
+              </header>
+
+              <form
+                className="mt-5 grid gap-4 rounded-lg border bg-gray-50 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  setPeriodoAplicado({ ...filtros });
+                }}
+              >
+                <label className="block text-sm font-medium text-gray-700">
+                  Data inicial
+                  <input
+                    className="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    type="date"
+                    required
+                    value={filtros.dataInicial}
+                    onChange={(event) => setFiltros((atual) => ({
+                      ...atual,
+                      dataInicial: event.target.value,
+                    }))}
+                  />
+                </label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Data final
+                  <input
+                    className="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    type="date"
+                    required
+                    value={filtros.dataFinal}
+                    onChange={(event) => setFiltros((atual) => ({
+                      ...atual,
+                      dataFinal: event.target.value,
+                    }))}
+                  />
+                </label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Agrupamento
+                  <select
+                    className="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    value={filtros.agrupamento}
+                    onChange={(event) => setFiltros((atual) => ({
+                      ...atual,
+                      agrupamento: event.target.value,
+                    }))}
+                  >
+                    <option value="dia">Diário</option>
+                    <option value="mes">Mensal</option>
+                    <option value="ano">Anual</option>
+                  </select>
+                </label>
+                <button
+                  className="rounded-md bg-indigo-700 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  type="submit"
+                  disabled={carregandoAvaliacoes}
+                >
+                  Aplicar período
+                </button>
+              </form>
+
+              {carregandoAvaliacoes ? (
+                <p className="mt-5 rounded-lg bg-gray-50 p-5 text-sm text-gray-600" role="status">
+                  Carregando avaliações e comentários...
+                </p>
+              ) : erroAvaliacoes ? (
+                <div className="mt-5 rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-800" role="alert">
+                  {erroAvaliacoes}
+                </div>
+              ) : indicadoresAvaliacoes ? (
+                <>
+                  <section className="mt-6" aria-label="Indicadores atuais de avaliações e comentários">
+                    <h3 className="text-lg font-semibold text-gray-900">Estado atual</h3>
+                    <p className="mt-1 text-sm text-gray-600">
+                      Considera somente avaliações e comentários independentes ativos.
+                    </p>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      <Indicador
+                        titulo="Avaliações ativas"
+                        valor={indicadoresAvaliacoes.atuais.avaliacoes.quantidade}
+                      />
+                      <Indicador
+                        titulo="Nota média"
+                        valor={indicadoresAvaliacoes.atuais.avaliacoes.media}
+                        formatador={formatarMedia}
+                      />
+                      <Indicador
+                        titulo="Comentários independentes ativos"
+                        valor={indicadoresAvaliacoes.atuais.comentarios_independentes.quantidade}
+                      />
+                      <Indicador
+                        titulo="Avaliações com comentário preenchido"
+                        valor={indicadoresAvaliacoes.atuais.avaliacoes.com_comentario}
+                      />
+                      <Indicador
+                        titulo="Avaliações sem comentário preenchido"
+                        valor={indicadoresAvaliacoes.atuais.avaliacoes.sem_comentario}
+                      />
+                    </div>
+
+                    {indicadoresAvaliacoes.atuais.avaliacoes.quantidade === 0 && (
+                      <p className="mt-4 rounded-md bg-gray-50 p-4 text-sm text-gray-600">
+                        Ainda não há avaliações ativas. A média não está disponível.
+                      </p>
+                    )}
+
+                    <div className="mt-4">
+                      <GraficoBarrasHorizontais
+                        titulo="Distribuição das notas"
+                        descricao="Quantidade de avaliações ativas para cada nota de 1 a 5."
+                        itens={Object.entries(
+                          indicadoresAvaliacoes.atuais.avaliacoes.distribuicao_notas
+                        ).map(([nota, quantidade]) => ({
+                          id: nota,
+                          rotulo: `Nota ${nota}`,
+                          unidade: 'Avaliações',
+                          quantidade,
+                        }))}
+                        series={[{ chave: 'quantidade', titulo: 'Avaliações', cor: 'bg-amber-500' }]}
+                      />
+                    </div>
+                  </section>
+
+                  <section className="mt-8" aria-label="Evolução das criações">
+                    <h3 className="text-lg font-semibold text-gray-900">Evolução das criações</h3>
+                    <p className="mt-1 text-sm text-gray-600">
+                      Intervalo inclusivo de {indicadoresAvaliacoes.evolucao.data_inicial} a {indicadoresAvaliacoes.evolucao.data_final}, agrupado por {indicadoresAvaliacoes.evolucao.agrupamento}. Fuso: {indicadoresAvaliacoes.evolucao.fuso_horario}.
+                    </p>
+                    <p className="mt-1 text-sm text-gray-600">
+                      Comentários associados contam avaliações criadas no período cujo comentário está preenchido atualmente.
+                    </p>
+                    <div className="mt-4">
+                      <GraficoBarrasHorizontais
+                        titulo="Criações por período"
+                        descricao="As séries representam criações independentes por domínio."
+                        itens={indicadoresAvaliacoes.evolucao.por_periodo.map((item) => ({
+                          id: item.periodo,
+                          rotulo: formatarPeriodo(item.periodo, indicadoresAvaliacoes.evolucao.agrupamento),
+                          avaliacoes: item.avaliacoes,
+                          comentarios_associados: item.comentarios_associados,
+                          comentarios_independentes: item.comentarios_independentes,
+                        }))}
+                        series={[
+                          { chave: 'avaliacoes', titulo: 'Avaliações criadas', cor: 'bg-indigo-600' },
+                          { chave: 'comentarios_associados', titulo: 'Avaliações criadas com comentário', cor: 'bg-amber-500' },
+                          { chave: 'comentarios_independentes', titulo: 'Comentários independentes criados', cor: 'bg-emerald-600' },
+                        ]}
+                        classeAltura="max-h-96"
+                      />
+                    </div>
+                  </section>
+
+                  <section className="mt-8" aria-labelledby="avaliacoes-por-obra-titulo">
+                    <h3 id="avaliacoes-por-obra-titulo" className="text-lg font-semibold text-gray-900">
+                      Indicadores atuais por obra
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-600">
+                      Inclui todas as obras ativas, mesmo quando não possuem avaliações ou comentários.
+                    </p>
+                    <div className="mt-4 overflow-x-auto rounded-lg border">
+                      <table className="w-full min-w-[1120px] border-collapse text-left text-sm">
+                        <thead className="bg-gray-50">
+                          <tr className="border-b text-gray-600">
+                            <th scope="col" className="px-3 py-3 font-medium">Obra</th>
+                            <th scope="col" className="px-3 py-3 text-right font-medium">Avaliações</th>
+                            <th scope="col" className="px-3 py-3 text-right font-medium">Média</th>
+                            {[1, 2, 3, 4, 5].map((nota) => (
+                              <th key={nota} scope="col" className="px-3 py-3 text-right font-medium">Nota {nota}</th>
+                            ))}
+                            <th scope="col" className="px-3 py-3 text-right font-medium">Com comentário</th>
+                            <th scope="col" className="px-3 py-3 text-right font-medium">Sem comentário</th>
+                            <th scope="col" className="px-3 py-3 text-right font-medium">Comentários independentes</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {indicadoresAvaliacoes.atuais.por_obra.map((obra) => (
+                            <tr key={obra.livro_id} className="border-b last:border-0">
+                              <th scope="row" className="px-3 py-3 font-medium text-gray-900">{obra.titulo}</th>
+                              <td className="px-3 py-3 text-right">{formatarNumero(obra.avaliacoes.quantidade)}</td>
+                              <td className="px-3 py-3 text-right">{formatarMedia(obra.avaliacoes.media)}</td>
+                              {[1, 2, 3, 4, 5].map((nota) => (
+                                <td key={nota} className="px-3 py-3 text-right">
+                                  {formatarNumero(obra.avaliacoes.distribuicao_notas[nota])}
+                                </td>
+                              ))}
+                              <td className="px-3 py-3 text-right">{formatarNumero(obra.avaliacoes.com_comentario)}</td>
+                              <td className="px-3 py-3 text-right">{formatarNumero(obra.avaliacoes.sem_comentario)}</td>
+                              <td className="px-3 py-3 text-right">{formatarNumero(obra.comentarios_independentes.quantidade)}</td>
+                            </tr>
+                          ))}
+                          {indicadoresAvaliacoes.atuais.por_obra.length === 0 && (
+                            <tr>
+                              <td colSpan="11" className="px-3 py-6 text-center text-gray-600">
+                                Não há obras ativas para exibir.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                    {indicadoresAvaliacoes.atuais.por_obra.length > 0
+                      && indicadoresAvaliacoes.atuais.avaliacoes.quantidade === 0
+                      && indicadoresAvaliacoes.atuais.comentarios_independentes.quantidade === 0 && (
+                        <p className="mt-3 text-sm text-gray-600">
+                          Não há avaliações ou comentários independentes ativos no momento.
+                        </p>
+                      )}
+                  </section>
+                </>
+              ) : (
+                <p className="mt-5 rounded-lg bg-gray-50 p-5 text-sm text-gray-600">
+                  Não há dados de avaliações e comentários para exibir.
+                </p>
+              )}
             </section>
           </>
         ) : null}
