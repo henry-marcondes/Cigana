@@ -159,6 +159,49 @@ class CenaConteudo {
         return result.rows[0];
     }
 
+    static async desativarPorConteudo(tipo_conteudo, conteudo_id, client = pool) {
+        const result = await client.query(`
+            UPDATE cena_conteudos
+               SET ativo = FALSE,
+                   atualizado_em = NOW()
+             WHERE tipo_conteudo = $1
+               AND conteudo_id = $2
+               AND ativo = TRUE
+            RETURNING
+                cena_id
+        `, [tipo_conteudo, conteudo_id]);
+
+        const cenasAfetadas = [
+            ...new Set(result.rows.map((linha) => linha.cena_id))
+        ];
+
+        for (const cena_id of cenasAfetadas) {
+            await this.compactarOrdem(cena_id, client);
+        }
+
+        return result.rows;
+    }
+
+    static async compactarOrdem(cena_id, client = pool) {
+        const conteudos = await this.listarPorCena(cena_id, client);
+
+        for (let indice = 0; indice < conteudos.length; indice++) {
+            const ordemCorreta = indice + 1;
+
+            if (Number(conteudos[indice].ordem_exibicao) === ordemCorreta) {
+                continue;
+            }
+
+            await client.query(`
+                UPDATE cena_conteudos
+                   SET ordem_exibicao = $1,
+                       atualizado_em = NOW()
+                 WHERE id = $2
+                   AND ativo = TRUE
+            `, [ordemCorreta, conteudos[indice].id]);
+        }
+    }
+
 }
 
 module.exports = CenaConteudo;

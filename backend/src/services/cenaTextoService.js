@@ -1,5 +1,7 @@
 const CenaTexto = require('../models/CenaTexto');
 const Cena = require('../models/Cena');
+const CenaConteudo = require('../models/CenaConteudo');
+const pool = require('../db/connection');
 
 class CenaTextoService {
 
@@ -66,16 +68,54 @@ class CenaTextoService {
     }
 
     static async desativar(id) {
+        const client = await pool.connect();
+        let transacaoIniciada = false;
 
-        const cenaTexto = await CenaTexto.buscarPorId(id);
+        try {
+            await client.query('BEGIN');
+            transacaoIniciada = true;
 
-        if (!cenaTexto) {
-            const erro = new Error('Texto da cena não encontrado.');
-            erro.status = 404;
-            throw erro;
+            const cenaTexto = await CenaTexto.buscarPorIdIncluindoInativo(
+                id,
+                client,
+                true
+            );
+
+            if (!cenaTexto) {
+                const erro = new Error('Texto da cena não encontrado.');
+                erro.status = 404;
+                throw erro;
+            }
+
+            const textoDesativado = cenaTexto.ativo
+                ? await CenaTexto.desativar(id, client)
+                : cenaTexto;
+
+            if (!textoDesativado) {
+                const erro = new Error('Texto da cena não encontrado.');
+                erro.status = 404;
+                throw erro;
+            }
+
+            await CenaConteudo.desativarPorConteudo(
+                'TEXTO',
+                id,
+                client
+            );
+
+            await client.query('COMMIT');
+            transacaoIniciada = false;
+
+            return textoDesativado;
+        } catch (error) {
+            if (transacaoIniciada) {
+                await client.query('ROLLBACK');
+            }
+
+            throw error;
+        } finally {
+            client.release();
         }
-
-        return await CenaTexto.desativar(id);
     }
 }
 

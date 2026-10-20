@@ -54,7 +54,7 @@ router.patch(
 router.delete(
     '/:id',
     autenticar,
-    autorizarObra(EscopoObraService.porCenaTextoParam),
+    autorizarObra(EscopoObraService.porCenaTextoParamIncluindoInativo),
     validarIdCenaTexto,
     CenaTextoController.desativar
 );

@@ -23,12 +23,27 @@ class CenaTexto {
         return result.rows;
     }
 
-    static async buscarPorId(id) {
-        const result = await pool.query(`
+    static async buscarPorId(id, client = pool) {
+        const result = await client.query(`
             SELECT ${CAMPOS_PUBLICOS}
               FROM cena_textos
              WHERE id = $1
                AND ativo = TRUE
+        `, [id]);
+
+        return result.rows[0];
+    }
+
+    static async buscarPorIdIncluindoInativo(
+        id,
+        client = pool,
+        bloquear = false
+    ) {
+        const result = await client.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM cena_textos
+             WHERE id = $1
+             ${bloquear ? 'FOR UPDATE' : ''}
         `, [id]);
 
         return result.rows[0];

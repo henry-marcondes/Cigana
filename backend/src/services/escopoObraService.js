@@ -118,7 +118,40 @@ class EscopoObraService {
         );
 
         if (!cenaTexto) {
-            throw new Error('Texto da cena não encontrado.');
+            const erro = new Error('Texto da cena não encontrado.');
+            erro.statusCode = 404;
+            throw erro;
+        }
+
+        const cena = await Cena.buscarPorId(
+            cenaTexto.cena_id
+        );
+
+        if (!cena) {
+            throw new Error('Cena não encontrada.');
+        }
+
+        const capitulo = await Capitulo.buscarPorId(
+            cena.capitulo_id
+        );
+
+        if (!capitulo) {
+            throw new Error('Capítulo não encontrado.');
+        }
+
+        return capitulo.livro_id;
+    }
+
+    // Exclusão pode limpar vínculo órfão, mantendo a autorização da obra.
+    static async porCenaTextoParamIncluindoInativo(req) {
+        const cenaTexto = await CenaTexto.buscarPorIdIncluindoInativo(
+            req.params.id
+        );
+
+        if (!cenaTexto) {
+            const erro = new Error('Texto da cena não encontrado.');
+            erro.statusCode = 404;
+            throw erro;
         }
 
         const cena = await Cena.buscarPorId(
