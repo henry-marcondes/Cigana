@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:3001';
+const API_URL = '/api';
+export const API_SERVER_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export async function apiFetch(endpoint, options = {}) {
   const token =
@@ -6,7 +8,14 @@ export async function apiFetch(endpoint, options = {}) {
       ? localStorage.getItem('token')
       : null;
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const caminho = endpoint.replace(/^\/api(?=\/|$)/, '');
+  const endpointApi = `${API_URL}${caminho}`;
+  const url =
+    typeof window !== 'undefined'
+      ? endpointApi
+      : new URL(endpointApi, API_SERVER_URL).toString();
+
+  const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

@@ -1,17 +1,5 @@
 import { apiFetch } from './api';
-
-const API_URL = 'http://localhost:3001';
-
-function montarUrlMedia(url) {
-  if (!url) return null;
-  if (url.startsWith('http')) return url;
-
-  const caminho = url
-    .replace(/^.*?media\//, 'media/')
-    .replace(/^\/+/, '');
-
-  return `${API_URL}/${caminho}`;
-}
+import { montarUrlMedia } from './media';
 
 async function carregarTexto(textoUrl) {
   const url = montarUrlMedia(textoUrl);

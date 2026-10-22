@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiFetch } from '../../../../../../../../../services/api';
+import { montarUrlMedia } from '../../../../../../../../../services/media';
 
 export default function AudiosCena() {
 const params = useParams();
@@ -100,7 +101,7 @@ setEditandoId(audio.id);
 setTitulo(audio.titulo || '');
 setLegenda(audio.legenda || '');
 setDescricao(audio.descricao || '');
-setAudioUrl(audio.audio_url || '');
+setAudioUrl(montarUrlMedia(audio.audio_url) || '');
 setReproducaoAutomatica(
   Boolean(audio.reproducao_automatica)
 );
@@ -443,7 +444,7 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
 
                       <audio
                         controls
-                        src={audio.audio_url}
+                        src={montarUrlMedia(audio.audio_url)}
                         className="mt-4 w-full"
                       >
                         Seu navegador não suporta
@@ -587,13 +588,13 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
               </label>
 
               <input
-                type="url"
+                type="text"
                 required
                 value={audioUrl}
                 onChange={(event) =>
                   setAudioUrl(event.target.value)
                 }
-                placeholder="http://localhost:3001/media/audios/..."
+                placeholder="/media/audios/..."
                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
               />
 

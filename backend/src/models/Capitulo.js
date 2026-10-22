@@ -96,7 +96,8 @@ class Capitulo {
             slug,
             resumo,
             texto_introdutorio,
-            ordem_exibicao
+            ordem_exibicao,
+            capa_url
         } = capitulo;
 
         const result = await client.query(`
@@ -106,6 +107,7 @@ class Capitulo {
                    resumo = $3,
                    texto_introdutorio = $4,
                    ordem_exibicao = COALESCE($5, ordem_exibicao),
+                   capa_url = CASE WHEN $8 THEN $7 ELSE capa_url END,
                    atualizado_em = NOW()
              WHERE id = $6
                AND ativo = TRUE
@@ -117,7 +119,9 @@ class Capitulo {
             resumo,
             texto_introdutorio,
             ordem_exibicao,
-            id
+            id,
+            capa_url,
+            Object.prototype.hasOwnProperty.call(capitulo, 'capa_url')
         ]);
 
         return result.rows[0];

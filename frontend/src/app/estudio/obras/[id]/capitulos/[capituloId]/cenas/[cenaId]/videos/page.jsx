@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiFetch } from '../../../../../../../../../services/api';
+import { montarUrlMedia } from '../../../../../../../../../services/media';
 
 export default function VideosCena() {
 const params = useParams();
@@ -108,8 +109,8 @@ setEditandoId(video.id);
 setTitulo(video.titulo || '');
 setLegenda(video.legenda || '');
 setDescricao(video.descricao || '');
-setVideoUrl(video.video_url || '');
-setMiniaturaUrl(video.miniatura_url || '');
+setVideoUrl(montarUrlMedia(video.video_url) || '');
+setMiniaturaUrl(montarUrlMedia(video.miniatura_url) || '');
 setReproducaoAutomatica(
   Boolean(video.reproducao_automatica)
 );
@@ -456,9 +457,9 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
 
                       <video
                         controls
-                        src={video.video_url}
+                        src={montarUrlMedia(video.video_url)}
                         poster={
-                          video.miniatura_url ||
+                          montarUrlMedia(video.miniatura_url) ||
                           undefined
                         }
                         className="mt-4 max-h-[500px] w-full rounded-lg bg-black"
@@ -604,13 +605,13 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
               </label>
 
               <input
-                type="url"
+                type="text"
                 required
                 value={videoUrl}
                 onChange={(event) =>
                   setVideoUrl(event.target.value)
                 }
-                placeholder="http://localhost:3001/media/videos/..."
+                placeholder="/media/videos/..."
                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
               />
 
@@ -637,14 +638,14 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
               </label>
 
               <input
-                type="url"
+                type="text"
                 value={miniaturaUrl}
                 onChange={(event) =>
                   setMiniaturaUrl(
                     event.target.value
                   )
                 }
-                placeholder="http://localhost:3001/media/imagens/..."
+                placeholder="/media/imagens/..."
                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
               />
 

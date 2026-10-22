@@ -232,6 +232,7 @@ async function criarCena(event) {
           resumo: dadosCapitulo.resumo || null,
           texto_introdutorio:
             dadosCapitulo.texto_introdutorio || null,
+          capa_url: dadosCapitulo.capa_url || null,
         }),
       }
     );

@@ -43,18 +43,27 @@ function validarAlteracaoInformacoesCapitulo(req, res, next) {
         slug,
         resumo,
         texto_introdutorio,
-        ordem_exibicao
+        ordem_exibicao,
+        capa_url
     } = req.body;
 
     if (titulo === undefined &&
         slug === undefined &&
         resumo === undefined &&
         texto_introdutorio === undefined &&
-        ordem_exibicao === undefined) {
+        ordem_exibicao === undefined &&
+        capa_url === undefined) {
 
         return res.status(400).json({
             success: false,
             message: 'Informe ao menos uma informação para alteração.'
+        });
+    }
+
+    if (capa_url !== undefined && capa_url !== null && typeof capa_url !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'capa_url deve ser um texto ou nulo.'
         });
     }
 

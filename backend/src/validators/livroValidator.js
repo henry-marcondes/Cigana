@@ -74,7 +74,18 @@ function validarAlteracaoVisibilidadeLivro(req, res, next) {
 
 
 function validarAlteracaoCapaLivro(req, res, next) {
-    const { capa_url } = req.body;
+    if (Buffer.isBuffer(req.body)) {
+        if (req.body.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'A imagem da capa está vazia.'
+            });
+        }
+
+        return next();
+    }
+
+    const { capa_url } = req.body || {};
 
     if (!capa_url) {
         return res.status(400).json({

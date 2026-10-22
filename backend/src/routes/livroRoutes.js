@@ -122,7 +122,8 @@ router.patch(
 router.patch(
     '/:id/capa',
     autenticar,
-    autorizar('obra.editar'),
+    autorizarObra(EscopoObraService.porLivroParam, 'obra.editar'),
+    express.raw({ type: 'application/octet-stream', limit: '5mb' }),
     validarAlteracaoCapaLivro,
     LivroController.alterarCapa
 );

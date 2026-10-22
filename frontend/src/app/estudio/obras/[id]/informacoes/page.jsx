@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
 import { apiFetch } from '../../../../../services/api';
+import { montarUrlMedia } from '../../../../../services/media';
 
 export default function InformacoesObra() {
     const params = useParams();
@@ -15,6 +16,10 @@ export default function InformacoesObra() {
     const [salvando, setSalvando] = useState(false);
     const [erro, setErro] = useState('');
     const [sucesso, setSucesso] = useState('');
+    const [capaUrl, setCapaUrl] = useState('');
+    const [arquivoCapa, setArquivoCapa] = useState(null);
+    const [previaCapa, setPreviaCapa] = useState('');
+    const [salvandoCapa, setSalvandoCapa] = useState(false);
 
     const [dados, setDados] = useState({
         titulo: '',
@@ -36,6 +41,7 @@ export default function InformacoesObra() {
                 );
 
                 const obra = resposta.data;
+                setCapaUrl(obra.capa_url || '');
 
                 setDados({
                     titulo: obra.titulo || '',
@@ -62,6 +68,37 @@ export default function InformacoesObra() {
             carregarObra();
         }
     }, [id]);
+
+    useEffect(() => {
+        if (!arquivoCapa) {
+            setPreviaCapa('');
+            return;
+        }
+        const url = URL.createObjectURL(arquivoCapa);
+        setPreviaCapa(url);
+        return () => URL.revokeObjectURL(url);
+    }, [arquivoCapa]);
+
+    async function salvarCapa() {
+        if (!arquivoCapa) return;
+        setErro('');
+        setSucesso('');
+        setSalvandoCapa(true);
+        try {
+            const resposta = await apiFetch(`/api/livros/${id}/capa`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/octet-stream' },
+                body: arquivoCapa,
+            });
+            setCapaUrl(resposta.data.capa_url || '');
+            setArquivoCapa(null);
+            setSucesso('Capa da obra salva com sucesso.');
+        } catch (error) {
+            setErro(error.message);
+        } finally {
+            setSalvandoCapa(false);
+        }
+    }
 
     function alterarCampo(campo, valor) {
         setDados((dadosAtuais) => ({
@@ -171,6 +208,24 @@ export default function InformacoesObra() {
                     className="rounded-lg bg-white p-5 shadow sm:p-6"
                 >
                     <div className="space-y-5">
+
+                        <section className="rounded-lg border border-gray-200 p-4">
+                            <h2 className="text-lg font-semibold text-gray-900">Capa da obra</h2>
+                            <p className="mt-1 text-sm text-gray-600">Selecione uma imagem PNG, JPEG, WEBP ou GIF (até 5 MB).</p>
+                            <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
+                                <div className="flex h-48 w-36 shrink-0 items-center justify-center overflow-hidden rounded bg-gray-100 text-center text-sm text-gray-500">
+                                    {(previaCapa || montarUrlMedia(capaUrl)) ? (
+                                        <img src={previaCapa || montarUrlMedia(capaUrl)} alt="Prévia da capa da obra" className="h-full w-full object-cover" />
+                                    ) : 'Obra sem capa'}
+                                </div>
+                                <div className="space-y-3">
+                                    <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(event) => setArquivoCapa(event.target.files?.[0] || null)} className="block w-full text-sm text-gray-700" />
+                                    <button type="button" onClick={salvarCapa} disabled={!arquivoCapa || salvandoCapa} className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50">
+                                        {salvandoCapa ? 'Salvando capa...' : capaUrl ? 'Substituir capa' : 'Salvar capa'}
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
 
                         <div>
                             <label

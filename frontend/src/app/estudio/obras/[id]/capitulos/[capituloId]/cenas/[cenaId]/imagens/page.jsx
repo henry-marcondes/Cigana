@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiFetch } from '../../../../../../../../../services/api';
+import { montarUrlMedia, montarUrlImagemParaApi } from '../../../../../../../../../services/media';
 
 export default function ImagensCena() {
   const params = useParams();
@@ -81,7 +82,7 @@ async function criarImagem(event) {
           titulo,
           legenda: legenda || null,
           texto_alternativo: textoAlternativo,
-          imagem_url: imagemUrl,
+          imagem_url: montarUrlImagemParaApi(imagemUrl),
           ordem_exibicao: Number(ordemExibicao),
         }),
       }
@@ -153,7 +154,7 @@ async function criarImagem(event) {
       imagem.ordem_exibicao || 1
     );
     setImagemUrlEdicao(
-      imagem.imagem_url || ''
+      montarUrlMedia(imagem.imagem_url) || ''
     );
   }
 
@@ -227,7 +228,7 @@ async function criarImagem(event) {
         {
           method: 'PATCH',
           body: JSON.stringify({
-            imagem_url: imagemUrlEdicao,
+            imagem_url: montarUrlImagemParaApi(imagemUrlEdicao),
           }),
         }
       );
@@ -429,7 +430,7 @@ async function criarImagem(event) {
                     onChange={(event) =>
                       setImagemUrl(event.target.value)
                     }
-                    placeholder="http://localhost:3001/media/imagens/..."
+                    placeholder="/media/imagens/..."
                     className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-gray-500"
                   />
                 </div>
@@ -691,7 +692,7 @@ async function criarImagem(event) {
 
                             <div className="mb-3 overflow-hidden rounded-lg bg-gray-100">
                               <img
-                                src={imagem.imagem_url}
+                                src={montarUrlMedia(imagem.imagem_url)}
                                 alt={
                                   imagem.texto_alternativo ||
                                   imagem.titulo ||

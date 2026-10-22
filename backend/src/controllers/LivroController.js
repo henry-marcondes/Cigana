@@ -1,4 +1,15 @@
 const LivroService = require('../services/livroService');
+const fs = require('fs/promises');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
+
+function detectarTipoImagem(buffer) {
+    if (buffer.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) return 'png';
+    if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return 'jpg';
+    if (buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WEBP') return 'webp';
+    if (buffer.toString('ascii', 0, 6) === 'GIF87a' || buffer.toString('ascii', 0, 6) === 'GIF89a') return 'gif';
+    return null;
+}
 
 class LivroController {
 
@@ -249,12 +260,29 @@ class LivroController {
     static async alterarCapa(req, res, next) {
         try {
             const { id } = req.params;
-            const { capa_url } = req.body;
+            let capa_url;
 
-            const livro = await LivroService.alterarCapa(
-                id,
-                capa_url
-            );
+            if (Buffer.isBuffer(req.body)) {
+                const extensao = detectarTipoImagem(req.body);
+                if (!extensao) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Formato de imagem inválido. Use PNG, JPEG, WEBP ou GIF.'
+                    });
+                }
+
+                const nomeArquivo = `${uuidv4()}.${extensao}`;
+                const diretorio = path.join(__dirname, '../../../media/capas');
+                await fs.mkdir(diretorio, { recursive: true });
+                await fs.writeFile(path.join(diretorio, nomeArquivo), req.body, { flag: 'wx' });
+                const porta = process.env.PORT || 3001;
+                const origemApi = process.env.API_URL || `http://localhost:${porta}`;
+                capa_url = `${origemApi}/media/capas/${nomeArquivo}`;
+            } else {
+                ({ capa_url } = req.body);
+            }
+
+            const livro = await LivroService.alterarCapa(id, capa_url);
 
             if (!livro) {
                 return res.status(404).json({
