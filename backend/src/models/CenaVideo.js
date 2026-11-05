@@ -7,6 +7,7 @@ const CAMPOS_PUBLICOS = `
     legenda,
     descricao,
     video_url,
+    arquivo_id,
     miniatura_url,
     reproducao_automatica,
     reproducao_em_loop,
@@ -30,8 +31,8 @@ class CenaVideo {
         return result.rows;
     }
 
-    static async buscarPorId(id) {
-        const result = await pool.query(`
+    static async buscarPorId(id, client = pool) {
+        const result = await client.query(`
             SELECT ${CAMPOS_PUBLICOS}
               FROM cena_videos
              WHERE id = $1
@@ -49,6 +50,7 @@ class CenaVideo {
             legenda,
             descricao,
             video_url,
+            arquivo_id,
             miniatura_url,
             reproducao_automatica,
             reproducao_em_loop,
@@ -62,12 +64,13 @@ class CenaVideo {
                 legenda,
                 descricao,
                 video_url,
+                arquivo_id,
                 miniatura_url,
                 reproducao_automatica,
                 reproducao_em_loop,
                 ordem_exibicao
             )
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
@@ -76,6 +79,7 @@ class CenaVideo {
             legenda,
             descricao,
             video_url,
+            arquivo_id || null,
             miniatura_url,
             reproducao_automatica,
             reproducao_em_loop,
@@ -125,17 +129,18 @@ class CenaVideo {
         return result.rows[0];
     }
 
-    static async alterarVideo(id, video_url, client = pool) {
+    static async alterarVideo(id, video_url, client = pool, arquivo_id) {
 
         const result = await client.query(`
             UPDATE cena_videos
-               SET video_url = $1,
+               SET video_url = CASE WHEN $3 THEN $1 ELSE video_url END,
+                   arquivo_id = CASE WHEN $4 THEN $5 ELSE arquivo_id END,
                    atualizado_em = NOW()
              WHERE id = $2
                AND ativo = TRUE
             RETURNING
                 ${CAMPOS_PUBLICOS}
-        `, [video_url, id]);
+        `, [video_url ?? null, id, video_url !== undefined, arquivo_id !== undefined, arquivo_id ?? null]);
 
         return result.rows[0];
     }

@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    // Limite por requisição para uploads de mídia, mantendo o proxy limitado.
+    proxyClientMaxBodySize: '50mb',
+  },
   async rewrites() {
     return [
       {

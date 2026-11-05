@@ -1,0 +1,32 @@
+info:
+  name: 05-mover-para-pasta
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/arquivos-midia/{{arquivo_id}}/pasta
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "pasta_id": null
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImEwYTU2Y2EyLTBlY2UtNGRkOC1iM2M5LTg0ZGM3MDQwNzMzMSIsImlhdCI6MTc5MzU2MjQ0MywiZXhwIjoxNzkzNjQ4ODQzfQ.duJt0R_vg3kQyWBTG12Y8mOv9AxEGjNV21BveCQ8Ubs
+
+runtime:
+  variables:
+    - name: arquivo_id
+      value: c4c5769a-3e7c-435d-9012-17e05ce20c0a
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

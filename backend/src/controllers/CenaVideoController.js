@@ -81,7 +81,8 @@ class CenaVideoController {
             const video =
                 await CenaVideoService.alterarVideo(
                     req.params.id,
-                    req.body.video_url
+                    req.body.video_url,
+                    req.body.arquivo_id
                 );
 
             return success(

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 import {
 obterUsuario,
@@ -216,13 +217,11 @@ return ( <main className="min-h-screen bg-gray-100 p-6">
           </p>
         </div>
 
-       <button
-         onClick={() => router.push('/estudio/nova-obra')}
-         className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-            + Nova obra
-        </button>
       </div>
+
+      <Link href="/dashboard/autor/solicitacoes-obras" className="mt-4 inline-block rounded border px-4 py-2 text-sm">
+        Solicitar inclusão de nova obra
+      </Link>
 
       {livros.length === 0 ? (
 

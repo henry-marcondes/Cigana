@@ -15,7 +15,9 @@ function gerarToken(payload) {
 }
 
 function verificarToken(token) {
-    return jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, JWT_SECRET, {
+        algorithms: ['HS256']
+    });
 }
 
 module.exports = {

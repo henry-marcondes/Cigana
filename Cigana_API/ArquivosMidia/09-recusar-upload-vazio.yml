@@ -1,0 +1,23 @@
+info:
+  name: 09-recusar-upload-vazio
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: http://localhost:3001/api/arquivos-midia/livro/{{livro_id}}
+  headers:
+    - name: Content-Type
+      value: application/octet-stream
+    - name: X-Nome-Original
+      value: vazio-{{run_id}}.bin
+  body:
+    type: text
+    data: ""
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

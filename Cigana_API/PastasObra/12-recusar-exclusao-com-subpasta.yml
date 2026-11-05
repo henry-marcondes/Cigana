@@ -1,0 +1,11 @@
+info:
+  name: 12-recusar-exclusao-com-subpasta
+  type: http
+  seq: 12
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/pastas-obra/{{pasta_com_subpasta_id}}
+  assertions:
+    - type: status
+      value: 409

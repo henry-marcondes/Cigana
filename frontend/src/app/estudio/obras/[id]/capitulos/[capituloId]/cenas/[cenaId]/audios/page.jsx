@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiFetch } from '../../../../../../../../../services/api';
 import { montarUrlMedia } from '../../../../../../../../../services/media';
+import ArquivoGerenciadoSelect from '../../../../../../../../../components/ArquivoGerenciadoSelect';
 
 export default function AudiosCena() {
 const params = useParams();
@@ -26,6 +27,7 @@ const [titulo, setTitulo] = useState('');
 const [legenda, setLegenda] = useState('');
 const [descricao, setDescricao] = useState('');
 const [audioUrl, setAudioUrl] = useState('');
+const [arquivoId, setArquivoId] = useState('');
 const [reproducaoAutomatica, setReproducaoAutomatica] =
 useState(false);
 const [reproducaoEmLoop, setReproducaoEmLoop] =
@@ -69,6 +71,7 @@ setTitulo('');
 setLegenda('');
 setDescricao('');
 setAudioUrl('');
+setArquivoId('');
 setReproducaoAutomatica(false);
 setReproducaoEmLoop(false);
 
@@ -102,6 +105,7 @@ setTitulo(audio.titulo || '');
 setLegenda(audio.legenda || '');
 setDescricao(audio.descricao || '');
 setAudioUrl(montarUrlMedia(audio.audio_url) || '');
+setArquivoId(audio.arquivo_id || '');
 setReproducaoAutomatica(
   Boolean(audio.reproducao_automatica)
 );
@@ -165,16 +169,17 @@ try {
       (audio) => audio.id === editandoId
     );
 
-    if (
-      audioAtual &&
-      audioAtual.audio_url !== audioUrl
-    ) {
+    if (audioAtual && (
+      (audioAtual.arquivo_id || '') !== arquivoId ||
+      (!arquivoId && audioAtual.audio_url !== audioUrl)
+    )) {
       const respostaAudio = await apiFetch(
         `/api/cena-audios/${editandoId}/audio`,
         {
           method: 'PATCH',
           body: JSON.stringify({
-            audio_url: audioUrl,
+            audio_url: arquivoId ? null : audioUrl,
+            arquivo_id: arquivoId || null,
           }),
         }
       );
@@ -204,7 +209,8 @@ try {
         titulo,
         legenda: legenda || null,
         descricao: descricao || null,
-        audio_url: audioUrl,
+        audio_url: arquivoId ? null : audioUrl,
+        arquivo_id: arquivoId || null,
         reproducao_automatica:
           reproducaoAutomatica,
         reproducao_em_loop:
@@ -348,8 +354,7 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
           </h2>
 
           <p className="mt-1 text-sm text-gray-500">
-            Estes áudios ficam disponíveis para serem
-            adicionados à composição da cena.
+            Estes áudios ficam disponíveis para serem adicionados à composição. Ao adicionar ou editar, escolha um arquivo da obra ou mantenha uma URL.
           </p>
         </div>
 
@@ -358,7 +363,7 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
           onClick={abrirNovoAudio}
           className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
         >
-          + Novo áudio
+          + Novo áudio (arquivo ou URL)
         </button>
 
       </div>
@@ -581,35 +586,35 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
 
             </div>
 
-            <div>
+            <ArquivoGerenciadoSelect
+              livroId={id}
+              value={arquivoId}
+              onChange={setArquivoId}
+              disabled={salvando}
+            />
 
-              <label className="block text-sm font-medium text-gray-700">
-                URL do áudio
-              </label>
+            {!arquivoId && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  URL do áudio
+                </label>
 
-              <input
-                type="text"
-                required
-                value={audioUrl}
-                onChange={(event) =>
-                  setAudioUrl(event.target.value)
-                }
-                placeholder="/media/audios/..."
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
-              />
+                <input
+                  type="text"
+                  required
+                  value={audioUrl}
+                  onChange={(event) => setAudioUrl(event.target.value)}
+                  placeholder="/media/audios/..."
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
+                />
 
-              {audioUrl && (
-                <audio
-                  controls
-                  src={audioUrl}
-                  className="mt-3 w-full"
-                >
-                  Seu navegador não suporta
-                  reprodução de áudio.
-                </audio>
-              )}
-
-            </div>
+                {audioUrl && (
+                  <audio controls src={audioUrl} className="mt-3 w-full">
+                    Seu navegador não suporta reprodução de áudio.
+                  </audio>
+                )}
+              </div>
+            )}
 
             <div className="space-y-3">
 

@@ -84,11 +84,12 @@ class CenaAudioController {
     static async alterarAudio(req, res, next) {
         try {
             const { id } = req.params;
-            const { audio_url } = req.body;
+            const { audio_url, arquivo_id } = req.body;
 
             const audio = await CenaAudioService.alterarAudio(
                 id,
-                audio_url
+                audio_url,
+                arquivo_id
             );
 
             if (!audio) {

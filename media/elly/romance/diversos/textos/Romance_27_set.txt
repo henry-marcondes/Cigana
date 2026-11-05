@@ -1,61 +1,246 @@
 # O MISTÉRIO DA MOÇA DE ....
 De Henry Fernando e Flor da Noite
 
-Era o ano de 1885, num rancho próspero no leste do estado do Texas, uma família movida por forças de ambição e inquietude, vivia numa fazenda ampla e de vários cômodos projetados em estilo europeu. Na verdade, eram duas casas grandes nesse rancho; na maior e mais luxuosa, vivia a rude Sra Smith, viúva e gananciosa, proprietária do rancho. Na fazenda menor, vivia Sr Jason, viúvo também, irmão da proprietária, e sua filha Sophie, uma moça com educação esmerada, baseada nos padrões britânicos. A distância entre as duas casas era de apenas setecentos metros, 
- o que conferia a cada casa, uma certa privacidade. 
-A casa maior , que era a sede da fazenda, era ricamente mobiliada, arranjos, acabamento de primeira classe, nas amplas salas de estar e de jantar, onde a Sra Smith recebia convidados ilustres da cidade e do estado do Texas. Xerifes, prefeitos, governadores e até membros da aristocracia britânica, já andaram nos amplos salões da Sra Smith, aliás ela era viúva do magnata Jonathan Smith, do qual herdou toda a fortuna  e soube administrar muito bem. Todas as propriedades e valores eram conferidos em detalhes minuciosos pela Sra Smith,  um misto de inteligência e sagacidade para o dinheiro e frieza no tocante aos sentimentos. Sra Smith veio de uma família abastada e que entrou em falência devido aos péssimos investimentos do pai que, prontamente, arrumou um casamento com a família magnata Smith. Seu casamento arranjado nunca teve nuances de paixão e amor , Jonathan Smith passava noites com cortesãs belas de Saloons luxuosos, não tinha tempo para a esposa Sra Smith que amargava a cada noite as traições do marido. Mas mesmo assim, os dois viviam em relativa paz. O desdém do marido era pago com gastos suntuosos e mirabolantes da Sra Smith. Quando o marido morreu, vítima de um infarto fulminante, ela se viu como única herdeira de todo um patrimônio. Os dois não tinham filhos e então, um de seus investimentos foi a educação refinada da sobrinha Sophie, sua única herdeira.
-Já o pai de Sophie, conseguiu esbanjar o pouco que sobrou da fortuna da família em jogos de azar nos cassinos. Se viu quase na mendicância, dormindo em porões sujos da cidade, mendigando algumas moedas para mais uma rodada de pôquer.  Num único gesto de nobreza de Sra Smith, aliás, um gesto raro de sentimento puro de seu coração endurecido, ela acolheu o irmão na sua fazenda. Emprestou a ele uma casa boa, não luxuosa, mas bem confortável a ele . Ela também deu um emprego de zeladoria e segurança do rancho, para proteger a propriedade de pistoleiros e indígenas. Ele depois conheceu a funcionária Mary, uma pacata camponesa, com quem se casou e teve a filha Sophie.  Sr Jason se estabeleceu na casa, na função de funcionário da fazenda, sob o comando da autoritária irmã, mas de vez em quando, vinha o vício inefável da jogatina, que o afundava na mesa do pôquer.  Sua esposa, uma camponesa de bom coração e muito trabalhadora, economizava as pequenas economias para a aquisição de um pequeno rancho independente e sair dos mandos severos da cunhada. Numa dessas recaídas no vício, sr Jason pegou todo o dinheiro de muitos anos de economia e o deixa no cassino. Isso foi a conta para o definhamento da saúde já debilitada da Sra Mary. Ela não aguentou a decepção e adoeceu. Depois de alguns meses, Jason enviuvou, ficando com a filha de apenas cinco anos na época. Num outro gesto de bom sentimento, Sra Smith paga uma tutora para a menina e passa a educá-la nos moldes mais refinados. Sophie passa a ter aulas de Inglês clássico, francês, balé, etiqueta, culinária, moda, bem ao estilo das famílias mais abastadas. Mas esse bom sentimento trazia algo de interesse incrustado no peito: ela e o Sr Jonathan não tiveram filhos. Logo, quem iria herdar toda a fortuna ? Sr Jason e ela já estavam em idade avançada. Ela, sessenta anos e o irmão, cinquenta e oito. Sophie seria a única herdeira daquele império, então precisava de uma educação esmerada. 
+Era o ano de 1885, num rancho próspero no leste do estado do Texas, uma família movida 
+por forças de ambição e inquietude, vivia numa fazenda ampla e de vários cômodos 
+projetados em estilo europeu. Na verdade, eram duas casas grandes nesse rancho; na 
+maior e mais luxuosa, vivia a rude Sra Smith, viúva e gananciosa, proprietária do 
+rancho. Na fazenda menor, vivia Sr Jason, viúvo também, irmão da proprietária, e sua 
+filha Sophie, uma moça com educação esmerada, baseada nos padrões britânicos. A distância 
+entre as duas casas era de apenas setecentos metros, o que conferia a cada casa, uma 
+certa privacidade. 
 
- 
+A casa maior , que era a sede da fazenda, era ricamente mobiliada, arranjos, acabamento 
+de primeira classe, nas amplas salas de estar e de jantar, onde a Sra Smith recebia 
+convidados ilustres da cidade e do estado do Texas. Xerifes, prefeitos, governadores e
+até membros da aristocracia britânica, já andaram nos amplos salões da Sra Smith, aliás 
+ela era viúva do magnata Jonathan Smith, do qual herdou toda a fortuna  e soube administrar
+muito bem. Todas as propriedades e valores eram conferidos em detalhes minuciosos pela 
+Sra Smith,  um misto de inteligência e sagacidade para o dinheiro e frieza no tocante aos 
+sentimentos. Sra Smith veio de uma família abastada e que entrou em falência devido aos 
+péssimos investimentos do pai que, prontamente, arrumou um casamento com a família magnata 
+Smith. Seu casamento arranjado nunca teve nuances de paixão e amor , Jonathan Smith passava 
+noites com cortesãs belas de Saloons luxuosos, não tinha tempo para a esposa Sra Smith que 
+amargava a cada noite as traições do marido. Mas mesmo assim, os dois viviam em relativa 
+paz. O desdém do marido era pago com gastos suntuosos e mirabolantes da Sra Smith. Quando 
+o marido morreu, vítima de um infarto fulminante, ela se viu como única herdeira de todo 
+um patrimônio. Os dois não tinham filhos e então, um de seus investimentos foi a educação 
+refinada da sobrinha Sophie, sua única herdeira.
+Já o pai de Sophie, conseguiu esbanjar o pouco que sobrou da fortuna da família em jogos 
+de azar nos cassinos. Se viu quase na mendicância, dormindo em porões sujos da cidade, 
+mendigando algumas moedas para mais uma rodada de pôquer.  Num único gesto de nobreza de 
+Sra Smith, aliás, um gesto raro de sentimento puro de seu coração endurecido, ela acolheu
+o irmão na sua fazenda. Emprestou a ele uma casa boa, não luxuosa, mas bem confortável a
+ele . Ela também deu um emprego de zeladoria e segurança do rancho, para proteger a
+propriedade de pistoleiros e indígenas. Ele depois conheceu a funcionária Mary, uma pacata 
+camponesa, com quem se casou e teve a filha Sophie.  Sr Jason se estabeleceu na casa, na 
+função de funcionário da fazenda, sob o comando da autoritária irmã, mas de vez em quando,
+vinha o vício inefável da jogatina, que o afundava na mesa do pôquer.  Sua esposa, uma 
+camponesa de bom coração e muito trabalhadora, economizava as pequenas economias para a
+aquisição de um pequeno rancho independente e sair dos mandos severos da cunhada. Numa dessas 
+recaídas no vício, sr Jason pegou todo o dinheiro de muitos anos de economia e o deixa no 
+cassino. Isso foi a conta para o definhamento da saúde já debilitada da Sra Mary. Ela não 
+aguentou a decepção e adoeceu. Depois de alguns meses, Jason enviuvou, ficando com a filha 
+de apenas cinco anos na época. Num outro gesto de bom sentimento, Sra Smith paga uma tutora 
+para a menina e passa a educá-la nos moldes mais refinados. Sophie passa a ter aulas de Inglês 
+clássico, francês, balé, etiqueta, culinária, moda, bem ao estilo das famílias mais abastadas. 
+Mas esse bom sentimento trazia algo de interesse incrustado no peito: ela e o Sr Jonathan não 
+tiveram filhos. Logo, quem iria herdar toda a fortuna ? Sr Jason e ela já estavam em idade 
+avançada. Ela, sessenta anos e o irmão, cinquenta e oito. Sophie seria a única herdeira daquele 
+império, então precisava de uma educação esmerada. 
 
 ### O ADMINISTRADOR 
 
-O Rancho Big Valley possuía duas fazendas e liderava na região a produção de algodão, milho, leite e gado de corte. Para administrar todas as etapas da produção, além do administrador Sr Richard,
+O Rancho Big Valley possuía duas fazendas e liderava na região a produção de algodão, milho, 
+leite e gado de corte. Para administrar todas as etapas da produção, além do administrador 
+Sr Richard,
  havia uma equipe de colaboradores e serviçais de confiança. 
-Sr Richard era o líder de todo o rancho, depois da proprietária, logicamente. A penúltima palavra era dele, a última da Sra Smith. Essa aproximação entre o administrador e a proprietária fez com que a ligação entre os dois se estreitasse cada vez mais. Com ele, Sra Smith não ralhava, com ele, ela nunca gritava, nunca era grosseira; o tom de voz dela mudava ao se tratar do Sr Richard. 
-Os dois ficavam na escrivaninha por horas e horas, fazendo cálculos, conversando, planejando por, pelo menos, duas vezes por semana. As línguas da criadagem fofoqueira ficavam em atividades todas as vezes que os dois se trancavam na sala de cima da casa grande. O que os dois estariam fazendo, além de conversar sobre a fazenda? Estariam os dois trancados, transando em cima da escrivaninha? Mas a cama ficava intocada, totalmente arrumada- onde eles faziam algo ? as criadas comentavam. E o papo rolava entre os serviçais. Que tanto assunto era esse?.
-Sra Smith não era uma mulher bonita, mas também não era feia. Era desajeitada, usava calçolas grandes, sem nenhuma renda, aliás, ela não era vaidosa.  Usava perfumes caros quando aparecia alguém de cargo importante na fazenda, mas só pra impressionar as esposas. Pelos longos cabelos grisalhos, dava para perceber um certo grude nos fios e só duas vezes por semana, pedia para as criadas prepararem o banho. Uma mulher sem vaidade, sem atrativo. 
-Sr Richard já era o oposto, não que fosse vaidoso, mas era dono de um charme viril, desses que parecem inatos, um jeito malicioso no olhar. No auge dos seus quarenta e oito anos e a barba sempre por fazer, sustentava a beleza de um homem maduro; um sorriso malicioso cheio de segundas intenções disfarçava-se no canto dos lábios e nas rugas laterais dos olhos. Teve muitas mulheres? Qual era o seu estado civil ? Ninguém sabia... Sr Richard era um ser envolto em mistérios. Ele não era desses homens arrumadinhos, belos e cheios de creme nos cabelos, não...sua beleza era totalmente Yang, selvagem, bruta e livre, daqueles cavalos puro sangue, que correm livremente pelos vales. 
+Sr Richard era o líder de todo o rancho, depois da proprietária, logicamente. A penúltima
+palavra era dele, a última da Sra Smith. Essa aproximação entre o administrador e a 
+proprietária fez com que a ligação entre os dois se estreitasse cada vez mais. Com ele, 
+Sra Smith não ralhava, com ele, ela nunca gritava, nunca era grosseira; o tom de voz dela
+mudava ao se tratar do Sr Richard. 
+Os dois ficavam na escrivaninha por horas e horas, fazendo cálculos, conversando, planejando
+por, pelo menos, duas vezes por semana. As línguas da criadagem fofoqueira ficavam em
+atividades todas as vezes que os dois se trancavam na sala de cima da casa grande. O que
+os dois estariam fazendo, além de conversar sobre a fazenda? Estariam os dois trancados, 
+transando em cima da escrivaninha? Mas a cama ficava intocada, totalmente arrumada- onde 
+eles faziam algo ? as criadas comentavam. E o papo rolava entre os serviçais. Que tanto 
+assunto era esse?.
+Sra Smith não era uma mulher bonita, mas também não era feia. Era desajeitada, usava 
+calçolas grandes, sem nenhuma renda, aliás, ela não era vaidosa.  Usava perfumes caros 
+quando aparecia alguém de cargo importante na fazenda, mas só pra impressionar as esposas. 
+Pelos longos cabelos grisalhos, dava para perceber um certo grude nos fios e só duas vezes
+por semana, pedia para as criadas prepararem o banho. Uma mulher sem vaidade, sem atrativo. 
+Sr Richard já era o oposto, não que fosse vaidoso, mas era dono de um charme viril, desses
+que parecem inatos, um jeito malicioso no olhar. No auge dos seus quarenta e oito anos e a 
+barba sempre por fazer, sustentava a beleza de um homem maduro; um sorriso malicioso cheio
+de segundas intenções disfarçava-se no canto dos lábios e nas rugas laterais dos olhos. Teve 
+muitas mulheres? Qual era o seu estado civil ? Ninguém sabia... Sr Richard era um ser envolto
+em mistérios. Ele não era desses homens arrumadinhos, belos e cheios de creme nos cabelos, 
+não...sua beleza era totalmente Yang, selvagem, bruta e livre, daqueles cavalos puro sangue,
+que correm livremente pelos vales. 
 
 ### UM ENCONTRO NO RIO
 
 O primeiro nome da Sra Smith era Carlota. 
-Carlota, nem bela, nem feia. Uma senhora que aparentava a idade que tinha. Uma senhora viúva, língua ferina, rude, severa com ela mesma e com os outros, muito apegada ao dinheiro. 
-Roupas desalinhadas e de grande discrição, coberta até o pescoço. Além do vestido longo, geralmente estampado, por baixo, Carlota usava calças compridas, pois tinha que cavalgar muito pelo rancho. 
-Carlota cavalgava muito bem, muitas vezes sozinha, algumas vezes com o administrador Richard sempre resolvendo problemas relacionados à agricultura ou à pecuária.
-Numa manhã dessas , de verão... sabe , aquelas manhãs em que tudo fica diferente, muito calor, o clima insano, Carlota resolve cavalgar em direção ao rio. Um céu azul de brigadeiro, temperatura alta para uma manhã, Carlota sentia algo diferente naquele ar quente de estufa e ...resolveu nadar no rio para se refrescar. 
-Tirou a calça comprida, mas permaneceu com o vestido leve de flores estampadas. Soltou os longos cabelos grisalhos que viviam presos num coque e entrou na água. Começou a nadar, e nadou, nadou, como uma criança...O exercício físico constante lhe despertou dentro do peito algo voluptuoso, profundo, que há muitos e muitos anos não sentia. Ela se assustou com a indecência de tais pensamentos, mas deixou se envolver, deliciando -se em lembranças poucas de quando era moça e casada.
-De repente, abre os olhos, totalmente envolta nas águas do rio, submersa até o pescoço e avista, na margem, o administrador sr Richard, olha aquele homem viril e numa espontaneidade infantil, fica em pé e faz um gesto para ele entrar na água. 
-Richard admira com aquele gesto da Sra Smith, mas vê simplesmente, uma mulher diferente, uma forasteira desconhecida. A roupa molhada, mostrando detalhes do corpo, cabelos longos molhados; o administrador não titubeou, tirou as botas, a calça comprida, a camisa....por pudor e respeito à proprietária da fazenda, não tira a cueca e caminha na água devagar, quase que não acreditando no convite inusitado.
-Carlota ao ver seu peito viril, se aproximando, como que dominada por uma força indizível, irracional, se encosta numa pedra do rio, num gesto incontrolável, deixa as pernas entreabertas. O administrador percebe e tira a roupa de baixo e atira a mesma na margem. Águas na cintura de ambos, notadamente próximos um do outro, não se beijam, só se olham com os rostos quase se encostando. Carlota coloca seus braços brancos em cima do ombro do administrador e esse começa a roçar seu órgão viril grosso nas coxas da senhora da fazenda. Ela não tem mais consciência de nada, a loucura a deixou entregue nos braços daquele homem. Só se lembrou de que não podia gemer, pois sua educação rígida dizia que quem gemia, era mulher do Saloon. Ele, num gesto rápido, entra em seu corpo com algum toque de sensualidade naquela manhã entorpecente. Depois, Richard sai da água, exibe sua beleza viril nua, e monta em seu cavalo, partindo. Carlota percebe que sua calçola tinha sido levada pela correnteza...mas quem iria saber que era dela...
-Ela sai também do rio, veste sua calça comprida e monta em seu cavalo.  Naquele dia, Sra Smith percorre toda a extensão da propriedade, montada em seu cavalo, sem rumo, arrependida ou feliz como mulher....talvez.  Seriam duas semanas evitando olhar para o administrador, sem conversa, os dois trabalhando em suas funções, sem nenhum comentário, como se nada tivesse acontecido. A entrega total ao trabalho seria a solução ideal para esquecer qualquer momento espontâneo no qual a volúpia se apoderara. 
+Carlota, nem bela, nem feia. Uma senhora que aparentava a idade que tinha. Uma senhora viúva, 
+língua ferina, rude, severa com ela mesma e com os outros, muito apegada ao dinheiro. 
+Roupas desalinhadas e de grande discrição, coberta até o pescoço. Além do vestido longo,
+geralmente estampado, por baixo, Carlota usava calças compridas, pois tinha que cavalgar 
+muito pelo rancho. 
+Carlota cavalgava muito bem, muitas vezes sozinha, algumas vezes com o administrador Richard
+sempre resolvendo problemas relacionados à agricultura ou à pecuária.
+
+Numa manhã dessas , de verão... sabe , aquelas manhãs em que tudo fica diferente, muito 
+calor, o clima insano, Carlota resolve cavalgar em direção ao rio. Um céu azul de brigadeiro, 
+temperatura alta para uma manhã, Carlota sentia algo diferente naquele ar quente de estufa 
+e ...resolveu nadar no rio para se refrescar. 
+Tirou a calça comprida, mas permaneceu com o vestido leve de flores estampadas. Soltou os 
+longos cabelos grisalhos que viviam presos num coque e entrou na água. Começou a nadar, e 
+nadou, nadou, como uma criança...O exercício físico constante lhe despertou dentro do peito
+algo voluptuoso, profundo, que há muitos e muitos anos não sentia. Ela se assustou com a 
+indecência de tais pensamentos, mas deixou se envolver, deliciando -se em lembranças poucas
+de quando era moça e casada.
+De repente, abre os olhos, totalmente envolta nas águas do rio, submersa até o pescoço e 
+avista, na margem, o administrador sr Richard, olha aquele homem viril e numa espontaneidade
+infantil, fica em pé e faz um gesto para ele entrar na água. 
+
+Richard admira com aquele gesto da Sra Smith, mas vê simplesmente, uma mulher diferente, 
+uma forasteira desconhecida. A roupa molhada, mostrando detalhes do corpo, cabelos longos 
+molhados; o administrador não titubeou, tirou as botas, a calça comprida, a camisa....por
+pudor e respeito à proprietária da fazenda, não tira a cueca e caminha na água devagar, 
+quase que não acreditando no convite inusitado.
+
+Carlota ao ver seu peito viril, se aproximando, como que dominada por uma força indizível,
+irracional, se encosta numa pedra do rio, num gesto incontrolável, deixa as pernas
+entreabertas. O administrador percebe e tira a roupa de baixo e atira a mesma na margem.
+Águas na cintura de ambos, notadamente próximos um do outro, não se beijam, só se olham 
+com os rostos quase se encostando. Carlota coloca seus braços brancos em cima do ombro do 
+administrador e esse começa a roçar seu órgão viril grosso nas coxas da senhora da fazenda.
+Ela não tem mais consciência de nada, a loucura a deixou entregue nos braços daquele homem. 
+Só se lembrou de que não podia gemer, pois sua educação rígida dizia que quem gemia, era
+mulher do Saloon. Ele, num gesto rápido, entra em seu corpo com algum toque de sensualidade 
+naquela manhã entorpecente. Depois, Richard sai da água, exibe sua beleza viril nua, e monta 
+em seu cavalo, partindo. Carlota percebe que sua calçola tinha sido levada pela correnteza...
+mas quem iria saber que era dela...
+
+Ela sai também do rio, veste sua calça comprida e monta em seu cavalo.  Naquele dia, 
+Sra Smith percorre toda a extensão da propriedade, montada em seu cavalo, sem rumo, 
+arrependida ou feliz como mulher....talvez.  Seriam duas semanas evitando olhar para o 
+administrador, sem conversa, os dois trabalhando em suas funções, sem nenhum comentário,
+como se nada tivesse acontecido. A entrega total ao trabalho seria a solução ideal para
+esquecer qualquer momento espontâneo no qual a volúpia se apoderara. 
 
 ### A FLOR DO VELHO OESTE 
 
-Sophie era uma pérola escondida na fazenda. Ficou órfã de mãe aos cinco anos, mas logo sua tia Carlota Smith arrumou uma tutora para cuidar da menina durante o dia, no qual seu pai, Sr Jason, tinha as atividades da fazenda. À noite, a menina ficava sob os cuidados do pai, mas este nem sempre era um pai zeloso.  Muitas vezes, sr Jason saía à noite rumo a um cassino e deixava a menina sob os cuidados da empregada. Assim crescia a menina, rica em formosura e educação.  A tutora, Sra Olivia, uma fina senhora britânica, viúva de um Lorde, cuidava da educação de Sophie com muito esmero, não deixando faltar nenhum item importante para uma futura dama da sociedade americana. Aos oito anos, Sophie já lia e escrevia e foi estudar num Female College ; aos dez, já falava o francês. Aos doze, já dominava o piano, o bordado, a valsa, o futuro de Sophie já fora planejado pela tia: seria ela sua futura herdeira e teria que se casar com o filho de alguma família milionária. Sophie também tinha aulas de matemática financeira para administrar bem a fazenda, só não sabia cavalgar.
-Sua educação era primorosa e também fechada. Quando Sophie completou quinze anos, teve uma pequena festa que reuniu algumas famílias abastadas da região, para a apresentação da moça na sociedade.  Sophie saía do colégio interno dois domingos por mês e durante as férias escolares raramente saía da fazenda.Carlota Smith tratava a sobrinha como uma joia rara, a trancava na fazenda e no colégio feminino, 
- para a proteger dos olhares dos rapazes, principalmente daqueles que não tinham uma boa vida financeira. Sophie saía, uma vez por mês, para a igreja próxima, e sempre acompanhada pelo pai, sr Jason e a tutora.  
-Ordem de Carlota Smith: mesmo durante as missas, ficar de olho em Sophie, para acompanhar olhares furtivos dela ou de algum outro rapaz  no templo. A tia a tratava com muitos cuidados, mas não era amorosa. O jeito frio e severo de Carlota, mantinha Sophie receosa de se aproximar e de pedir qualquer gesto de carinho para a tia, pois tudo era muito formal e rígido. 
+Sophie era uma pérola escondida na fazenda. Ficou órfã de mãe aos cinco anos, mas logo 
+sua tia Carlota Smith arrumou uma tutora para cuidar da menina durante o dia, no qual 
+seu pai, Sr Jason, tinha as atividades da fazenda. À noite, a menina ficava sob os cuidados 
+do pai, mas este nem sempre era um pai zeloso.  Muitas vezes, sr Jason saía à noite rumo a 
+um cassino e deixava a menina sob os cuidados da empregada. Assim crescia a menina, rica
+ em formosura e educação.  A tutora, Sra Olivia, uma fina senhora britânica, viúva de 
+um Lorde, cuidava da educação de Sophie com muito esmero, não deixando faltar nenhum item
+ importante para uma futura dama da sociedade americana. Aos oito anos, Sophie já lia e
+escrevia e foi estudar num Female College ; aos dez, já falava o francês. Aos doze, já
+dominava o piano, o bordado, a valsa, o futuro de Sophie já fora planejado pela tia: 
+seria ela sua futura herdeira e teria que se casar com o filho de alguma família milionária.
+Sophie também tinha aulas de matemática financeira para administrar bem a fazenda, só não 
+sabia cavalgar.
+
+Sua educação era primorosa e também fechada. Quando Sophie completou quinze anos, teve 
+uma pequena festa que reuniu algumas famílias abastadas da região, para a apresentação 
+da moça na sociedade.  Sophie saía do colégio interno dois domingos por mês e durante as 
+férias escolares raramente saía da fazenda.Carlota Smith tratava a sobrinha como uma joia 
+rara, a trancava na fazenda e no colégio feminino, para a proteger dos olhares dos rapazes,
+principalmente daqueles que não tinham uma boa vida financeira. Sophie saía, uma vez por 
+mês, para a igreja próxima, e sempre acompanhada pelo pai, sr Jason e a tutora. 
+
+Ordem de Carlota Smith: mesmo durante as missas, ficar de olho em Sophie, para acompanhar 
+olhares furtivos dela ou de algum outro rapaz  no templo. A tia a tratava com muitos cuidados, 
+mas não era amorosa. O jeito frio e severo de Carlota, mantinha Sophie receosa de se aproximar 
+e de pedir qualquer gesto de carinho para a tia, pois tudo era muito formal e rígido. 
 
 ### O ADMINISTRADOR
 
-Um homem maduro, comedido, mas ao mesmo tempo, um pouco rude; a mão direita da senhora Smith, não tinha valores morais e éticos muito engendrados na alma, mas era na maior parte das vezes, honesto, com toques de ganância, pois queria subir na vida a qualquer custo, até mesmo nas intenções de seduzir a pouco atraente senhora Smith. Ele gerenciava a fazenda:  o gado, as plantações, a administração financeira, os funcionários. Só a parte de segurança que ficava a cargo do irmão da senhora Smith, pai de Sophie, sr Jason, um velho sem respeito, enrolado nas jogatinas dos cabarés. 
-Mas o administrador era vaidoso, homem bonito, sensual, no auge dos seus 48 anos, aparência de homem sério, mas quando sorria por algum motivo, deixava transparecer um quê  de malícia que encantava todas as mulheres do Saloon da madame Butterfly.  Aliás, raramente ia ao Saloon, mas quando resolvia aparecer por lá, era um alvoroço geral entre as mais belas moças dançarinas. Resumindo: Richard era um cowboy desses que fecham um bar, por assim dizer, alguma habilidade com armas de fogo, pois muitas vezes teve que ajudar o capataz,  Sr Jason, contra invasão de pistoleiros ou indígenas e agora, começou a investir na sua patroa, Carlota Smith.  Ela cedeu aos encantos do cowboy sedutor uma vez , no rio. E agora, as coisas parecem voltar ao normal: com exceção da ocorrência sensual no rio, nenhum dos dois comentava sobre o ocorrido. O assunto agora era só o rancho, a administração da fazenda, o aniversário de dezoito anos da sobrinha. 
-Lógico que Richard não iria perder a oportunidade de qualquer recaída da Sra Smith ( ou Carlota, para os íntimos). Se ele seduzir a fazendeira tão bem sucedida, a vida dele estará ganha: milhares de dólares na conta bancária, tudo que Richard almejara. 
+  Um homem maduro, comedido, mas ao mesmo tempo, um pouco rude; a mão direita da senhora 
+Smith, não tinha valores morais e éticos muito engendrados na alma, mas era na maior parte 
+das vezes, honesto, com toques de ganância, pois queria subir na vida a qualquer custo, até 
+mesmo nas intenções de seduzir a pouco atraente senhora Smith. Ele gerenciava a fazenda:  
+o gado, as plantações, a administração financeira, os funcionários. Só a parte de segurança 
+que ficava a cargo do irmão da senhora Smith, pai de Sophie, sr Jason, um velho sem respeito,
+enrolado nas jogatinas dos cabarés. 
+
+Mas o administrador era vaidoso, homem bonito, sensual, no auge dos seus 48 anos, aparência 
+de homem sério, mas quando sorria por algum motivo, deixava transparecer um quê  de malícia 
+que encantava todas as mulheres do Saloon da madame Butterfly.  Aliás, raramente ia ao Saloon, 
+mas quando resolvia aparecer por lá, era um alvoroço geral entre as mais belas moças dançarinas.
+
+Resumindo: Richard era um cowboy desses que fecham um bar, por assim dizer, alguma habilidade 
+com armas de fogo, pois muitas vezes teve que ajudar o capataz,  Sr Jason, contra invasão de 
+pistoleiros ou indígenas e agora, começou a investir na sua patroa, Carlota Smith.  Ela cedeu 
+aos encantos do cowboy sedutor uma vez , no rio. E agora, as coisas parecem voltar ao normal: 
+com exceção da ocorrência sensual no rio, nenhum dos dois comentava sobre o ocorrido. O assunto 
+agora era só o rancho, a administração da fazenda, o aniversário de dezoito anos da sobrinha.
+
+Lógico que Richard não iria perder a oportunidade de qualquer recaída da Sra Smith (ou Carlota,
+para os íntimos). Se ele seduzir a fazendeira tão bem sucedida, a vida dele estará ganha: 
+milhares de dólares na conta bancária, tudo que Richard almejara. 
 
 ### A MAIORIDADE DE UMA FLOR
 
-O aniversário de dezoito anos de Sophie se aproximava. Três meses antes, sra Smith já preparava a lista de convidados com muito cuidado. Famílias tradicionais, abastadas da região, políticos, economistas, empresários e, principalmente, famílias com algum rapaz interessante para a sobrinha. Um casamento já estava mais do que na hora. Sophie já iria completar dezoito anos e sairia do Female College. Se demorasse mais tempo  para um bom casamento, iria começar o falatório dos vizinhos e dos  funcionários das fazendas. 
-A apresentação de Sophie para toda a sociedade do vale do Trinity e Brazos seria um momento crucial na vida da sra Smith, já que a sobrinha seria sua única herdeira, o importante era encaminhar para um matrimônio com pessoa de grande fortuna. 
-O grande dia chegou.  Início de março, flores da primavera começavam a surgir timidamente nos bosques. A fazenda estava toda enfeitada, mesas com toalhas francesas, bordados detalhados, louças finíssimas.  Tudo iria começar com um almoço regado com iguarias finas. Muitos convidados iriam chegar de diversas regiões, alguns ilustres, nomes importantes da sociedade texana. Quem sabe o governador do estado não viria ? Sra Smith aguardava todos com ansiedade desde as 
- nove horas da manhã. Sophie já tinha tomado um banho e vestiria o melhor vestido de sua vida. Agora não seria um vestido fechado.  Era um vestido com decote um pouco acentuado, deixando transparecer as curvas de seus seios, um pouco apertados com o espartilho, mas com uma aparência bonita, despojada , sensual, nada vulgar, um vestido de rendas brancas, alvo como sua virgindade, todo trabalhado com delicadas pérolas.  Cabelos soltos, longos , bem tratados, adornos finíssimos ao lado, também com pérolas brancas.  Maquiagem suave, batom rosado, um pouco de blush, como era costume da época. Sophie se tornara uma princesa, beleza indescritível, seus olhos com um discreto rímel.  Tudo perfeito, lindo para uma flor que nunca havia conhecido o amor. Quem sabe não seria o grande dia do encontro com seu príncipe? E Sophie se emocionava com a expectativa ...sonhos de uma moça.  No escuro do seu quarto, todas as noites quentes e enluaradas, ela se envolvia em delicados sonhos. Moldava a aparência de um rapaz, bem alinhado, conversa boa, muito romântico. 
-Encontraria na festa do seu aniversário o homem de seus sonhos? O coração da jovem donzela disparava com as expectativas.  
+O aniversário de dezoito anos de Sophie se aproximava. Três meses antes, sra Smith já 
+preparava a lista de convidados com muito cuidado. Famílias tradicionais, abastadas da 
+região, políticos, economistas, empresários e, principalmente, famílias com algum rapaz 
+interessante para a sobrinha. Um casamento já estava mais do que na hora. Sophie já iria 
+completar dezoito anos e sairia do Female College. Se demorasse mais tempo  para um bom 
+casamento, iria começar o falatório dos vizinhos e dos  funcionários das fazendas. 
+
+A apresentação de Sophie para toda a sociedade do vale do Trinity e Brazos seria um momento 
+crucial na vida da sra Smith, já que a sobrinha seria sua única herdeira, o importante era 
+encaminhar para um matrimônio com pessoa de grande fortuna. 
+
+O grande dia chegou.  Início de março, flores da primavera começavam a surgir timidamente 
+nos bosques. A fazenda estava toda enfeitada, mesas com toalhas francesas, bordados detalhados,
+louças finíssimas.  Tudo iria começar com um almoço regado com iguarias finas. Muitos 
+convidados iriam chegar de diversas regiões, alguns ilustres, nomes importantes da sociedade
+texana. Quem sabe o governador do estado não viria ? Sra Smith aguardava todos com ansiedade
+desde as nove horas da manhã. Sophie já tinha tomado um banho e vestiria o melhor vestido de 
+sua vida. Agora não seria um vestido fechado.  Era um vestido com decote um pouco acentuado, 
+deixando transparecer as curvas de seus seios, um pouco apertados com o espartilho, mas com
+uma aparência bonita, despojada , sensual, nada vulgar, um vestido de rendas brancas, alvo 
+como sua virgindade, todo trabalhado com delicadas pérolas.  Cabelos soltos, longos , bem 
+tratados, adornos finíssimos ao lado, também com pérolas brancas.  Maquiagem suave, batom 
+rosado, um pouco de blush, como era costume da época. Sophie se tornara uma princesa, beleza 
+indescritível, seus olhos com um discreto rímel.  Tudo perfeito, lindo para uma flor que nunca 
+havia conhecido o amor. Quem sabe não seria o grande dia do encontro com seu príncipe? E Sophie 
+se emocionava com a expectativa ...sonhos de uma moça.  No escuro do seu quarto, todas as 
+noites quentes e enluaradas, ela se envolvia em delicados sonhos. Moldava a aparência de um
+rapaz, bem alinhado, conversa boa, muito romântico. 
+
+Encontraria na festa do seu aniversário o homem de seus sonhos? O coração da jovem donzela 
+disparava com as expectativas.
+
 Onze horas...meio-dia....
+
 Os convidados estavam ansiosos para a apresentação da jovem. 
-O prefeito da cidade, juntamente com o xerife Watson, tiveram que resolver problemas na cidade e se atrasaram um pouco para o grande evento no Rancho Big Valley.  Às treze horas, as duas figuras ilustres da cidade compareceram, acompanhados de suas famílias e o evento se iniciou com os acordes de uma pequena orquestra. No pátio externo da fazenda, flores coloridas, mesas repletas de pratos requintados, uísque da melhor qualidade, mesas redondas com toalhas trabalhadas, taças finas e muita gente importante, aguardava com ansiedade a apresentação da rica donzela.
-Sophie entra, como uma princesa, com um belo e tímido sorriso nos lábios, arrancando suspiros de homens de todas as idades, principalmente dos rapazes ali presentes. Com delicadeza, senta-se na cadeira do piano e começa a tocar Minueto II, de Bach, uma canção linda e alegre. 
-Todos ficam admirados com o talento e desenvoltura da jovem na música clássica. Era realmente uma moça finamente educada, da mais alta estirpe.  Qual sogra não queria ter uma nora assim? 
-A festa prossegue animada, muita comida, dança e também bebida e depois, mais tarde, a famosa sessão de valsa, na qual , Sophie iria conhecer os mais cobiçados rapazes.
+
+O prefeito da cidade, juntamente com o xerife Watson, tiveram que resolver problemas na 
+cidade e se atrasaram um pouco para o grande evento no Rancho Big Valley.  Às treze horas, 
+as duas figuras ilustres da cidade compareceram, acompanhados de suas famílias e o evento
+se iniciou com os acordes de uma pequena orquestra. No pátio externo da fazenda, flores 
+coloridas, mesas repletas de pratos requintados, uísque da melhor qualidade, mesas redondas 
+com toalhas trabalhadas, taças finas e muita gente importante, aguardava com ansiedade a 
+apresentação da rica donzela.
+
+Sophie entra, como uma princesa, com um belo e tímido sorriso nos lábios, arrancando suspiros
+de homens de todas as idades, principalmente dos rapazes ali presentes. Com delicadeza, 
+senta-se na cadeira do piano e começa a tocar Minueto II, de Bach, uma canção linda e alegre.
+
+Todos ficam admirados com o talento e desenvoltura da jovem na música clássica. Era realmente 
+uma moça finamente educada, da mais alta estirpe.  Qual sogra não queria ter uma nora assim? 
+A festa prossegue animada, muita comida, dança e também bebida e depois, mais tarde, a famosa
+sessão de valsa, na qual , Sophie iria conhecer os mais cobiçados rapazes.
 
 ### VALSA, VALSA E VALSA
 

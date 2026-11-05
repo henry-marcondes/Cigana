@@ -7,6 +7,7 @@ const CAMPOS_PUBLICOS = `
     legenda,
     texto_alternativo,
     imagem_url,
+    arquivo_id,
     ordem_exibicao,
     ativo,
     criado_em,
@@ -27,8 +28,8 @@ class CenaImagem {
         return result.rows;
     }
 
-    static async buscarPorId(id) {
-        const result = await pool.query(`
+    static async buscarPorId(id, client = pool) {
+        const result = await client.query(`
             SELECT ${CAMPOS_PUBLICOS}
               FROM cena_imagens
              WHERE id = $1
@@ -46,6 +47,7 @@ class CenaImagem {
             legenda,
             texto_alternativo,
             imagem_url,
+            arquivo_id,
             ordem_exibicao
         } = cenaImagem;
 
@@ -56,9 +58,10 @@ class CenaImagem {
                 legenda,
                 texto_alternativo,
                 imagem_url,
+                arquivo_id,
                 ordem_exibicao
             )
-            VALUES ($1, $2, $3, $4, $5, $6)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
@@ -67,6 +70,7 @@ class CenaImagem {
             legenda,
             texto_alternativo,
             imagem_url,
+            arquivo_id || null,
             ordem_exibicao
         ]);
 
@@ -104,17 +108,18 @@ class CenaImagem {
         return result.rows[0];
     }
 
-    static async alterarImagem(id, imagem_url, client = pool) {
+    static async alterarImagem(id, imagem_url, client = pool, arquivo_id) {
 
         const result = await client.query(`
             UPDATE cena_imagens
-               SET imagem_url = $1,
+               SET imagem_url = CASE WHEN $3 THEN $1 ELSE imagem_url END,
+                   arquivo_id = CASE WHEN $4 THEN $5 ELSE arquivo_id END,
                    atualizado_em = NOW()
              WHERE id = $2
                AND ativo = TRUE
             RETURNING
                 ${CAMPOS_PUBLICOS}
-        `, [imagem_url, id]);
+        `, [imagem_url ?? null, id, imagem_url !== undefined, arquivo_id !== undefined, arquivo_id ?? null]);
 
         return result.rows[0];
     }

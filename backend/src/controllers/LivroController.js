@@ -1,4 +1,7 @@
 const LivroService = require('../services/livroService');
+const Autor = require('../models/Autor');
+const AutorizacaoService = require('../services/autorizacaoService');
+const SolicitacaoInclusaoObraService = require('../services/solicitacaoInclusaoObraService');
 const fs = require('fs/promises');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -85,6 +88,16 @@ class LivroController {
 
     static async criar(req, res, next) {
         try {
+            const [autor, possuiPapelAutor] = await Promise.all([
+                Autor.buscarPorUsuarioId(req.usuario.id),
+                AutorizacaoService.possuiPapel(req.usuario.id, 'AUTOR')
+            ]);
+            if (autor || possuiPapelAutor) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Autores devem criar novas obras a partir de uma solicitação aprovada.'
+                });
+            }
             const livro = await LivroService.criar(req.body);
 
             return res.status(201).json({
@@ -99,12 +112,10 @@ class LivroController {
     static async criarParaAutor(req, res, next) {
     try {
         const usuario_id = req.usuario.id;
-
-        const livro =
-            await LivroService.criarParaAutor(
-                usuario_id,
-                req.body
-            );
+        const livro = await SolicitacaoInclusaoObraService.criarObraAprovada(
+            usuario_id,
+            req.body.solicitacao_id
+        );
 
         return res.status(201).json({
             success: true,

@@ -224,7 +224,6 @@ export default function CenaConteudo({ conteudo }) {
         >
           <source
             src={dados.audio_url}
-            type="audio/mpeg"
           />
 
           Seu navegador não suporta o elemento de áudio.
@@ -251,7 +250,6 @@ export default function CenaConteudo({ conteudo }) {
         >
           <source
             src={dados.video_url}
-            type="video/mp4"
           />
 
           Seu navegador não suporta o elemento de vídeo.

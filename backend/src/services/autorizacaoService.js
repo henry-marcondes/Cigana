@@ -39,6 +39,21 @@ class AutorizacaoService {
         return result.rowCount > 0;
     }
 
+    static async possuiPapel(usuario_id, codigoPapel) {
+        const pool = require('../db/connection');
+        const result = await pool.query(`
+            SELECT 1
+              FROM usuario_papeis up
+              JOIN papeis p ON p.id = up.papel_id
+             WHERE up.usuario_id = $1
+               AND up.ativo = TRUE
+               AND p.ativo = TRUE
+               AND p.codigo = $2
+             LIMIT 1
+        `, [usuario_id, codigoPapel]);
+        return result.rowCount > 0;
+    }
+
     static async podeEditarObra(
         usuario_id,
         livro_id,

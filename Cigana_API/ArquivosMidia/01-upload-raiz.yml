@@ -1,0 +1,23 @@
+info:
+  name: 01-upload-raiz
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3001/api/arquivos-midia/livro/eb0c677d-2e07-4361-a673-e7f140380012
+  headers:
+    - name: Content-Type
+      value: application/octet-stream
+    - name: X-Nome-Original
+      value: exemplo-Teste-Oct-29.txt
+  body:
+    type: text
+    data: "Conteúdo de exemplo Teste-Oct-29"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

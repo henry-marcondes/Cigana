@@ -122,24 +122,17 @@ function validarDecisaoEditorial(req, res, next) {
 }
 
 function validarCriacaoLivroParaAutor(req, res, next) {
-    const {
-        categoria_id,
-        classificacao_indicativa_id,
-        idioma_id,
-        titulo,
-        slug
-    } = req.body;
-
-    if (
-        !categoria_id ||
-        !classificacao_indicativa_id ||
-        !idioma_id ||
-        !titulo ||
-        !slug
-    ) {
+    const { solicitacao_id } = req.body || {};
+    if (!solicitacao_id || typeof solicitacao_id !== 'string') {
         return res.status(400).json({
             success: false,
-            message: 'Campos obrigatórios não informados.'
+            message: 'solicitacao_id é obrigatório para criar a obra aprovada.'
+        });
+    }
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(solicitacao_id)) {
+        return res.status(400).json({
+            success: false,
+            message: 'solicitacao_id deve ser um UUID válido.'
         });
     }
 

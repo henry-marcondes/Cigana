@@ -7,6 +7,7 @@ const CAMPOS_PUBLICOS = `
     legenda,
     descricao,
     audio_url,
+    arquivo_id,
     reproducao_automatica,
     reproducao_em_loop,
     ordem_exibicao,
@@ -29,8 +30,8 @@ class CenaAudio {
         return result.rows;
     }
 
-    static async buscarPorId(id) {
-        const result = await pool.query(`
+    static async buscarPorId(id, client = pool) {
+        const result = await client.query(`
             SELECT ${CAMPOS_PUBLICOS}
               FROM cena_audios
              WHERE id = $1
@@ -48,6 +49,7 @@ class CenaAudio {
             legenda,
             descricao,
             audio_url,
+            arquivo_id,
             reproducao_automatica,
             reproducao_em_loop,
             ordem_exibicao
@@ -60,11 +62,12 @@ class CenaAudio {
                 legenda,
                 descricao,
                 audio_url,
+                arquivo_id,
                 reproducao_automatica,
                 reproducao_em_loop,
                 ordem_exibicao
             )
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
@@ -73,6 +76,7 @@ class CenaAudio {
             legenda,
             descricao,
             audio_url,
+            arquivo_id || null,
             reproducao_automatica,
             reproducao_em_loop,
             ordem_exibicao
@@ -118,17 +122,18 @@ class CenaAudio {
         return result.rows[0];
     }
 
-    static async alterarAudio(id, audio_url, client = pool) {
+    static async alterarAudio(id, audio_url, client = pool, arquivo_id) {
 
         const result = await client.query(`
             UPDATE cena_audios
-               SET audio_url = $1,
+               SET audio_url = CASE WHEN $3 THEN $1 ELSE audio_url END,
+                   arquivo_id = CASE WHEN $4 THEN $5 ELSE arquivo_id END,
                    atualizado_em = NOW()
              WHERE id = $2
                AND ativo = TRUE
             RETURNING
                 ${CAMPOS_PUBLICOS}
-        `, [audio_url, id]);
+        `, [audio_url ?? null, id, audio_url !== undefined, arquivo_id !== undefined, arquivo_id ?? null]);
 
         return result.rows[0];
     }

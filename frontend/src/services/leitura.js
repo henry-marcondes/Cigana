@@ -1,5 +1,6 @@
 import { apiFetch } from './api';
 import { montarUrlMedia } from './media';
+import { obterUrlAssinadaArquivo } from './arquivoMidia';
 
 async function carregarTexto(textoUrl) {
   const url = montarUrlMedia(textoUrl);
@@ -32,21 +33,30 @@ export async function carregarDadosLeituraCena(cena) {
       };
     } else if (item.tipo_conteudo === 'IMAGEM') {
       const resposta = await apiFetch(`/api/cena-imagens/${item.conteudo_id}`);
+      const arquivoId = resposta.data.arquivo_id;
       dados = {
         ...resposta.data,
-        imagem_url: montarUrlMedia(resposta.data.imagem_url),
+        imagem_url: arquivoId
+          ? await obterUrlAssinadaArquivo(arquivoId)
+          : null,
       };
     } else if (item.tipo_conteudo === 'AUDIO') {
       const resposta = await apiFetch(`/api/cena-audios/${item.conteudo_id}`);
+      const arquivoId = resposta.data.arquivo_id;
       dados = {
         ...resposta.data,
-        audio_url: montarUrlMedia(resposta.data.audio_url),
+        audio_url: arquivoId
+          ? await obterUrlAssinadaArquivo(arquivoId)
+          : null,
       };
     } else if (item.tipo_conteudo === 'VIDEO') {
       const resposta = await apiFetch(`/api/cena-videos/${item.conteudo_id}`);
+      const arquivoId = resposta.data.arquivo_id;
       dados = {
         ...resposta.data,
-        video_url: montarUrlMedia(resposta.data.video_url),
+        video_url: arquivoId
+          ? await obterUrlAssinadaArquivo(arquivoId)
+          : null,
         miniatura_url: montarUrlMedia(resposta.data.miniatura_url),
       };
     }

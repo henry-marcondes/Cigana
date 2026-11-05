@@ -1,4 +1,4 @@
-const { verificarToken } = require('../utils/jwt');
+const { verificarTokenApiPrincipal } = require('../utils/jwtAutenticacao');
 const { error } = require('../utils/apiResponse');
 
 function autenticar(req, res, next) {
@@ -30,7 +30,7 @@ function autenticar(req, res, next) {
 
     try {
 
-        const payload = verificarToken(token);
+        const payload = verificarTokenApiPrincipal(token);
 
         req.usuario = payload;
 

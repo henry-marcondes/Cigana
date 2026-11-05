@@ -28,3 +28,6 @@ Thumbs.db
 # Banco local (se tiver)
 *.sqlite
 *.db
+
+# Armazenamento privado de arquivos gerenciados
+/storage/arquivos_midia/

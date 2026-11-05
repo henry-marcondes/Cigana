@@ -1,0 +1,24 @@
+info:
+  name: 04-renomear
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/arquivos-midia/{{arquivo_id}}/nome
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "nome_original": "renomeado-{{run_id}}.txt"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

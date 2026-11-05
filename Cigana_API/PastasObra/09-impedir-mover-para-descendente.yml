@@ -1,0 +1,20 @@
+info:
+  name: 09-impedir-mover-para-descendente
+  type: http
+  seq: 9
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/pastas-obra/{{pasta_raiz_id}}/mover
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "pasta_pai_id": "{{pasta_neta_id}}"
+      }
+  assertions:
+    - type: status
+      value: 400

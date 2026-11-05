@@ -84,11 +84,12 @@ class CenaImagemController {
     static async alterarImagem(req, res, next) {
         try {
             const { id } = req.params;
-            const { imagem_url } = req.body;
+            const { imagem_url, arquivo_id } = req.body;
 
             const imagem = await CenaImagemService.alterarImagem(
                 id,
-                imagem_url
+                imagem_url,
+                arquivo_id
             );
 
             if (!imagem) {

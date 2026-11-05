@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiFetch } from '../../../../../../../../../services/api';
 import { montarUrlMedia } from '../../../../../../../../../services/media';
+import ArquivoGerenciadoSelect from '../../../../../../../../../components/ArquivoGerenciadoSelect';
 
 export default function VideosCena() {
 const params = useParams();
@@ -26,6 +27,7 @@ const [titulo, setTitulo] = useState('');
 const [legenda, setLegenda] = useState('');
 const [descricao, setDescricao] = useState('');
 const [videoUrl, setVideoUrl] = useState('');
+const [arquivoId, setArquivoId] = useState('');
 const [miniaturaUrl, setMiniaturaUrl] = useState('');
 const [reproducaoAutomatica, setReproducaoAutomatica] =
 useState(false);
@@ -85,6 +87,7 @@ setTitulo('');
 setLegenda('');
 setDescricao('');
 setVideoUrl('');
+setArquivoId('');
 setMiniaturaUrl('');
 setReproducaoAutomatica(false);
 setReproducaoEmLoop(false);
@@ -110,6 +113,7 @@ setTitulo(video.titulo || '');
 setLegenda(video.legenda || '');
 setDescricao(video.descricao || '');
 setVideoUrl(montarUrlMedia(video.video_url) || '');
+setArquivoId(video.arquivo_id || '');
 setMiniaturaUrl(montarUrlMedia(video.miniatura_url) || '');
 setReproducaoAutomatica(
   Boolean(video.reproducao_automatica)
@@ -176,16 +180,17 @@ try {
       (video) => video.id === editandoId
     );
 
-    if (
-      videoAtual &&
-      videoAtual.video_url !== videoUrl
-    ) {
+    if (videoAtual && (
+      (videoAtual.arquivo_id || '') !== arquivoId ||
+      (!arquivoId && videoAtual.video_url !== videoUrl)
+    )) {
       const respostaVideo = await apiFetch(
         `/api/cena-videos/${editandoId}/video`,
         {
           method: 'PATCH',
           body: JSON.stringify({
-            video_url: videoUrl,
+            video_url: arquivoId ? null : videoUrl,
+            arquivo_id: arquivoId || null,
           }),
         }
       );
@@ -215,7 +220,8 @@ try {
         titulo,
         legenda: legenda || null,
         descricao: descricao || null,
-        video_url: videoUrl,
+        video_url: arquivoId ? null : videoUrl,
+        arquivo_id: arquivoId || null,
         miniatura_url:
           miniaturaUrl || null,
         reproducao_automatica:
@@ -361,8 +367,7 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
           </h2>
 
           <p className="mt-1 text-sm text-gray-500">
-            Estes vídeos ficam disponíveis para serem
-            adicionados à composição da cena.
+            Estes vídeos ficam disponíveis para serem adicionados à composição. Ao adicionar ou editar, escolha um arquivo da obra ou mantenha uma URL.
           </p>
         </div>
 
@@ -371,7 +376,7 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
           onClick={abrirNovoVideo}
           className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
         >
-          + Novo vídeo
+          + Novo vídeo (arquivo ou URL)
         </button>
 
       </div>
@@ -598,38 +603,40 @@ return ( <main className="min-h-screen bg-gray-100 p-4 sm:p-6"> <div className="
 
             </div>
 
-            <div>
+            <ArquivoGerenciadoSelect
+              livroId={id}
+              value={arquivoId}
+              onChange={setArquivoId}
+              disabled={salvando}
+            />
 
-              <label className="block text-sm font-medium text-gray-700">
-                URL do vídeo
-              </label>
+            {!arquivoId && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  URL do vídeo
+                </label>
 
-              <input
-                type="text"
-                required
-                value={videoUrl}
-                onChange={(event) =>
-                  setVideoUrl(event.target.value)
-                }
-                placeholder="/media/videos/..."
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
-              />
+                <input
+                  type="text"
+                  required
+                  value={videoUrl}
+                  onChange={(event) => setVideoUrl(event.target.value)}
+                  placeholder="/media/videos/..."
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
+                />
 
-              {videoUrl && (
-                <video
-                  controls
-                  src={videoUrl}
-                  poster={
-                    miniaturaUrl || undefined
-                  }
-                  className="mt-3 max-h-[400px] w-full rounded-lg bg-black"
-                >
-                  Seu navegador não suporta
-                  reprodução de vídeo.
-                </video>
-              )}
-
-            </div>
+                {videoUrl && (
+                  <video
+                    controls
+                    src={videoUrl}
+                    poster={miniaturaUrl || undefined}
+                    className="mt-3 max-h-[400px] w-full rounded-lg bg-black"
+                  >
+                    Seu navegador não suporta reprodução de vídeo.
+                  </video>
+                )}
+              </div>
+            )}
 
             <div>
 

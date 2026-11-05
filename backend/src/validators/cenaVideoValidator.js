@@ -50,7 +50,11 @@ const validarCriacao = [
         .optional({ nullable: true })
         .trim(),
 
+    body('arquivo_id').optional({ nullable: true }).isUUID()
+        .withMessage('arquivo_id deve ser um UUID válido.'),
+
     body('video_url')
+        .if((_, { req }) => !req.body.arquivo_id)
         .trim()
         .notEmpty()
         .withMessage('URL do vídeo é obrigatória.'),
@@ -129,9 +133,13 @@ const validarAlteracaoVideo = [
     ...validarId,
 
     body('video_url')
+        .if((_, { req }) => !req.body.arquivo_id)
         .trim()
         .notEmpty()
         .withMessage('URL do vídeo é obrigatória.'),
+
+    body('arquivo_id').optional({ nullable: true }).isUUID()
+        .withMessage('arquivo_id deve ser um UUID válido.'),
 
     validarResultado
 ];

@@ -1,4 +1,4 @@
-const { verificarToken } = require('../utils/jwt');
+const { verificarTokenApiPrincipal } = require('../utils/jwtAutenticacao');
 const { error } = require('../utils/apiResponse');
 const Livro = require('../models/Livro');
 const AutorizacaoService = require('../services/autorizacaoService');
@@ -36,7 +36,7 @@ function protegerLeituraObra(resolverLivroId) {
             }
 
             try {
-                req.usuario = verificarToken(partes[1]);
+                req.usuario = verificarTokenApiPrincipal(partes[1]);
             } catch (erroToken) {
                 return error(
                     res,

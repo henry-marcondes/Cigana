@@ -89,15 +89,25 @@ export default function AdminPage() {
                     </Link>
 
                     <Link
+                        href="/admin/solicitacoes/inclusao-obras"
+                        className="rounded-lg border p-5 transition hover:bg-gray-50"
+                    >
+                        <h2 className="text-xl font-semibold">Inclusão de Obras</h2>
+                        <p className="mt-2 text-sm text-gray-600">
+                            Avaliar propostas para novas obras de Autores aprovados.
+                        </p>
+                    </Link>
+
+                    <Link
                         href="/admin/obras"
                         className="rounded-lg border p-5 transition hover:bg-gray-50"
                     >
                         <h2 className="text-xl font-semibold">
-                            Obras
+                            Revisão Editorial
                         </h2>
 
                         <p className="mt-2 text-sm text-gray-600">
-                            Analisar, aprovar ou rejeitar obras e publicar as aprovadas.
+                            Analisar obras enviadas para revisão e publicar as aprovadas.
                         </p>
                     </Link>
 

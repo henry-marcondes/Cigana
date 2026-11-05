@@ -91,6 +91,16 @@ class Livro {
         return result.rows[0];
     }
 
+    static async slugJaExiste(slug, client = pool) {
+        const result = await client.query(`
+            SELECT 1
+              FROM livros
+             WHERE slug = $1
+             LIMIT 1
+        `, [slug]);
+        return result.rowCount > 0;
+    }
+
     static async estaDisponivelPublicamente(id) {
         const result = await pool.query(`
             SELECT 1

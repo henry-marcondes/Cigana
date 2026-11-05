@@ -11,6 +11,8 @@ const usuarioRoutes = require('./routes/usuarioRoutes');
 const perfilUsuarioRoutes = require('./routes/perfilUsuarioRoutes');
 const autorRoutes = require('./routes/autorRoutes');
 const livroRoutes = require('./routes/livroRoutes');
+const pastaObraRoutes = require('./routes/pastaObraRoutes');
+const arquivoMidiaRoutes = require('./routes/arquivoMidiaRoutes');
 const capituloRoutes = require('./routes/capituloRoutes');
 const cenaRoutes = require('./routes/cenaRoutes');
 const escolhaRoutes = require('./routes/escolhaRoutes');
@@ -37,6 +39,7 @@ const papelRoutes = require('./routes/papelRoutes');
 const papelPermissaoRoutes = require('./routes/papelPermissaoRoutes');
 const usuarioPapelRoutes = require('./routes/usuarioPapelRoutes');
 const solicitacaoAutorRoutes = require('./routes/solicitacaoAutorRoutes');
+const solicitacaoInclusaoObraRoutes = require('./routes/solicitacaoInclusaoObraRoutes');
 const contratoRoutes = require('./routes/ContratoRoutes');
 const preferenciaRoute = require('./routes/preferenciaRoute');
 const usuarioPreferenciaRoute = require('./routes/usuarioPreferenciaRoute');
@@ -55,7 +58,7 @@ const corsOptions = {
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Nome-Original'],
 };
 
 // Middleware
@@ -74,6 +77,8 @@ app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/perfis', perfilUsuarioRoutes);
 app.use('/api/autores', autorRoutes);
 app.use('/api/livros', livroRoutes);
+app.use('/api/pastas-obra', pastaObraRoutes);
+app.use('/api/arquivos-midia', arquivoMidiaRoutes);
 app.use('/api/capitulos', capituloRoutes);
 app.use('/api/cenas', cenaRoutes);
 app.use('/api/escolhas', escolhaRoutes);
@@ -100,6 +105,7 @@ app.use('/api/papeis', papelRoutes);
 app.use('/api/papel-permissoes', papelPermissaoRoutes);
 app.use('/api/usuario-papeis', usuarioPapelRoutes);
 app.use('/api/solicitacoes-autor', solicitacaoAutorRoutes);
+app.use('/api/solicitacoes-inclusao-obras', solicitacaoInclusaoObraRoutes);
 app.use('/api/contratos', contratoRoutes);
 app.use('/api/preferencias', preferenciaRoute);
 app.use('/api/usuario-preferencias',usuarioPreferenciaRoute);

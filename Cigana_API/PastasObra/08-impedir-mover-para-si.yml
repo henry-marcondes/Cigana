@@ -1,0 +1,20 @@
+info:
+  name: 08-impedir-mover-para-si
+  type: http
+  seq: 8
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/pastas-obra/{{pasta_raiz_id}}/mover
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "pasta_pai_id": "{{pasta_raiz_id}}"
+      }
+  assertions:
+    - type: status
+      value: 400

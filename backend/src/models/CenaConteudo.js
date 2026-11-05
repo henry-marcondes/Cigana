@@ -85,8 +85,37 @@ class CenaConteudo {
 
     static async reordenar(cena_id, ordem, client = pool) {
 
+    const resultadoOrdens = await client.query(`
+        SELECT ordem_exibicao
+          FROM cena_conteudos
+         WHERE cena_id = $1
+           AND ativo = TRUE
+    `, [cena_id]);
+
+    const ordensOcupadas = resultadoOrdens.rows
+        .map((linha) => Number(linha.ordem_exibicao));
+    const maiorOrdem = Math.max(...ordensOcupadas, 0);
+    const limiteInteiro = 2147483647;
     const quantidade = ordem.length;
-    const baseTemporaria = quantidade + 1;
+    let posicoesTemporarias;
+
+    if (maiorOrdem + quantidade <= limiteInteiro) {
+        posicoesTemporarias = Array.from(
+            { length: quantidade },
+            (_, indice) => maiorOrdem + indice + 1
+        );
+    } else {
+        const ocupadas = new Set(ordensOcupadas);
+        posicoesTemporarias = [];
+        let candidata = 1;
+
+        while (posicoesTemporarias.length < quantidade) {
+            if (!ocupadas.has(candidata)) {
+                posicoesTemporarias.push(candidata);
+            }
+            candidata++;
+        }
+    }
 
     // 1. Remove temporariamente os conteúdos da faixa
     //    normal de ordenação, mantendo valores positivos.
@@ -100,7 +129,7 @@ class CenaConteudo {
                AND cena_id = $3
                AND ativo = TRUE
         `, [
-            baseTemporaria + i,
+            posicoesTemporarias[i],
             ordem[i].id,
             cena_id
         ]);

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiFetch } from '../../../../../../../../../services/api';
 import { montarUrlMedia, montarUrlImagemParaApi } from '../../../../../../../../../services/media';
+import ArquivoGerenciadoSelect from '../../../../../../../../../components/ArquivoGerenciadoSelect';
 
 export default function ImagensCena() {
   const params = useParams();
@@ -22,6 +23,7 @@ export default function ImagensCena() {
   const [legenda, setLegenda] = useState('');
   const [textoAlternativo, setTextoAlternativo] = useState('');
   const [imagemUrl, setImagemUrl] = useState('');
+  const [arquivoId, setArquivoId] = useState('');
   const [ordemExibicao, setOrdemExibicao] = useState(1);
 
   const [criando, setCriando] = useState(false);
@@ -35,6 +37,7 @@ export default function ImagensCena() {
   const [textoAlternativoEdicao, setTextoAlternativoEdicao] = useState('');
   const [ordemExibicaoEdicao, setOrdemExibicaoEdicao] = useState(1);
   const [imagemUrlEdicao, setImagemUrlEdicao] = useState('');
+  const [arquivoIdEdicao, setArquivoIdEdicao] = useState('');
 
   const [salvandoInformacoes, setSalvandoInformacoes] = useState(false);
   const [salvandoImagem, setSalvandoImagem] = useState(false);
@@ -82,7 +85,8 @@ async function criarImagem(event) {
           titulo,
           legenda: legenda || null,
           texto_alternativo: textoAlternativo,
-          imagem_url: montarUrlImagemParaApi(imagemUrl),
+          imagem_url: arquivoId ? null : montarUrlImagemParaApi(imagemUrl),
+          arquivo_id: arquivoId || null,
           ordem_exibicao: Number(ordemExibicao),
         }),
       }
@@ -129,6 +133,7 @@ async function criarImagem(event) {
     setLegenda('');
     setTextoAlternativo('');
     setImagemUrl('');
+    setArquivoId('');
     setOrdemExibicao(1);
     setMostrarNova(false);
 
@@ -156,6 +161,7 @@ async function criarImagem(event) {
     setImagemUrlEdicao(
       montarUrlMedia(imagem.imagem_url) || ''
     );
+    setArquivoIdEdicao(imagem.arquivo_id || '');
   }
 
   function cancelarEdicao() {
@@ -170,6 +176,7 @@ async function criarImagem(event) {
     setTextoAlternativoEdicao('');
     setOrdemExibicaoEdicao(1);
     setImagemUrlEdicao('');
+    setArquivoIdEdicao('');
 
     setErroEdicao('');
   }
@@ -228,7 +235,10 @@ async function criarImagem(event) {
         {
           method: 'PATCH',
           body: JSON.stringify({
-            imagem_url: montarUrlImagemParaApi(imagemUrlEdicao),
+            imagem_url: arquivoIdEdicao
+              ? null
+              : montarUrlImagemParaApi(imagemUrlEdicao),
+            arquivo_id: arquivoIdEdicao || null,
           }),
         }
       );
@@ -327,7 +337,7 @@ async function criarImagem(event) {
               </h2>
 
               <p className="mt-1 text-sm text-gray-500">
-                Imagens utilizadas pela cena.
+                Imagens utilizadas pela cena. Ao adicionar ou editar, escolha um arquivo da obra ou mantenha uma URL.
               </p>
             </div>
 
@@ -340,7 +350,7 @@ async function criarImagem(event) {
               }}
               className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
             >
-              + Nova imagem
+              + Nova imagem (arquivo ou URL)
             </button>
 
           </div>
@@ -418,22 +428,31 @@ async function criarImagem(event) {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    URL da imagem
-                  </label>
+                <ArquivoGerenciadoSelect
+                  livroId={id}
+                  value={arquivoId}
+                  onChange={setArquivoId}
+                  disabled={criando}
+                />
 
-                  <input
-                    type="text"
-                    required
-                    value={imagemUrl}
-                    onChange={(event) =>
-                      setImagemUrl(event.target.value)
-                    }
-                    placeholder="/media/imagens/..."
-                    className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-gray-500"
-                  />
-                </div>
+                {!arquivoId && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      URL da imagem
+                    </label>
+
+                    <input
+                      type="text"
+                      required
+                      value={imagemUrl}
+                      onChange={(event) =>
+                        setImagemUrl(event.target.value)
+                      }
+                      placeholder="/media/imagens/..."
+                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-gray-500"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
@@ -647,24 +666,31 @@ async function criarImagem(event) {
                             </h3>
 
                             <div className="mt-5">
-
-                              <label className="block text-sm font-medium text-gray-700">
-                                URL da imagem
-                              </label>
-
-                              <input
-                                type="text"
-                                required
-                                value={imagemUrlEdicao}
-                                onChange={(event) =>
-                                  setImagemUrlEdicao(
-                                    event.target.value
-                                  )
-                                }
-                                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
+                              <ArquivoGerenciadoSelect
+                                livroId={id}
+                                value={arquivoIdEdicao}
+                                onChange={setArquivoIdEdicao}
+                                disabled={salvandoImagem}
                               />
-
                             </div>
+
+                            {!arquivoIdEdicao && (
+                              <div className="mt-5">
+                                <label className="block text-sm font-medium text-gray-700">
+                                  URL da imagem
+                                </label>
+
+                                <input
+                                  type="text"
+                                  required
+                                  value={imagemUrlEdicao}
+                                  onChange={(event) =>
+                                    setImagemUrlEdicao(event.target.value)
+                                  }
+                                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
+                                />
+                              </div>
+                            )}
 
                             <div className="mt-5 flex justify-end">
 

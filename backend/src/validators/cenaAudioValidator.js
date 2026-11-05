@@ -49,7 +49,11 @@ const validarCriacao = [
         .optional({ nullable: true })
         .trim(),
 
+    body('arquivo_id').optional({ nullable: true }).isUUID()
+        .withMessage('arquivo_id deve ser um UUID válido.'),
+
     body('audio_url')
+        .if((_, { req }) => !req.body.arquivo_id)
         .trim()
         .notEmpty()
         .withMessage('URL do áudio é obrigatória.'),
@@ -120,9 +124,13 @@ const validarAlteracaoAudio = [
     ...validarId,
 
     body('audio_url')
+        .if((_, { req }) => !req.body.arquivo_id)
         .trim()
         .notEmpty()
         .withMessage('URL do áudio é obrigatória.'),
+
+    body('arquivo_id').optional({ nullable: true }).isUUID()
+        .withMessage('arquivo_id deve ser um UUID válido.'),
 
     validarResultado
 ];

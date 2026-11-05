@@ -35,8 +35,8 @@ class Autor {
         return result.rows[0];
     }
 
-    static async buscarPorUsuarioId(usuario_id) {
-        const result = await pool.query(`
+    static async buscarPorUsuarioId(usuario_id, client = pool) {
+        const result = await client.query(`
             SELECT ${CAMPOS_PUBLICOS}
               FROM autores
              WHERE usuario_id = $1

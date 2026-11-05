@@ -642,6 +642,31 @@ export default function EditarObra() {
 
         </section>
 
+        {/* Arquivos da obra */}
+        <section className="mt-5 rounded-lg bg-white shadow">
+
+          <button
+            type="button"
+            onClick={() => router.push(`/estudio/obras/${id}/arquivos`)}
+            className="flex w-full items-center justify-between p-5 text-left hover:bg-gray-50 sm:p-6"
+          >
+            <div>
+              <h2 className="font-semibold text-gray-900">
+                Arquivos da obra
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Consulte os arquivos e as pastas desta obra.
+              </p>
+            </div>
+
+            <span className="ml-4 text-xl text-gray-400">
+              ›
+            </span>
+          </button>
+
+        </section>
+
         {/* Autores */}
         <section className="mt-5 rounded-lg bg-white shadow">
 

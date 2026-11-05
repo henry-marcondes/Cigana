@@ -1,0 +1,27 @@
+info:
+  name: 05-mover-pasta-validamente
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/pastas-obra/05a66e58-3d1d-4264-9e5a-a818367ebe9b/mover
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "pasta_pai_id": "be242cc8-c78d-488a-86cc-fb9104b3862b"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImEwYTU2Y2EyLTBlY2UtNGRkOC1iM2M5LTg0ZGM3MDQwNzMzMSIsImlhdCI6MTc5MzI4MDc4NCwiZXhwIjoxNzkzMzY3MTg0fQ.H7bHlE_i_7BhUo7_jrmiG84uX-324sQdX-F4gWDnw5g
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

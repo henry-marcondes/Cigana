@@ -67,139 +67,71 @@ class LivroService {
     }
 
     static async criarParaAutor(usuario_id, dados) {
-
         const client = await pool.connect();
-
         try {
             await client.query('BEGIN');
-
-            // -------------------------------------------------
-            // 1. Obter o Autor vinculado ao usuário
-            // -------------------------------------------------
-
-            const autor = await Autor.buscarPorUsuarioId(usuario_id);
-
-            if (!autor) {
-                const error = new Error(
-                    'Usuário não possui cadastro de Autor.'
-                );
-
-                error.statusCode = 403;
-
-                throw error;
-            }
-
-            // -------------------------------------------------
-            // 2. Obter status "Em elaboração"
-            // -------------------------------------------------
-
-            const statusLivro = (
-                await client.query(`
-                    SELECT id
-                      FROM status_livro
-                     WHERE slug = 'em-elaboracao'
-                       AND ativo = TRUE
-                     LIMIT 1
-                `)
-            ).rows[0];
-
-            if (!statusLivro) {
-                const error = new Error(
-                    'Status "Em elaboração" não encontrado.'
-                );
-
-                error.statusCode = 500;
-
-                throw error;
-            }
-
-            // -------------------------------------------------
-            // 3. Obter visibilidade "Rascunho"
-            // -------------------------------------------------
-
-            const visibilidadeLivro = (
-                await client.query(`
-                    SELECT id
-                      FROM visibilidade_livro
-                     WHERE slug = 'rascunho'
-                       AND ativo = TRUE
-                     LIMIT 1
-                `)
-            ).rows[0];
-
-            if (!visibilidadeLivro) {
-                const error = new Error(
-                    'Visibilidade "Rascunho" não encontrada.'
-                );
-
-                error.statusCode = 500;
-
-                throw error;
-            }
-
-            // -------------------------------------------------
-            // 4. Criar a obra
-            // -------------------------------------------------
-
-            const livro = await Livro.criar(
-                {
-                    categoria_id: dados.categoria_id,
-                    classificacao_indicativa_id:
-                        dados.classificacao_indicativa_id,
-                    idioma_id: dados.idioma_id,
-
-                    status_livro_id: statusLivro.id,
-                    visibilidade_livro_id: visibilidadeLivro.id,
-
-                    titulo: dados.titulo,
-                    slug: dados.slug,
-                    resumo: dados.resumo ?? null,
-                    capa_url: dados.capa_url ?? null,
-                    isbn: dados.isbn ?? null,
-                    ano_publicacao: dados.ano_publicacao ?? null,
-                    data_publicacao: dados.data_publicacao ?? null,
-                    ordem_exibicao:
-                        dados.ordem_exibicao ?? 0
-                },
-                client
-            );
-
-            // -------------------------------------------------
-            // 5. Vincular o Autor à obra
-            // -------------------------------------------------
-
-            const livroAutor = await LivroAutor.criar(
-                {
-                    livro_id: livro.id,
-                    autor_id: autor.id,
-                    ordem_exibicao: 1
-                },
-                client
-            );
-
-            // -------------------------------------------------
-            // 6. Confirmar operação
-            // -------------------------------------------------
-
+            const resultado = await this.criarParaAutorEmTransacao(usuario_id, dados, client);
             await client.query('COMMIT');
-
-            return {
-                livro,
-                autor,
-                livro_autor: livroAutor
-            };
-
+            return resultado;
         } catch (error) {
-
             await client.query('ROLLBACK');
-
             throw error;
-
         } finally {
-
             client.release();
-
         }
+    }
+
+    static async criarParaAutorEmTransacao(usuario_id, dados, client) {
+        const autor = await Autor.buscarPorUsuarioId(usuario_id, client);
+        if (!autor) {
+            const error = new Error('Usuário não possui cadastro de Autor.');
+            error.statusCode = 403;
+            throw error;
+        }
+
+        const statusLivro = (await client.query(`
+            SELECT id FROM status_livro
+             WHERE slug = 'em-elaboracao' AND ativo = TRUE LIMIT 1
+        `)).rows[0];
+        if (!statusLivro) {
+            const error = new Error('Status "Em elaboração" não encontrado.');
+            error.statusCode = 500;
+            throw error;
+        }
+
+        const visibilidadeLivro = (await client.query(`
+            SELECT id FROM visibilidade_livro
+             WHERE slug = 'rascunho' AND ativo = TRUE LIMIT 1
+        `)).rows[0];
+        if (!visibilidadeLivro) {
+            const error = new Error('Visibilidade "Rascunho" não encontrada.');
+            error.statusCode = 500;
+            throw error;
+        }
+
+        const livro = await Livro.criar({
+            categoria_id: dados.categoria_id,
+            classificacao_indicativa_id: dados.classificacao_indicativa_id,
+            idioma_id: dados.idioma_id,
+            status_livro_id: statusLivro.id,
+            visibilidade_livro_id: visibilidadeLivro.id,
+            titulo: dados.titulo,
+            slug: dados.slug,
+            resumo: dados.resumo ?? null,
+            capa_url: dados.capa_url ?? null,
+            isbn: dados.isbn ?? null,
+            ano_publicacao: dados.ano_publicacao ?? null,
+            data_publicacao: dados.data_publicacao ?? null,
+            ordem_exibicao: dados.ordem_exibicao ?? 0
+        }, client);
+
+        const livroAutor = await LivroAutor.criar({
+            livro_id: livro.id,
+            autor_id: autor.id,
+            ordem_exibicao: 1
+        }, client);
+
+        return { livro, autor, livro_autor: livroAutor };
     }
 
     static async alterarInformacoes(id, dados) {

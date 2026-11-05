@@ -1,0 +1,20 @@
+info:
+  name: 07-mover-para-outra-obra
+  type: http
+  seq: 7
+
+http:
+  method: PATCH
+  url: http://localhost:3001/api/pastas-obra/{{pasta_filha_id}}/mover
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "pasta_pai_id": "{{pasta_pai_de_outra_obra_id}}"
+      }
+  assertions:
+    - type: status
+      value: 400

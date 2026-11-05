@@ -38,7 +38,11 @@ const validarCriacaoCenaImagem = [
         .notEmpty()
         .withMessage('texto_alternativo é obrigatório.'),
 
+    body('arquivo_id').optional({ nullable: true }).isUUID()
+        .withMessage('arquivo_id deve ser um UUID válido.'),
+
     body('imagem_url')
+        .if((_, { req }) => !req.body.arquivo_id)
         .trim()
         .notEmpty()
         .withMessage('imagem_url é obrigatório.')
@@ -89,14 +93,18 @@ const validarAlteracaoImagem = [
     validarUUID('id'),
 
     body('imagem_url')
+        .if((_, { req }) => !req.body.arquivo_id)
         .trim()
         .notEmpty()
-        .withMessage('imagem_url é obrigatório.')
+        .withMessage('imagem_url é obrigatório.' )
         .isURL({
             require_protocol: true,
             require_tld: false
         })
         .withMessage('imagem_url deve ser uma URL válida.'),
+
+    body('arquivo_id').optional({ nullable: true }).isUUID()
+        .withMessage('arquivo_id deve ser um UUID válido.'),
 
     tratarErrosValidacao
 ];

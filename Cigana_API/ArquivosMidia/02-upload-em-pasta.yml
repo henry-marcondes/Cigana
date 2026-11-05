@@ -1,0 +1,23 @@
+info:
+  name: 02-upload-em-pasta
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3001/api/arquivos-midia/livro/{{livro_id}}?pasta_id={{pasta_id}}
+  headers:
+    - name: Content-Type
+      value: application/octet-stream
+    - name: X-Nome-Original
+      value: dentro-da-pasta-{{run_id}}.txt
+  body:
+    type: text
+    data: "Conteúdo de exemplo {{run_id}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

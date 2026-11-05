@@ -1,0 +1,28 @@
+info:
+  name: 06-criar-em-outra-obra
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: http://localhost:3001/api/pastas-obra/livro/{{livro_id}}
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "nome": "Pai de outra obra {{run_id}}",
+        "pasta_pai_id": "{{pasta_pai_de_outra_obra_id}}"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImEwYTU2Y2EyLTBlY2UtNGRkOC1iM2M5LTg0ZGM3MDQwNzMzMSIsImlhdCI6MTc5MzI4MDc4NCwiZXhwIjoxNzkzMzY3MTg0fQ.H7bHlE_i_7BhUo7_jrmiG84uX-324sQdX-F4gWDnw5g
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
