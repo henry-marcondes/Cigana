@@ -1,7 +1,7 @@
 const CenaImagem = require('../models/CenaImagem');
 const pool = require('../db/connection');
 const CenaConteudo = require('../models/CenaConteudo');
-const { executarComArquivoValidado } = require('./arquivoCenaService');
+const { executarComArquivoDaObraValidado, resolverLivroDoConteudo } = require('./arquivoCenaService');
 
 class CenaImagemService {
 
@@ -14,15 +14,13 @@ class CenaImagemService {
     }
 
     static async criar(cenaImagem, client) {
-        if (cenaImagem.arquivo_id) {
-            return executarComArquivoValidado(
-                pool,
-                cenaImagem.arquivo_id,
-                cenaImagem.cena_id,
-                (transacao) => CenaImagem.criar(cenaImagem, transacao)
-            );
-        }
-        return await CenaImagem.criar(cenaImagem, client);
+        const livro_id = await resolverLivroDoConteudo(cenaImagem, pool);
+        const dados = { ...cenaImagem, livro_id };
+        if (dados.arquivo_id) return executarComArquivoDaObraValidado(
+            pool, dados.arquivo_id, livro_id,
+            (transacao) => CenaImagem.criar(dados, transacao)
+        );
+        return CenaImagem.criar(dados, client);
     }
 
     static async alterarInformacoes(id, cenaImagem, client) {
@@ -37,10 +35,10 @@ class CenaImagemService {
         if (arquivo_id) {
             const atual = await CenaImagem.buscarPorId(id);
             if (!atual) return null;
-            return executarComArquivoValidado(
+            return executarComArquivoDaObraValidado(
                 pool,
                 arquivo_id,
-                atual.cena_id,
+                atual.livro_id,
                 (transacao) => CenaImagem.alterarImagem(
                     id, imagem_url, transacao, arquivo_id
                 )

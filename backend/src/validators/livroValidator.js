@@ -121,6 +121,40 @@ function validarDecisaoEditorial(req, res, next) {
     return next();
 }
 
+function validarIdCotaArmazenamento(req, res, next) {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(req.params.id || '')) {
+        return res.status(400).json({
+            success: false,
+            message: 'ID da obra inválido.'
+        });
+    }
+    return next();
+}
+
+function validarAlteracaoCotaArmazenamento(req, res, next) {
+    const valor = req.body?.cota_armazenamento_bytes;
+    const texto = typeof valor === 'number' && Number.isSafeInteger(valor)
+        ? String(valor)
+        : valor;
+
+    if (typeof texto !== 'string' || !/^(0|[1-9][0-9]*)$/.test(texto)) {
+        return res.status(400).json({
+            success: false,
+            message: 'cota_armazenamento_bytes deve ser um inteiro não negativo.'
+        });
+    }
+
+    if (BigInt(texto) > 9223372036854775807n) {
+        return res.status(400).json({
+            success: false,
+            message: 'cota_armazenamento_bytes excede o limite suportado.'
+        });
+    }
+
+    req.body.cota_armazenamento_bytes = texto;
+    return next();
+}
+
 function validarCriacaoLivroParaAutor(req, res, next) {
     const { solicitacao_id } = req.body || {};
     if (!solicitacao_id || typeof solicitacao_id !== 'string') {
@@ -147,5 +181,7 @@ module.exports = {
     validarAlteracaoVisibilidadeLivro,
     validarAlteracaoCapaLivro,
     validarCriacaoLivroParaAutor,
-    validarDecisaoEditorial
+    validarDecisaoEditorial,
+    validarIdCotaArmazenamento,
+    validarAlteracaoCotaArmazenamento
 };

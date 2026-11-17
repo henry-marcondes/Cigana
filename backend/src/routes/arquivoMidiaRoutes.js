@@ -54,6 +54,14 @@ router.post(
 );
 
 router.get(
+    '/livro/:livro_id/armazenamento',
+    validarLivroId,
+    autenticar,
+    autorizarPorLivro,
+    ArquivoMidiaController.armazenamento
+);
+
+router.get(
     '/livro/:livro_id',
     validarLivroId,
     autenticar,

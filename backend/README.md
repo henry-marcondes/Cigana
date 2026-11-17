@@ -62,7 +62,30 @@ O servidor é iniciado por `src/server.js`, possui health check em `GET /` e dis
    DB_PASSWORD=defina_uma_senha_local
    NODE_ENV=development
    FRONTEND_URL=http://localhost:3000
+   CIGANA_STORAGE_ROOT=/var/lib/cigana/storage
    ```
+
+   `CIGANA_STORAGE_ROOT` deve ser um caminho absoluto para uma área privada,
+   fora de `media/`. A raiz padrão, quando a variável não estiver definida,
+   é `<raiz-do-projeto>/storage`; ela não depende do diretório usado para
+   iniciar o Node.js. Novos objetos são gravados em
+   `storage/<livro_id>/<chave_armazenamento>`. A chave UUID registrada em
+   `arquivos_midia.chave_armazenamento` é preservada como nome físico do
+   objeto; o nome original permanece apenas como metadado.
+
+   O leitor mantém compatibilidade com a localização antiga
+   `storage/arquivos_midia/<livro_id>/<chave_armazenamento>` enquanto houver
+   objetos legados. Para auditar antes da cópia, execute na pasta `backend`:
+
+   ```bash
+   node scripts/migrar-storage-fisico.js
+   ```
+
+   O comando padrão é somente simulação e compara tamanho e SHA-256 com o
+   PostgreSQL, além de listar arquivos sem registro e temporários. Após revisar
+   o relatório, `node scripts/migrar-storage-fisico.js --apply` copia apenas
+   objetos registrados, sem sobrescrever destinos e sem excluir origens. A
+   remoção manual da árvore antiga exige uma verificação posterior completa.
 
 3. Crie/evolua a estrutura do banco pelas migrations do repositório:
 

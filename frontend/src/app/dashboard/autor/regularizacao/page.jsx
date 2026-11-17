@@ -461,9 +461,64 @@ function RegularizacaoAutorConteudo() {
                     )}
                 </div>
                 <ol className="mt-5 space-y-3">
-                    {renderCheckpoint(1, 'Dados pessoais e documentos', statusPessoa,
-                        `${possuiPessoaFisica ? 'Pessoa Física cadastrada' : ''}${possuiPessoaFisica && possuiPessoaJuridica ? ' e ' : ''}${possuiPessoaJuridica ? 'Pessoa Jurídica cadastrada' : ''}${!possuiPessoaFisica && !possuiPessoaJuridica ? 'Informe os dados e documentos da especialização cadastrada.' : '. CPF/CNPJ e os campos obrigatórios são conferidos pelo cadastro.'}`,
-                        '/dashboard/autor/regularizacao', 'Completar ou corrigir cadastro')}
+                    <li className="rounded-lg border border-gray-200 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <h3 className="font-semibold text-gray-900">
+                                Etapa 1 — Dados pessoais e documentos
+                            </h3>
+                            <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${checkpointStatus(statusPessoa).classe}`}>
+                                {checkpointStatus(statusPessoa).texto}
+                            </span>
+                        </div>
+
+                        <p className="mt-2 text-sm text-gray-600">
+                            {`${possuiPessoaFisica ? 'Pessoa Física cadastrada' : ''}${possuiPessoaFisica && possuiPessoaJuridica ? ' e ' : ''}${possuiPessoaJuridica ? 'Pessoa Jurídica cadastrada' : ''}${!possuiPessoaFisica && !possuiPessoaJuridica ? 'Informe os dados e documentos da especialização cadastrada.' : '. CPF/CNPJ e os campos obrigatórios são conferidos pelo cadastro.'}`}
+                        </p>
+
+                        {!tipoPessoa && (
+                            <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50/50 p-4">
+                                <h4 className="font-semibold text-gray-900">
+                                    Como deseja realizar seu cadastro?
+                                </h4>
+                                <p className="mt-1 text-sm text-gray-600">
+                                    Escolha uma opção para preencher ou corrigir seus dados pessoais e documentos.
+                                </p>
+
+                                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => selecionarTipo('FISICA')}
+                                        className="rounded-lg border border-gray-300 bg-white p-4 text-left transition hover:border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <h5 className="font-semibold text-gray-900">
+                                            Pessoa Física
+                                        </h5>
+                                        <p className="mt-2 text-sm text-gray-600">
+                                            {possuiPessoaFisica
+                                                ? 'Revise ou corrija os dados da pessoa física.'
+                                                : 'Cadastro para atuação em nome próprio.'}
+                                        </p>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => selecionarTipo('JURIDICA')}
+                                        className="rounded-lg border border-gray-300 bg-white p-4 text-left transition hover:border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <h5 className="font-semibold text-gray-900">
+                                            Pessoa Jurídica
+                                        </h5>
+                                        <p className="mt-2 text-sm text-gray-600">
+                                            {possuiPessoaJuridica
+                                                ? 'Revise ou corrija os dados da pessoa jurídica.'
+                                                : 'Cadastro para atuação por empresa ou organização.'}
+                                        </p>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </li>
+
                     {renderCheckpoint(2, 'Telefone', statusTelefone,
                         statusTelefone === 'pendente' ? 'Cadastre ao menos um telefone ativo. Não é necessária verificação por SMS ou WhatsApp.' : 'É necessário manter ao menos um telefone ativo. Não há exigência de verificação por SMS ou WhatsApp.',
                         '/dashboard/telefones', 'Gerenciar telefones')}
@@ -515,51 +570,6 @@ function RegularizacaoAutorConteudo() {
                     </div>
                 )}
             </section>
-
-            {!tipoPessoa && (
-                <section className="mb-8">
-                <h2 className="text-lg font-semibold mb-4">
-                    Cadastro de pessoa
-                </h2>
-                <p className="mb-4 text-gray-600">
-                    Selecione o cadastro que deseja preencher.
-                </p>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                    {(
-                        <button
-                            type="button"
-                            onClick={() => selecionarTipo('FISICA')}
-                            className="rounded-lg border p-6 text-left hover:bg-gray-50"
-                        >
-                    <h3 className="font-semibold">
-                        Pessoa Física
-                    </h3>
-
-                    <p className="mt-2 text-sm text-gray-600">
-                        {possuiPessoaFisica ? 'Revise ou corrija os dados da pessoa física.' : 'Cadastro para atuação como pessoa física.'}
-                    </p>
-                </button>
-            )}
-
-            {(
-                <button
-                    type="button"
-                    onClick={() => selecionarTipo('JURIDICA')}
-                    className="rounded-lg border p-6 text-left hover:bg-gray-50"
-                >
-                    <h3 className="font-semibold">
-                        Pessoa Jurídica
-                    </h3>
-
-                    <p className="mt-2 text-sm text-gray-600">
-                        {possuiPessoaJuridica ? 'Revise ou corrija os dados da pessoa jurídica.' : 'Cadastro para atuação por empresa ou organização.'}
-                    </p>
-                </button>
-                )}
-            </div>
-          </section>
-        )}
 
             {tipoPessoa && (
                 <form onSubmit={salvar} className="space-y-8">

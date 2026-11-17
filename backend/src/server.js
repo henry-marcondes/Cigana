@@ -13,6 +13,7 @@ const autorRoutes = require('./routes/autorRoutes');
 const livroRoutes = require('./routes/livroRoutes');
 const pastaObraRoutes = require('./routes/pastaObraRoutes');
 const arquivoMidiaRoutes = require('./routes/arquivoMidiaRoutes');
+const livroDocumentoRoutes = require('./routes/livroDocumentoRoutes');
 const capituloRoutes = require('./routes/capituloRoutes');
 const cenaRoutes = require('./routes/cenaRoutes');
 const escolhaRoutes = require('./routes/escolhaRoutes');
@@ -58,7 +59,7 @@ const corsOptions = {
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Nome-Original'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Nome-Original', 'X-Hash-Esperado'],
 };
 
 // Middleware
@@ -79,6 +80,7 @@ app.use('/api/autores', autorRoutes);
 app.use('/api/livros', livroRoutes);
 app.use('/api/pastas-obra', pastaObraRoutes);
 app.use('/api/arquivos-midia', arquivoMidiaRoutes);
+app.use('/api/livro-documentos', livroDocumentoRoutes);
 app.use('/api/capitulos', capituloRoutes);
 app.use('/api/cenas', cenaRoutes);
 app.use('/api/escolhas', escolhaRoutes);

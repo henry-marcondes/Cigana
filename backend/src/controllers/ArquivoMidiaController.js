@@ -10,6 +10,15 @@ function responderErro(res, error) {
 }
 
 class ArquivoMidiaController {
+    static async armazenamento(req, res) {
+        try {
+            const dados = await ArquivoMidiaService.obterResumoArmazenamento(req.livro_id);
+            return apiResponse.success(res, dados);
+        } catch (error) {
+            return responderErro(res, error);
+        }
+    }
+
     static async emitirUrl(req, res) {
         try {
             const dados = await ArquivoMidiaService.emitirUrl(req.params.id);
@@ -155,7 +164,11 @@ class ArquivoMidiaController {
             const arquivo = await ArquivoMidiaService.substituirConteudo(
                 req.params.id,
                 req.livro_id,
-                req
+                req,
+                req.get('X-Hash-Esperado') ? {
+                    markdownGerenciado: true,
+                    hashEsperado: req.get('X-Hash-Esperado')
+                } : {}
             );
 
             return apiResponse.success(

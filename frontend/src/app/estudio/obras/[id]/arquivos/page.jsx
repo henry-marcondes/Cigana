@@ -59,7 +59,7 @@ function mensagemErroAmigavel(error) {
 function mensagemErroUpload(error) {
   if (error?.status === 401) return 'Sua sessão expirou. Entre novamente para enviar arquivos.';
   if (error?.status === 403) return 'Você não tem autorização para enviar arquivos nesta obra.';
-  if (error?.status === 413) return 'O servidor recusou o arquivo enviado. Verifique o arquivo e tente novamente.';
+  if (error?.status === 413) return error?.data?.message || 'O arquivo excede o limite individual ou o espaço disponível da obra.';
 
   const errosValidacao = error?.data?.errors;
   if (Array.isArray(errosValidacao) && errosValidacao.length > 0) {

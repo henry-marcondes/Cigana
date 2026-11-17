@@ -3,6 +3,7 @@ const pool = require('../db/connection');
 const CAMPOS_PUBLICOS = `
     id,
     cena_id,
+    livro_id,
     tipo_conteudo,
     conteudo_id,
     ordem_exibicao,
@@ -15,18 +16,37 @@ class CenaConteudo {
 
     static async listarPorCena(cena_id, client = pool) {
         const result = await client.query(`
-            SELECT ${CAMPOS_PUBLICOS}
-              FROM cena_conteudos
-             WHERE cena_id = $1
-               AND ativo = TRUE
-             ORDER BY ordem_exibicao
+            SELECT cc.id, cc.cena_id, cc.livro_id, cc.tipo_conteudo,
+                   cc.conteudo_id, cc.ordem_exibicao, cc.ativo,
+                   cc.criado_em, cc.atualizado_em,
+                   CASE cc.tipo_conteudo
+                     WHEN 'TEXTO' THEN ct.titulo
+                     WHEN 'IMAGEM' THEN ci.titulo
+                     WHEN 'AUDIO' THEN ca.titulo
+                     WHEN 'VIDEO' THEN cv.titulo
+                   END AS titulo,
+                   CASE cc.tipo_conteudo
+                     WHEN 'TEXTO' THEN ct.arquivo_id
+                     WHEN 'IMAGEM' THEN ci.arquivo_id
+                     WHEN 'AUDIO' THEN ca.arquivo_id
+                     WHEN 'VIDEO' THEN cv.arquivo_id
+                   END AS arquivo_id,
+                   CASE WHEN cc.tipo_conteudo = 'TEXTO' THEN ct.texto_url END AS texto_url
+              FROM cena_conteudos cc
+              LEFT JOIN cena_textos ct ON cc.tipo_conteudo = 'TEXTO' AND ct.id = cc.conteudo_id
+              LEFT JOIN cena_imagens ci ON cc.tipo_conteudo = 'IMAGEM' AND ci.id = cc.conteudo_id
+              LEFT JOIN cena_audios ca ON cc.tipo_conteudo = 'AUDIO' AND ca.id = cc.conteudo_id
+              LEFT JOIN cena_videos cv ON cc.tipo_conteudo = 'VIDEO' AND cv.id = cc.conteudo_id
+             WHERE cc.cena_id = $1
+               AND cc.ativo = TRUE
+             ORDER BY cc.ordem_exibicao
         `, [cena_id]);
 
         return result.rows;
     }
 
-    static async buscarPorId(id) {
-        const result = await pool.query(`
+    static async buscarPorId(id, client = pool) {
+        const result = await client.query(`
             SELECT ${CAMPOS_PUBLICOS}
               FROM cena_conteudos
              WHERE id = $1
@@ -40,6 +60,7 @@ class CenaConteudo {
 
         const {
             cena_id,
+            livro_id,
             tipo_conteudo,
             conteudo_id,
             ordem_exibicao
@@ -48,15 +69,17 @@ class CenaConteudo {
         const result = await client.query(`
             INSERT INTO cena_conteudos (
                 cena_id,
+                livro_id,
                 tipo_conteudo,
                 conteudo_id,
                 ordem_exibicao
             )
-            VALUES ($1, $2, $3, $4)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
             cena_id,
+            livro_id,
             tipo_conteudo,
             conteudo_id,
             ordem_exibicao

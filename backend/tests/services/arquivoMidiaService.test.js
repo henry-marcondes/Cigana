@@ -13,13 +13,19 @@ const OUTRA_OBRA_ID = '99999999-9999-4999-8999-999999999999';
 const PASTA_ID = '22222222-2222-4222-8222-222222222222';
 const ARQUIVO_ID = '33333333-3333-4333-8333-333333333333';
 
-function criarCliente(chamadas) {
+function criarCliente(chamadas, opcoes) {
     return {
         async query(sql) {
             const consulta = sql.trim();
             chamadas.queries.push(consulta);
             if (consulta.includes('SELECT id FROM livros')) {
                 return { rowCount: 1, rows: [{ id: LIVRO_ID }] };
+            }
+            if (consulta.includes('SELECT cota_armazenamento_bytes FROM livros')) {
+                return { rowCount: 1, rows: [{ cota_armazenamento_bytes: opcoes.cotaBytes || '1000000' }] };
+            }
+            if (consulta.includes('SUM(tamanho_bytes)')) {
+                return { rowCount: 1, rows: [{ consumo_bytes: opcoes.consumoBytes || '0' }] };
             }
             return { rowCount: 0, rows: [] };
         },
@@ -52,7 +58,7 @@ function configurarDublês(t, opcoes = {}) {
         remover: armazenamento.removerObjeto
     };
 
-    pool.connect = async () => criarCliente(chamadas);
+    pool.connect = async () => criarCliente(chamadas, opcoes);
     PastaObra.buscarPorId = async (id) => ({
         id,
         livro_id: opcoes.livroDaPasta || LIVRO_ID,
@@ -170,6 +176,32 @@ test('falha na gravação não cria metadados', async (t) => {
     assert.equal(chamadas.remover, 0);
 });
 
+test('recusa upload que excede a cota registrada da obra', async (t) => {
+    const chamadas = configurarDublês(t, {
+        cotaBytes: '15',
+        consumoBytes: '10',
+        novoObjeto: {
+            chave_armazenamento: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+            mime_type: 'text/plain',
+            tamanho_bytes: '6',
+            hash_sha256: 'b'.repeat(64)
+        }
+    });
+
+    await assert.rejects(
+        ArquivoMidiaService.criar(
+            LIVRO_ID,
+            null,
+            'arquivo.txt',
+            Readable.from('conteúdo')
+        ),
+        (error) => error.statusCode === 413
+    );
+
+    assert.equal(chamadas.inserir, 0);
+    assert.equal(chamadas.remover, 1);
+});
+
 test('substituição mantém arquivo_id, atualiza hash e remove conteúdo antigo após commit', async (t) => {
     const chamadas = configurarDublês(t);
     const resultado = await ArquivoMidiaService.substituirConteudo(
@@ -185,6 +217,35 @@ test('substituição mantém arquivo_id, atualiza hash e remove conteúdo antigo
     assert.equal(resultado.id, ARQUIVO_ID);
     assert.equal(chamadas.remover, 1);
     assert.ok(chamadas.queries.indexOf('COMMIT') >= 0);
+});
+
+test('substituição concorrente de Markdown recusa hash desatualizado antes de gravar', async (t) => {
+    const chamadas = configurarDublês(t, {
+        arquivoAtual: {
+            id: ARQUIVO_ID,
+            livro_id: LIVRO_ID,
+            nome_original: 'capitulo.md',
+            chave_armazenamento: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+            mime_type: 'text/markdown',
+            tamanho_bytes: '8',
+            hash_sha256: 'a'.repeat(64),
+            ativo: true
+        }
+    });
+
+    await assert.rejects(
+        ArquivoMidiaService.substituirConteudo(
+            ARQUIVO_ID,
+            LIVRO_ID,
+            Readable.from('texto novo'),
+            { markdownGerenciado: true, hashEsperado: 'b'.repeat(64) }
+        ),
+        (error) => error.statusCode === 409
+    );
+
+    assert.equal(chamadas.gravar, 0);
+    assert.equal(chamadas.substituir, 0);
+    assert.ok(chamadas.queries.includes('ROLLBACK'));
 });
 
 test('falha de gravação na substituição preserva metadados e conteúdo anterior', async (t) => {
@@ -205,7 +266,7 @@ test('falha de gravação na substituição preserva metadados e conteúdo anter
     assert.equal(chamadas.remover, 0);
 });
 
-test('falha ao atualizar metadados preserva ambos os objetos para reconciliação', async (t) => {
+test('falha ao atualizar metadados remove o novo objeto não registrado', async (t) => {
     const chamadas = configurarDublês(t);
     ArquivoMidia.substituirConteudo = async () => {
         throw new Error('falha de banco simulada');
@@ -221,11 +282,11 @@ test('falha ao atualizar metadados preserva ambos os objetos para reconciliaçã
     );
 
     assert.equal(chamadas.gravar, 1);
-    assert.equal(chamadas.remover, 0);
+    assert.equal(chamadas.remover, 1);
     assert.ok(chamadas.queries.includes('ROLLBACK'));
 });
 
-test('registro desativado durante a substituição preserva os dois objetos', async (t) => {
+test('registro desativado durante a substituição remove o novo objeto não registrado', async (t) => {
     const chamadas = configurarDublês(t);
     ArquivoMidia.substituirConteudo = async () => null;
 
@@ -238,7 +299,7 @@ test('registro desativado durante a substituição preserva os dois objetos', as
         (error) => error.statusCode === 404
     );
 
-    assert.equal(chamadas.remover, 0);
+    assert.equal(chamadas.remover, 1);
     assert.ok(chamadas.queries.includes('ROLLBACK'));
 });
 

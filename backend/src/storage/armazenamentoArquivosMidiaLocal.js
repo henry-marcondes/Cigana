@@ -26,27 +26,55 @@ function estaDentro(diretorioPai, caminho) {
     );
 }
 
-async function obterRaizPrivada() {
-    const raizConfigurada = process.env.CIGANA_STORAGE_ROOT ||
-        path.resolve(__dirname, '../../../storage/arquivos_midia');
-    const raiz = path.resolve(raizConfigurada);
+function obterRaizConfigurada() {
+    const configuracao = process.env.CIGANA_STORAGE_ROOT?.trim();
+    if (configuracao && !path.isAbsolute(configuracao)) {
+        throw new Error('CIGANA_STORAGE_ROOT deve conter um caminho absoluto.');
+    }
+    const raiz = configuracao
+        ? path.resolve(configuracao)
+        : path.resolve(__dirname, '../../../storage');
     const mediaPublica = path.resolve(__dirname, '../../../media');
 
-    if (estaDentro(mediaPublica, raiz)) {
-        throw new Error('CIGANA_STORAGE_ROOT não pode estar dentro de media/.');
+    if (!path.isAbsolute(raiz) || raiz === path.parse(raiz).root) {
+        throw new Error('CIGANA_STORAGE_ROOT deve ser um diretório absoluto seguro.');
     }
 
-    await fs.mkdir(raiz, { recursive: true });
-    const [raizReal, mediaReal] = await Promise.all([
-        fs.realpath(raiz),
-        fs.realpath(mediaPublica)
-    ]);
+    if (estaDentro(mediaPublica, raiz) || estaDentro(raiz, mediaPublica)) {
+        throw new Error('CIGANA_STORAGE_ROOT não pode coincidir com, conter ou estar dentro de media/.');
+    }
 
-    if (estaDentro(mediaReal, raizReal)) {
-        throw new Error('O armazenamento de arquivos deve ficar fora de media/.');
+    return raiz;
+}
+
+async function obterRaizPrivada() {
+    const raiz = obterRaizConfigurada();
+    await fs.mkdir(raiz, { recursive: true, mode: 0o700 });
+    const raizReal = await fs.realpath(raiz);
+    const mediaReal = await fs.realpath(path.resolve(__dirname, '../../../media'));
+
+    if (estaDentro(mediaReal, raizReal) || estaDentro(raizReal, mediaReal)) {
+        throw new Error('O armazenamento de arquivos deve ficar isolado de media/.');
     }
 
     return raizReal;
+}
+
+async function resolverObjeto(livro_id, chave_armazenamento) {
+    const raiz = await obterRaizPrivada();
+    const diretorioObra = path.join(raiz, livro_id);
+    const objetoAtual = path.join(diretorioObra, chave_armazenamento);
+    const objetoLegado = path.join(raiz, 'arquivos_midia', livro_id, chave_armazenamento);
+    if (!estaDentro(diretorioObra, objetoAtual)) {
+        throw erroApi('Chave de armazenamento inválida.', 404);
+    }
+    try {
+        await fs.lstat(objetoAtual);
+        return { raiz, diretorioObra, objeto: objetoAtual };
+    } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+    }
+    return { raiz, diretorioObra, objeto: objetoLegado };
 }
 
 function identificarMime(prefixo, nomeOriginal) {
@@ -141,6 +169,10 @@ async function gravarStream(livro_id, stream, nomeOriginal) {
             createWriteStream(temporario, { flags: 'wx', mode: 0o600 })
         );
     } catch (error) {
+        if (error.statusCode === 413) {
+            await fs.rm(temporario, { force: true }).catch(() => {});
+            throw error;
+        }
         console.error(
             `Falha de gravação; objeto temporário preservado para reconciliação (livro ${livro_id}, chave ${chave}).`
         );
@@ -148,8 +180,9 @@ async function gravarStream(livro_id, stream, nomeOriginal) {
     }
 
     if (tamanhoBytes === 0n) {
+        await fs.rm(temporario, { force: true }).catch(() => {});
         console.error(
-            `Upload vazio preservado fora do acesso normal (livro ${livro_id}, chave ${chave}).`
+            `Upload vazio rejeitado e arquivo temporário removido (livro ${livro_id}, chave ${chave}).`
         );
         throw erroApi('O arquivo enviado está vazio.', 400);
     }
@@ -175,13 +208,7 @@ async function removerObjeto(livro_id, chave_armazenamento) {
     validarIdentificador(livro_id, 'livro_id');
     validarIdentificador(chave_armazenamento, 'chave_armazenamento');
 
-    const raiz = await obterRaizPrivada();
-    const diretorioObra = path.join(raiz, livro_id);
-    const objeto = path.join(diretorioObra, chave_armazenamento);
-
-    if (!estaDentro(diretorioObra, objeto)) {
-        throw new Error('Chave de armazenamento fora do diretório da obra.');
-    }
+    const { objeto } = await resolverObjeto(livro_id, chave_armazenamento);
 
     try {
         await fs.unlink(objeto);
@@ -194,12 +221,7 @@ async function abrirObjeto(livro_id, chave_armazenamento) {
     validarIdentificador(livro_id, 'livro_id');
     validarIdentificador(chave_armazenamento, 'chave_armazenamento');
 
-    const raiz = await obterRaizPrivada();
-    const diretorioObra = path.join(raiz, livro_id);
-    const objeto = path.join(diretorioObra, chave_armazenamento);
-    if (!estaDentro(diretorioObra, objeto)) {
-        throw erroApi('Chave de armazenamento inválida.', 404);
-    }
+    const { diretorioObra, objeto } = await resolverObjeto(livro_id, chave_armazenamento);
 
     const informacoes = await fs.lstat(objeto);
     if (!informacoes.isFile()) throw erroApi('Arquivo gerenciado indisponível.', 404);
@@ -213,5 +235,6 @@ module.exports = {
     gravarStream,
     removerObjeto,
     abrirObjeto,
-    identificarMime
+    identificarMime,
+    obterRaizConfigurada
 };

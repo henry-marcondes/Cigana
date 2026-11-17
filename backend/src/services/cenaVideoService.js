@@ -1,7 +1,7 @@
 const pool = require('../db/connection');
 const CenaVideo = require('../models/CenaVideo');
 const CenaConteudo = require('../models/CenaConteudo');
-const { executarComArquivoValidado } = require('./arquivoCenaService');
+const { executarComArquivoDaObraValidado, resolverLivroDoConteudo } = require('./arquivoCenaService');
 
 class CenaVideoService {
 
@@ -22,13 +22,13 @@ class CenaVideoService {
     }
 
     static async criar(cenaVideo) {
-        if (cenaVideo.arquivo_id) {
-            return executarComArquivoValidado(
-                pool, cenaVideo.arquivo_id, cenaVideo.cena_id,
-                (transacao) => CenaVideo.criar(cenaVideo, transacao)
-            );
-        }
-        return CenaVideo.criar(cenaVideo);
+        const livro_id = await resolverLivroDoConteudo(cenaVideo, pool);
+        const dados = { ...cenaVideo, livro_id };
+        if (dados.arquivo_id) return executarComArquivoDaObraValidado(
+            pool, dados.arquivo_id, livro_id,
+            (transacao) => CenaVideo.criar(dados, transacao)
+        );
+        return CenaVideo.criar(dados);
     }
 
     static async alterarInformacoes(id, cenaVideo) {
@@ -54,8 +54,8 @@ class CenaVideoService {
         }
 
         const videoAtualizado = arquivo_id
-            ? await executarComArquivoValidado(
-                pool, arquivo_id, videoExistente.cena_id,
+            ? await executarComArquivoDaObraValidado(
+                pool, arquivo_id, videoExistente.livro_id,
                 (transacao) => CenaVideo.alterarVideo(
                     id, video_url, transacao, arquivo_id
                 )

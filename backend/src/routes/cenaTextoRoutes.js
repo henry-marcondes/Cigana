@@ -17,6 +17,14 @@ const {
     validarIdCena
 } = require('../validators/cenaTextoValidator');
 
+router.post(
+    '/associar-arquivo-markdown',
+    autenticar,
+    autorizarObra(EscopoObraService.porCenaBody),
+    validarCriacaoCenaTexto,
+    CenaTextoController.associarArquivoMarkdown
+);
+
 router.get(
     '/cena/:cena_id',
     protegerLeituraObra(
@@ -51,6 +59,15 @@ router.patch(
     validarAlteracaoCenaTexto,
     CenaTextoController.alterar
 );
+
+router.put(
+    '/:id/conteudo',
+    autenticar,
+    autorizarObra(EscopoObraService.porCenaTextoParam),
+    validarIdCenaTexto,
+    CenaTextoController.salvarConteudo
+);
+
 router.delete(
     '/:id',
     autenticar,

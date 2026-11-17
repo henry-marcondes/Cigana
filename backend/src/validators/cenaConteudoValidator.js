@@ -28,11 +28,25 @@ const validarCriacaoCenaConteudo = [
 
     validarTipoConteudo,
 
-    body('conteudo_id')
-        .notEmpty()
-        .withMessage('ID do conteúdo é obrigatório.')
-        .isUUID()
-        .withMessage('ID do conteúdo inválido.'),
+    body().custom((dados) => {
+        const possuiConteudo = Boolean(dados.conteudo_id);
+        const possuiArquivo = Boolean(dados.arquivo_id);
+        if (possuiConteudo === possuiArquivo) {
+            throw new Error('Informe somente conteudo_id ou arquivo_id.');
+        }
+        if (possuiArquivo && !['IMAGEM', 'AUDIO', 'VIDEO'].includes(dados.tipo_conteudo)) {
+            throw new Error('Arquivo do Storage deve ser associado como IMAGEM, AUDIO ou VIDEO.');
+        }
+        return true;
+    }),
+
+    body('conteudo_id').if(body('arquivo_id').not().exists())
+        .notEmpty().withMessage('ID do conteúdo é obrigatório.')
+        .isUUID().withMessage('ID do conteúdo inválido.'),
+
+    body('arquivo_id').if(body('conteudo_id').not().exists())
+        .notEmpty().withMessage('ID do arquivo é obrigatório.')
+        .isUUID().withMessage('ID do arquivo inválido.'),
 
     body('ordem_exibicao')
         .notEmpty()
@@ -65,6 +79,10 @@ const validarIdCena = [
     validarUUID('cena_id')
 ];
 
+const validarIdLivro = [
+    validarUUID('livro_id')
+];
+
 const validarReordenacao = [
     body('cena_id')
         .notEmpty()
@@ -89,5 +107,6 @@ module.exports = {
     validarAlteracaoTipoConteudo,
     validarIdCenaConteudo,
     validarIdCena,
+    validarIdLivro,
     validarReordenacao
 };

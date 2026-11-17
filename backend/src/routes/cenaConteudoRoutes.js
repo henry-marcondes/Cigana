@@ -17,8 +17,21 @@ const {
     validarAlteracaoTipoConteudo,
     validarIdCenaConteudo,
     validarIdCena,
+    validarIdLivro,
     validarReordenacao
 } = require('../validators/cenaConteudoValidator');
+
+router.get(
+    '/livro/:livro_id/disponiveis',
+    protegerLeituraObra(
+        EscopoObraService.comParametro(
+            EscopoObraService.porLivroParam,
+            'livro_id'
+        )
+    ),
+    validarIdLivro,
+    CenaConteudoController.listarDisponiveisPorLivro
+);
 
 // Listar conteúdos de uma cena
 router.get(

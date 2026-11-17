@@ -4,6 +4,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
 import { apiFetch } from '../../../../../../../../../services/api';
+import {
+    alterarDestinoEscolha,
+    alterarTextoEscolha,
+    criarEscolha,
+    excluirEscolha as excluirEscolhaApi,
+    listarEscolhasPorCena,
+    reordenarEscolhas,
+} from '../../../../../../../../../services/escolha';
 import { listarCapitulosPorLivro } from '../../../../../../../../../services/capitulo';
 
 export default function EscolhasCenaPage() {
@@ -66,7 +74,7 @@ export default function EscolhasCenaPage() {
     }, [capitulos]);
 
     async function carregarEscolhas() {
-        const resposta = await apiFetch(`/api/escolhas/cena/${cenaId}`);
+        const resposta = await listarEscolhasPorCena(cenaId);
 
         if (!resposta.success) {
             throw new Error(
@@ -266,15 +274,7 @@ export default function EscolhasCenaPage() {
                     escolhaAtual.cena_destino_id !== cenaDestinoId;
 
                 if (textoAlterado) {
-                    const respostaTexto = await apiFetch(
-                        `/api/escolhas/${editandoId}/texto`,
-                        {
-                            method: 'PATCH',
-                            body: JSON.stringify({
-                                texto: texto.trim(),
-                            }),
-                        }
-                    );
+                    const respostaTexto = await alterarTextoEscolha(editandoId, texto.trim());
 
                     if (!respostaTexto.success) {
                         throw new Error(
@@ -285,15 +285,7 @@ export default function EscolhasCenaPage() {
                 }
 
                 if (destinoAlterado) {
-                    const respostaDestino = await apiFetch(
-                        `/api/escolhas/${editandoId}/destino`,
-                        {
-                            method: 'PATCH',
-                            body: JSON.stringify({
-                                cena_destino_id: cenaDestinoId,
-                            }),
-                        }
-                    );
+                    const respostaDestino = await alterarDestinoEscolha(editandoId, cenaDestinoId);
 
                     if (!respostaDestino.success) {
                         throw new Error(
@@ -313,14 +305,11 @@ export default function EscolhasCenaPage() {
                           ) + 1
                         : 1;
 
-                const resposta = await apiFetch('/api/escolhas', {
-                    method: 'POST',
-                    body: JSON.stringify({
+                const resposta = await criarEscolha({
                         cena_origem_id: cenaId,
                         cena_destino_id: cenaDestinoId,
                         texto: texto.trim(),
                         ordem_exibicao: proximaOrdem,
-                    }),
                 });
 
                 if (!resposta.success) {
@@ -356,12 +345,7 @@ export default function EscolhasCenaPage() {
             setProcessandoId(escolha.id);
             setErro('');
 
-            const resposta = await apiFetch(
-                `/api/escolhas/${escolha.id}`,
-                {
-                    method: 'DELETE',
-                }
-            );
+            const resposta = await excluirEscolhaApi(escolha.id);
 
             if (!resposta.success) {
                 throw new Error(
@@ -406,15 +390,7 @@ export default function EscolhasCenaPage() {
             setReordenando(true);
             setErro('');
 
-            const resposta = await apiFetch('/api/escolhas/reordenar', {
-                method: 'PATCH',
-                body: JSON.stringify({
-                    cena_origem_id: cenaId,
-                    ordem: novaOrdem.map((escolha) => ({
-                        id: escolha.id,
-                    })),
-                }),
-            });
+            const resposta = await reordenarEscolhas(cenaId, novaOrdem.map((escolha) => ({ id: escolha.id })));
 
             if (!resposta.success) {
                 throw new Error(

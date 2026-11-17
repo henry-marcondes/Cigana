@@ -16,6 +16,35 @@ function detectarTipoImagem(buffer) {
 
 class LivroController {
 
+    static async listarCotasArmazenamento(req, res, next) {
+        try {
+            const livros = await LivroService.listarCotasArmazenamento();
+            return res.json({ success: true, data: livros });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async alterarCotaArmazenamento(req, res, next) {
+        try {
+            const livro = await LivroService.alterarCotaArmazenamento(
+                req.params.id,
+                req.body.cota_armazenamento_bytes
+            );
+
+            if (!livro) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Obra não encontrada ou inativa.'
+                });
+            }
+
+            return res.json({ success: true, data: livro });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async listarParaDecisaoEditorial(req, res, next) {
         try {
             const livros = await LivroService.listarParaDecisaoEditorial();

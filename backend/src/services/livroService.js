@@ -7,8 +7,18 @@ const StatusLivro = require('../models/StatusLivro');
 const VisibilidadeLivro = require('../models/VisibilidadeLivro');
 const PessoaService = require('./PessoaService');
 const ContratoService = require('./ContratoService');
+const Capitulo = require('../models/Capitulo');
+const Cena = require('../models/Cena');
 
 class LivroService {
+
+    static async listarCotasArmazenamento() {
+        return Livro.listarCotasArmazenamento();
+    }
+
+    static async alterarCotaArmazenamento(id, cota_armazenamento_bytes) {
+        return Livro.alterarCotaArmazenamento(id, cota_armazenamento_bytes);
+    }
 
     static async listar() {
         return await Livro.listar();
@@ -63,7 +73,40 @@ class LivroService {
             throw erro;
         }
 
-        return await Livro.criar(dados, client);
+        if (client) {
+            return this.criarComEstruturaEmTransacao(dados, client);
+        }
+
+        const transacao = await pool.connect();
+        try {
+            await transacao.query('BEGIN');
+            const livro = await this.criarComEstruturaEmTransacao(dados, transacao);
+            await transacao.query('COMMIT');
+            return livro;
+        } catch (error) {
+            await transacao.query('ROLLBACK');
+            throw error;
+        } finally {
+            transacao.release();
+        }
+    }
+
+    static async criarComEstruturaEmTransacao(dados, client) {
+        const livro = await Livro.criar(dados, client);
+
+        // Serializa chamadas concorrentes e permite completar a estrutura idempotentemente.
+        await client.query('SELECT id FROM livros WHERE id = $1 FOR UPDATE', [livro.id]);
+        let capitulo = await Capitulo.buscarDestinosPendentes(livro.id, client);
+        if (!capitulo) {
+            capitulo = await Capitulo.criarDestinosPendentes(livro.id, client);
+        }
+
+        const cena = await Cena.buscarPadrao(capitulo.id, client);
+        if (!cena) {
+            await Cena.criarPadrao(capitulo.id, client);
+        }
+
+        return livro;
     }
 
     static async criarParaAutor(usuario_id, dados) {
@@ -109,7 +152,7 @@ class LivroService {
             throw error;
         }
 
-        const livro = await Livro.criar({
+        const livro = await this.criar({
             categoria_id: dados.categoria_id,
             classificacao_indicativa_id: dados.classificacao_indicativa_id,
             idioma_id: dados.idioma_id,

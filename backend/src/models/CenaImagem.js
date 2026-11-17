@@ -3,6 +3,7 @@ const pool = require('../db/connection');
 const CAMPOS_PUBLICOS = `
     id,
     cena_id,
+    livro_id,
     titulo,
     legenda,
     texto_alternativo,
@@ -43,6 +44,7 @@ class CenaImagem {
 
         const {
             cena_id,
+            livro_id,
             titulo,
             legenda,
             texto_alternativo,
@@ -54,6 +56,7 @@ class CenaImagem {
         const result = await client.query(`
             INSERT INTO cena_imagens (
                 cena_id,
+                livro_id,
                 titulo,
                 legenda,
                 texto_alternativo,
@@ -61,11 +64,12 @@ class CenaImagem {
                 arquivo_id,
                 ordem_exibicao
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
             cena_id,
+            livro_id,
             titulo,
             legenda,
             texto_alternativo,

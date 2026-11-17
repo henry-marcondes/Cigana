@@ -3,7 +3,11 @@ const pool = require('../db/connection');
 const CAMPOS_PUBLICOS = `
     id,
     cena_id,
+    titulo,
+    livro_id,
+    arquivo_id,
     texto_url,
+    conteudo,
     ativo,
     criado_em,
     atualizado_em
@@ -25,7 +29,14 @@ class CenaTexto {
 
     static async buscarPorId(id, client = pool) {
         const result = await client.query(`
-            SELECT ${CAMPOS_PUBLICOS}
+            SELECT ${CAMPOS_PUBLICOS},
+                   EXISTS (
+                       SELECT 1
+                         FROM livro_documentos ld
+                        WHERE ld.livro_id = cena_textos.livro_id
+                          AND ld.arquivo_id = cena_textos.arquivo_id
+                          AND ld.ativo = TRUE
+                   ) AS documento_markdown_ativo
               FROM cena_textos
              WHERE id = $1
                AND ativo = TRUE
@@ -53,20 +64,32 @@ class CenaTexto {
 
         const {
             cena_id,
-            texto_url
+            titulo,
+            texto_url,
+            livro_id,
+            arquivo_id,
+            conteudo
         } = cenaTexto;
 
         const result = await client.query(`
             INSERT INTO cena_textos (
                 cena_id,
-                texto_url
+                titulo,
+                texto_url,
+                livro_id,
+                arquivo_id,
+                conteudo
             )
-            VALUES ($1, $2)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
             cena_id,
-            texto_url
+            titulo ?? null,
+            texto_url ?? null,
+            livro_id ?? null,
+            arquivo_id ?? null,
+            conteudo ?? null
         ]);
 
         return result.rows[0];

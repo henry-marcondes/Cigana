@@ -9,12 +9,38 @@ const CAMPOS_PUBLICOS = `
     ordem_exibicao,
     cena_inicial,
     cena_final,
+    cena_padrao,
     ativo,
     criado_em,
     atualizado_em
 `;
 
 class Cena {
+
+    static async buscarPadrao(capitulo_id, client = pool) {
+        const result = await client.query(`
+            SELECT ${CAMPOS_PUBLICOS}
+              FROM cenas
+             WHERE capitulo_id = $1
+               AND cena_padrao = TRUE
+             LIMIT 1
+        `, [capitulo_id]);
+
+        return result.rows[0] || null;
+    }
+
+    static async criarPadrao(capitulo_id, client = pool) {
+        const result = await client.query(`
+            INSERT INTO cenas (
+                capitulo_id, titulo, slug, texto, ordem_exibicao,
+                cena_inicial, cena_final, cena_padrao
+            )
+            VALUES ($1, $2, $3, '', 1, FALSE, FALSE, TRUE)
+            RETURNING ${CAMPOS_PUBLICOS}
+        `, [capitulo_id, 'Cena Padrão', 'cena-padrao']);
+
+        return result.rows[0];
+    }
 
     static async listarPorCapitulo(capitulo_id) {
         const result = await pool.query(`

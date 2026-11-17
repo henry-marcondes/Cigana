@@ -10,13 +10,63 @@ function erroApi(message, statusCode) {
     return error;
 }
 
+function classificarTipoArquivo(arquivo, associacoes) {
+    const tiposAssociados = [...new Set(
+        (associacoes || []).map((item) => item.tipo_conteudo).filter(Boolean)
+    )];
+
+    if (tiposAssociados.length === 1) {
+        return { tipo_conteudo: tiposAssociados[0], tipo_identificado_por: 'CONTEUDO' };
+    }
+    if (tiposAssociados.length > 1) {
+        return { tipo_conteudo: 'MULTIPLO', tipo_identificado_por: 'CONTEUDO' };
+    }
+
+    const mime = (arquivo.mime_type || '').toLowerCase();
+    const nome = (arquivo.nome_original || '').toLowerCase();
+    if (mime.startsWith('image/')) return { tipo_conteudo: 'IMAGEM', tipo_identificado_por: 'MIME' };
+    if (mime.startsWith('audio/')) return { tipo_conteudo: 'AUDIO', tipo_identificado_por: 'MIME' };
+    if (mime.startsWith('video/')) return { tipo_conteudo: 'VIDEO', tipo_identificado_por: 'MIME' };
+    if (mime === 'text/markdown' || mime.startsWith('text/') || /\.(md|markdown|mdown|mkdn)$/.test(nome)) {
+        return { tipo_conteudo: 'TEXTO', tipo_identificado_por: 'MIME' };
+    }
+    return { tipo_conteudo: 'OUTRO', tipo_identificado_por: 'MIME' };
+}
+
+function validarCotaDaObra(cotaBytes, consumoBytes, tamanhoNovoBytes, tamanhoAnteriorBytes = 0n) {
+    const cota = BigInt(cotaBytes);
+    const consumo = BigInt(consumoBytes);
+    const novo = BigInt(tamanhoNovoBytes);
+    const anterior = BigInt(tamanhoAnteriorBytes);
+    const projetado = consumo - anterior + novo;
+
+    // Uma substituição que reduz (ou mantém) o consumo é permitida mesmo se
+    // a obra já estiver acima da cota, para que o autor possa liberar espaço.
+    if (projetado > cota && novo > anterior) {
+        throw erroApi(
+            'O espaço disponível na obra é insuficiente para armazenar este arquivo.',
+            413
+        );
+    }
+}
+
 function traduzirErroBanco(error) {
     if (error.code === '23505') {
+        if (error.constraint === 'uq_livro_documentos_principal_ativo') {
+            return erroApi('A obra já possui um documento principal. Promova o documento desejado explicitamente.', 409);
+        }
+        if (error.constraint === 'uq_livro_documentos_livro_arquivo') {
+            return erroApi('Este arquivo já está associado à obra como documento.', 409);
+        }
         return erroApi('Conflito ao registrar a chave de armazenamento.', 409);
     }
 
     if (error.code === '23503') {
         return erroApi('A pasta informada não pertence a esta obra.', 400);
+    }
+
+    if (error.code === '23514') {
+        return erroApi(error.message, 409);
     }
 
     return error;
@@ -83,6 +133,67 @@ async function gravarObjeto(livro_id, stream, nome_original, contexto) {
 }
 
 class ArquivoMidiaService {
+    static async obterResumoArmazenamento(livro_id) {
+        const dados = await ArquivoMidia.buscarDadosArmazenamentoPorLivro(livro_id);
+        if (!dados) throw erroApi('Obra não encontrada.', 404);
+
+        const cota = BigInt(dados.cota_armazenamento_bytes);
+        const grupos = new Map();
+        const arquivos = dados.arquivos.map((arquivo) => {
+            const classificacao = classificarTipoArquivo(arquivo, arquivo.associacoes);
+            const tamanho = BigInt(arquivo.tamanho_bytes);
+            const atual = grupos.get(classificacao.tipo_conteudo) || {
+                tipo_conteudo: classificacao.tipo_conteudo,
+                quantidade_arquivos: 0,
+                tamanho_total_bytes: 0n
+            };
+            atual.quantidade_arquivos += 1;
+            atual.tamanho_total_bytes += tamanho;
+            grupos.set(classificacao.tipo_conteudo, atual);
+
+            return {
+                ...arquivo,
+                tamanho_bytes: tamanho.toString(),
+                tipo_conteudo: classificacao.tipo_conteudo,
+                tipo_identificado_por: classificacao.tipo_identificado_por,
+                tem_associacao: (arquivo.associacoes || []).length > 0
+            };
+        });
+
+        for (const tipo of ['TEXTO', 'IMAGEM', 'AUDIO', 'VIDEO', 'MULTIPLO', 'OUTRO']) {
+            if (!grupos.has(tipo)) {
+                grupos.set(tipo, {
+                    tipo_conteudo: tipo,
+                    quantidade_arquivos: 0,
+                    tamanho_total_bytes: 0n
+                });
+            }
+        }
+
+        const consumo = arquivos.reduce(
+            (soma, arquivo) => soma + BigInt(arquivo.tamanho_bytes),
+            0n
+        );
+        const disponivel = cota - consumo;
+        const percentual = cota === 0n
+            ? (consumo === 0n ? 0 : 100)
+            : Number((consumo * 10000n + cota / 2n) / cota) / 100;
+
+        return {
+            livro_id: dados.livro_id,
+            cota_total_bytes: cota.toString(),
+            consumo_utilizado_bytes: consumo.toString(),
+            espaco_disponivel_bytes: disponivel.toString(),
+            percentual_utilizado: percentual,
+            quantidade_arquivos: arquivos.length,
+            consumo_por_tipo: [...grupos.values()].map((grupo) => ({
+                ...grupo,
+                tamanho_total_bytes: grupo.tamanho_total_bytes.toString()
+            })),
+            arquivos
+        };
+    }
+
     static async emitirUrl(id) {
         const arquivo = await ArquivoMidia.buscarPorId(id);
         if (!arquivo) throw erroApi('Arquivo gerenciado indisponível.', 404);
@@ -129,16 +240,8 @@ class ArquivoMidiaService {
         return ArquivoMidia.listarPorLivro(livro_id);
     }
 
-    static async criar(livro_id, pasta_id, nome_original, stream) {
-        await validarPastaDaObra(pasta_id, livro_id);
-
-        const objeto = await gravarObjeto(
-            livro_id,
-            stream,
-            nome_original,
-            'upload'
-        );
-
+    static async criar(livro_id, pasta_id, nome_original, stream, aposRegistro = null) {
+        let objeto;
         try {
             return await executarComObraBloqueada(livro_id, async (client) => {
                 const pastaConfirmada = await validarPastaDaObra(
@@ -147,17 +250,37 @@ class ArquivoMidiaService {
                     client
                 );
 
-                return ArquivoMidia.criar({
+                const obra = await client.query(
+                    'SELECT cota_armazenamento_bytes FROM livros WHERE id=$1 AND ativo=TRUE',
+                    [livro_id]
+                );
+                if (!obra.rows[0]) throw erroApi('Obra não encontrada.', 404);
+
+                objeto = await gravarObjeto(livro_id, stream, nome_original, 'upload');
+                const consumo = await ArquivoMidia.buscarConsumoRegistradoPorLivro(livro_id, client);
+                validarCotaDaObra(
+                    obra.rows[0].cota_armazenamento_bytes,
+                    consumo,
+                    objeto.tamanho_bytes
+                );
+
+                const arquivo = await ArquivoMidia.criar({
                     livro_id,
                     pasta_id: pastaConfirmada,
                     nome_original,
                     ...objeto
                 }, client);
+                if (aposRegistro) {
+                    const resultadoVinculo = await aposRegistro(client, arquivo);
+                    return { ...arquivo, resultado_vinculo: resultadoVinculo };
+                }
+                return arquivo;
             });
         } catch (error) {
-            console.error(
-                `Metadados do upload não foram confirmados; objeto preservado para reconciliação (obra ${livro_id}, chave ${objeto.chave_armazenamento}).`
-            );
+            if (objeto?.chave_armazenamento) {
+                await armazenamento.removerObjeto(livro_id, objeto.chave_armazenamento)
+                    .catch(() => console.error(`Falha ao remover upload não confirmado da obra ${livro_id}; requer reconciliação.`));
+            }
             throw error;
         }
     }
@@ -168,6 +291,14 @@ class ArquivoMidiaService {
 
             if (!arquivo || arquivo.livro_id !== livro_id) {
                 throw erroApi('Arquivo gerenciado não encontrado nesta obra.', 404);
+            }
+
+            const documentoMarkdown = await client.query(
+                'SELECT 1 FROM livro_documentos WHERE arquivo_id=$1 AND ativo=TRUE LIMIT 1',
+                [id]
+            );
+            if (documentoMarkdown.rowCount && !/\.(md|markdown)$/i.test(nome_original)) {
+                throw erroApi('Um documento Markdown deve manter a extensão .md ou .markdown.', 409);
             }
 
             return ArquivoMidia.renomear(id, nome_original, client);
@@ -192,20 +323,8 @@ class ArquivoMidiaService {
         });
     }
 
-    static async substituirConteudo(id, livro_id, stream) {
-        const existente = await ArquivoMidia.buscarPorId(id);
-
-        if (!existente || existente.livro_id !== livro_id) {
-            throw erroApi('Arquivo gerenciado não encontrado nesta obra.', 404);
-        }
-
-        const novoObjeto = await gravarObjeto(
-            livro_id,
-            stream,
-            existente.nome_original,
-            'substituição'
-        );
-
+    static async substituirConteudo(id, livro_id, stream, opcoes = {}) {
+        let novoObjeto;
         let atualizado;
 
         try {
@@ -215,6 +334,57 @@ class ArquivoMidiaService {
                 if (!arquivo || arquivo.livro_id !== livro_id) {
                     throw erroApi('Arquivo gerenciado não encontrado nesta obra.', 404);
                 }
+
+                if (opcoes.markdownGerenciado) {
+                    if (!/\.(md|markdown)$/i.test(arquivo.nome_original)
+                        || !['text/markdown', 'text/plain', 'text/x-markdown'].includes(arquivo.mime_type)) {
+                        throw erroApi('O arquivo associado não é Markdown.', 409);
+                    }
+                    if (typeof opcoes.hashEsperado !== 'string'
+                        || !/^[a-f0-9]{64}$/i.test(opcoes.hashEsperado)) {
+                        throw erroApi('Hash de versão esperado inválido.', 400);
+                    }
+                    if (arquivo.hash_sha256 !== opcoes.hashEsperado.toLowerCase()) {
+                        throw erroApi('O arquivo foi alterado desde a última leitura. Recarregue o conteúdo antes de salvar.', 409);
+                    }
+                    const objetoAnterior = await armazenamento.abrirObjeto(livro_id, arquivo.chave_armazenamento);
+                    const partes = [];
+                    for await (const parte of objetoAnterior.criarStream()) partes.push(parte);
+                    const hashFisico = require('node:crypto').createHash('sha256').update(Buffer.concat(partes)).digest('hex');
+                    if (hashFisico !== opcoes.hashEsperado.toLowerCase()) {
+                        throw erroApi('O arquivo foi alterado desde a última leitura. Recarregue o conteúdo antes de salvar.', 409);
+                    }
+                }
+
+                if (!opcoes.documentoMarkdown && !opcoes.markdownGerenciado) {
+                    const documento = await client.query(
+                        'SELECT 1 FROM livro_documentos WHERE arquivo_id=$1 AND ativo=TRUE LIMIT 1',
+                        [id]
+                    );
+                    if (documento.rowCount) {
+                        throw erroApi('Documentos Markdown devem ser atualizados pelo endpoint com controle de versão.', 409);
+                    }
+                }
+
+                const obra = await client.query(
+                    'SELECT cota_armazenamento_bytes FROM livros WHERE id=$1 AND ativo=TRUE',
+                    [livro_id]
+                );
+                if (!obra.rows[0]) throw erroApi('Obra não encontrada.', 404);
+
+                novoObjeto = await gravarObjeto(
+                    livro_id,
+                    stream,
+                    arquivo.nome_original,
+                    'substituição'
+                );
+                const consumo = await ArquivoMidia.buscarConsumoRegistradoPorLivro(livro_id, client);
+                validarCotaDaObra(
+                    obra.rows[0].cota_armazenamento_bytes,
+                    consumo,
+                    novoObjeto.tamanho_bytes,
+                    arquivo.tamanho_bytes
+                );
 
                 const atual = await ArquivoMidia.substituirConteudo(
                     id,
@@ -232,9 +402,10 @@ class ArquivoMidiaService {
                 return { anterior: arquivo, atual };
             });
         } catch (error) {
-            console.error(
-                `Metadados da substituição não foram confirmados; novo objeto preservado para reconciliação (obra ${livro_id}, arquivo ${id}, chave ${novoObjeto.chave_armazenamento}).`
-            );
+            if (novoObjeto?.chave_armazenamento) {
+                await armazenamento.removerObjeto(livro_id, novoObjeto.chave_armazenamento)
+                    .catch(() => console.error(`Falha ao remover substituição não confirmada do arquivo ${id}; requer reconciliação.`));
+            }
             throw error;
         }
 
@@ -258,6 +429,21 @@ class ArquivoMidiaService {
 
             if (!arquivo || arquivo.livro_id !== livro_id) {
                 throw erroApi('Arquivo gerenciado não encontrado nesta obra.', 404);
+            }
+
+            const textoNarrativo = await client.query(
+                'SELECT 1 FROM cena_textos WHERE arquivo_id=$1 LIMIT 1', [id]
+            );
+            if (textoNarrativo.rowCount) {
+                throw erroApi('O arquivo está vinculado a um texto narrativo e não pode ser desativado.', 409);
+            }
+
+            const documento = await client.query(
+                'SELECT 1 FROM livro_documentos WHERE arquivo_id=$1 AND ativo=TRUE LIMIT 1',
+                [id]
+            );
+            if (documento.rowCount) {
+                throw erroApi('Desative primeiro o vínculo documental antes de desativar o arquivo.', 409);
             }
 
             return ArquivoMidia.desativar(id, client);

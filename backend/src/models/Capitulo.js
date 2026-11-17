@@ -16,6 +16,31 @@ const CAMPOS_PUBLICOS = `
 
 class Capitulo {
 
+    static async buscarDestinosPendentes(livro_id, client = pool) {
+        const result = await client.query(`
+            SELECT ${CAMPOS_PUBLICOS}, capitulo_destinos_pendentes
+              FROM capitulos
+             WHERE livro_id = $1
+               AND capitulo_destinos_pendentes = TRUE
+             LIMIT 1
+        `, [livro_id]);
+
+        return result.rows[0] || null;
+    }
+
+    static async criarDestinosPendentes(livro_id, client = pool) {
+        const result = await client.query(`
+            INSERT INTO capitulos (
+                livro_id, titulo, slug, resumo, texto_introdutorio,
+                capa_url, ordem_exibicao, capitulo_destinos_pendentes
+            )
+            VALUES ($1, $2, $3, NULL, NULL, NULL, 1, TRUE)
+            RETURNING ${CAMPOS_PUBLICOS}, capitulo_destinos_pendentes
+        `, [livro_id, 'Destinos pendentes', 'destinos-pendentes']);
+
+        return result.rows[0];
+    }
+
     static async listarPorLivro(livro_id) {
         const result = await pool.query(`
             SELECT ${CAMPOS_PUBLICOS}

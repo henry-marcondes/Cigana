@@ -4,8 +4,8 @@ const SolicitacaoAutor = require('../models/SolicitacaoAutor');
 const UsuarioPapel = require('../models/UsuarioPapel');
 const Papel = require('../models/Papel');
 const Autor = require('../models/Autor');
-const Livro = require('../models/Livro');
 const LivroAutor = require('../models/LivroAutor');
+const LivroService = require('./livroService');
 
 class SolicitacaoAutorService {
 
@@ -294,7 +294,7 @@ class SolicitacaoAutorService {
                 );
 
             const livro =
-                await Livro.criar({
+                await LivroService.criar({
                     categoria_id:
                         dados.categoria_id,
 

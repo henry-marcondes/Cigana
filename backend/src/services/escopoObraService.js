@@ -71,6 +71,7 @@ class EscopoObraService {
 
     // Cena identificada pelo cena_id enviado no body
     static async porCenaBody(req) {
+        if (req.body.livro_id) return EscopoObraService.porLivroBody(req);
         const cena = await Cena.buscarPorId(
             req.body.cena_id
         );
@@ -123,6 +124,7 @@ class EscopoObraService {
             throw erro;
         }
 
+        if (cenaTexto.livro_id) return cenaTexto.livro_id;
         const cena = await Cena.buscarPorId(
             cenaTexto.cena_id
         );
@@ -154,6 +156,8 @@ class EscopoObraService {
             throw erro;
         }
 
+        if (cenaTexto.livro_id) return cenaTexto.livro_id;
+
         const cena = await Cena.buscarPorId(
             cenaTexto.cena_id
         );
@@ -175,6 +179,7 @@ class EscopoObraService {
 
     // CenaImagem identificada pelo cena_id enviado no body
     static async porCenaImagemBody(req) {
+        if (req.body.livro_id) return EscopoObraService.porLivroBody(req);
         const cena = await Cena.buscarPorId(
             req.body.cena_id
         );
@@ -204,6 +209,7 @@ class EscopoObraService {
             throw new Error('Imagem da cena não encontrada.');
         }
 
+        if (cenaImagem.livro_id) return cenaImagem.livro_id;
         const cena = await Cena.buscarPorId(
             cenaImagem.cena_id
         );
@@ -276,6 +282,7 @@ class EscopoObraService {
 
     // CenaAudio identificado pelo cena_id enviado no body
     static async porCenaAudioBody(req) {
+        if (req.body.livro_id) return EscopoObraService.porLivroBody(req);
         const cena = await Cena.buscarPorId(
             req.body.cena_id
         );
@@ -306,6 +313,7 @@ class EscopoObraService {
             throw new Error('Áudio da cena não encontrado.');
         }
 
+        if (cenaAudio.livro_id) return cenaAudio.livro_id;
         const cena = await Cena.buscarPorId(
             cenaAudio.cena_id
         );
@@ -328,6 +336,7 @@ class EscopoObraService {
     
     // CenaVideo identificado pelo cena_id enviado no body
     static async porCenaVideoBody(req) {
+        if (req.body.livro_id) return EscopoObraService.porLivroBody(req);
         const cena = await Cena.buscarPorId(
             req.body.cena_id
         );
@@ -357,6 +366,7 @@ class EscopoObraService {
             throw new Error('Vídeo da cena não encontrado.');
         }
 
+        if (cenaVideo.livro_id) return cenaVideo.livro_id;
         const cena = await Cena.buscarPorId(
             cenaVideo.cena_id
         );

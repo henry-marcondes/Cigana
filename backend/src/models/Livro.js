@@ -42,6 +42,30 @@ const CAMPOS_PUBLICOS_QUALIFICADOS = `
 
 class Livro {
 
+    static async listarCotasArmazenamento() {
+        const result = await pool.query(`
+            SELECT id, titulo, cota_armazenamento_bytes
+              FROM livros
+             WHERE ativo = TRUE
+             ORDER BY lower(titulo), id
+        `);
+
+        return result.rows;
+    }
+
+    static async alterarCotaArmazenamento(id, cota_armazenamento_bytes) {
+        const result = await pool.query(`
+            UPDATE livros
+               SET cota_armazenamento_bytes = $1,
+                   atualizado_em = NOW()
+             WHERE id = $2
+               AND ativo = TRUE
+            RETURNING id, titulo, cota_armazenamento_bytes
+        `, [cota_armazenamento_bytes, id]);
+
+        return result.rows[0] || null;
+    }
+
     static async listar() {
         const result = await pool.query(`
             SELECT ${CAMPOS_PUBLICOS_QUALIFICADOS}

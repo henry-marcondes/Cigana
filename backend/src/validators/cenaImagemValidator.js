@@ -20,9 +20,10 @@ const tratarErrosValidacao = (req, res, next) => {
 
 // Validação para criação de imagem da cena
 const validarCriacaoCenaImagem = [
-    body('cena_id')
-        .isUUID()
-        .withMessage('cena_id deve ser um UUID válido.'),
+    body('livro_id').optional().isUUID().withMessage('livro_id deve ser um UUID válido.'),
+    body('cena_id').optional().isUUID().withMessage('cena_id deve ser um UUID válido.'),
+    body().custom((_, { req }) => Boolean(req.body?.livro_id || req.body?.cena_id))
+        .withMessage('Informe livro_id ou cena_id.'),
 
     body('titulo')
         .trim()

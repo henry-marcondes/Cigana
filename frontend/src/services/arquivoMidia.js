@@ -1,6 +1,23 @@
 import { apiFetch } from './api';
 
 const LIMITE_UPLOAD_BYTES = 50 * 1024 * 1024;
+const CANAL_ARQUIVOS = 'cigana-arquivos-midia';
+
+export function notificarArquivosMidiaAtualizados(livroId) {
+  if (typeof window === 'undefined' || !livroId) return;
+  window.dispatchEvent(new CustomEvent('cigana:arquivos-midia-atualizados', {
+    detail: { livroId },
+  }));
+  if (typeof BroadcastChannel !== 'undefined') {
+    const canal = new BroadcastChannel(CANAL_ARQUIVOS);
+    canal.postMessage({ livroId });
+    canal.close();
+  }
+}
+
+export async function obterResumoArmazenamento(livroId) {
+  return apiFetch(`/api/arquivos-midia/livro/${livroId}/armazenamento`);
+}
 
 export async function listarArquivosPorLivro(livroId) {
   return apiFetch(`/api/arquivos-midia/livro/${livroId}`);
@@ -51,7 +68,7 @@ export async function enviarArquivoParaLivro(livroId, arquivo, pastaId = null) {
     ? `?${new URLSearchParams({ pasta_id: pastaId })}`
     : '';
 
-  return apiFetch(`/api/arquivos-midia/livro/${livroId}${query}`, {
+  const resposta = await apiFetch(`/api/arquivos-midia/livro/${livroId}${query}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/octet-stream',
@@ -59,6 +76,29 @@ export async function enviarArquivoParaLivro(livroId, arquivo, pastaId = null) {
     },
     body: arquivo,
   });
+  notificarArquivosMidiaAtualizados(livroId);
+  return resposta;
+}
+
+export async function substituirArquivoGerenciado(arquivoId, livroId, arquivo) {
+  if (arquivo.size > LIMITE_UPLOAD_BYTES) {
+    throw new Error('O arquivo excede o limite máximo de upload de 50 MiB.');
+  }
+  const resposta = await apiFetch(`/api/arquivos-midia/${arquivoId}/conteudo`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/octet-stream' },
+    body: arquivo,
+  });
+  notificarArquivosMidiaAtualizados(livroId);
+  return resposta;
+}
+
+export async function desativarArquivoGerenciado(arquivoId, livroId) {
+  const resposta = await apiFetch(`/api/arquivos-midia/${arquivoId}`, {
+    method: 'DELETE',
+  });
+  notificarArquivosMidiaAtualizados(livroId);
+  return resposta;
 }
 
 export async function renomearArquivo(arquivoId, nomeOriginal) {

@@ -33,9 +33,10 @@ const validarCenaId = [
 
 
 const validarCriacao = [
-    body('cena_id')
-        .isUUID()
-        .withMessage('ID da cena inválido.'),
+    body('livro_id').optional().isUUID().withMessage('ID da obra inválido.'),
+    body('cena_id').optional().isUUID().withMessage('ID da cena inválido.'),
+    body().custom((_, { req }) => Boolean(req.body?.livro_id || req.body?.cena_id))
+        .withMessage('Informe livro_id ou cena_id.'),
 
     body('titulo')
         .trim()

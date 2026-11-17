@@ -1,6 +1,7 @@
 import { apiFetch } from './api';
 import { montarUrlMedia } from './media';
 import { obterUrlAssinadaArquivo } from './arquivoMidia';
+import { consultarTrechoMarkdown } from './livroDocumento';
 
 async function carregarTexto(textoUrl) {
   const url = montarUrlMedia(textoUrl);
@@ -12,6 +13,27 @@ async function carregarTexto(textoUrl) {
   }
 
   return resposta.text();
+}
+
+async function carregarConteudoTexto(texto, textoId) {
+  if (typeof texto.texto_url === 'string' && texto.texto_url.trim()) {
+    return carregarTexto(texto.texto_url);
+  }
+
+  if (texto.arquivo_id) {
+    if (texto.documento_markdown_ativo) {
+      try {
+        const resposta = await consultarTrechoMarkdown(textoId);
+        if (typeof resposta.data?.conteudo_markdown === 'string') return resposta.data.conteudo_markdown;
+      } catch { /* Mantém o fallback gerenciado se o trecho legado estiver indisponível. */ }
+    }
+    const url = await obterUrlAssinadaArquivo(texto.arquivo_id);
+    const respostaArquivo = await fetch(url, { cache: 'no-store' });
+    if (!respostaArquivo.ok) throw new Error('Não foi possível carregar o arquivo Markdown da cena.');
+    return respostaArquivo.text();
+  }
+
+  return typeof texto.conteudo === 'string' ? texto.conteudo : '';
 }
 
 export async function carregarDadosLeituraCena(cena) {
@@ -29,7 +51,7 @@ export async function carregarDadosLeituraCena(cena) {
       const resposta = await apiFetch(`/api/cena-textos/${item.conteudo_id}`);
       dados = {
         ...resposta.data,
-        texto: await carregarTexto(resposta.data.texto_url),
+        texto: await carregarConteudoTexto(resposta.data, item.conteudo_id),
       };
     } else if (item.tipo_conteudo === 'IMAGEM') {
       const resposta = await apiFetch(`/api/cena-imagens/${item.conteudo_id}`);

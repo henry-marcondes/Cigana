@@ -3,6 +3,15 @@ const apiResponse = require('../utils/apiResponse');
 
 class CenaTextoController {
 
+    static async associarArquivoMarkdown(req, res) {
+        try {
+            const dados = await CenaTextoService.associarArquivoMarkdown(req.body);
+            return apiResponse.success(res, dados, 'Arquivo Markdown associado à cena.', 201);
+        } catch (error) {
+            return apiResponse.error(res, error.message, error.status || error.statusCode || 500);
+        }
+    }
+
     static async listarPorCena(req, res) {
         try {
             const { cena_id } = req.params;
@@ -72,6 +81,29 @@ class CenaTextoController {
                 'Texto da cena alterado com sucesso.'
             );
 
+        } catch (error) {
+            return apiResponse.error(
+                res,
+                error.message,
+                error.status || 500
+            );
+        }
+    }
+
+    static async salvarConteudo(req, res) {
+        try {
+            const dados = await CenaTextoService.salvarConteudo(
+                req.params.id,
+                req.livro_id,
+                req.body.conteudo,
+                req.body.hash_esperado
+            );
+
+            return apiResponse.success(
+                res,
+                dados,
+                'Conteúdo Markdown salvo com sucesso.'
+            );
         } catch (error) {
             return apiResponse.error(
                 res,

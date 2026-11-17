@@ -272,11 +272,18 @@ return ( <main className="min-h-screen bg-gray-100 p-6">
 
             <button
                 onClick={() =>
-                router.push(`/estudio/obras/${livro.id}`)
+                router.push(`/estudio/obras/${livro.id}/ide`)
                 }
               className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
             >
-                Editar obra
+                Abrir IDE
+            </button>
+
+            <button
+                onClick={() => router.push(`/estudio/obras/${livro.id}`)}
+                className="rounded border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            >
+                Gestão
             </button>
 
             <button

@@ -3,6 +3,7 @@ const pool = require('../db/connection');
 const CAMPOS_PUBLICOS = `
     id,
     cena_id,
+    livro_id,
     titulo,
     legenda,
     descricao,
@@ -46,6 +47,7 @@ class CenaVideo {
 
         const {
             cena_id,
+            livro_id,
             titulo,
             legenda,
             descricao,
@@ -60,6 +62,7 @@ class CenaVideo {
         const result = await client.query(`
             INSERT INTO cena_videos (
                 cena_id,
+                livro_id,
                 titulo,
                 legenda,
                 descricao,
@@ -70,11 +73,12 @@ class CenaVideo {
                 reproducao_em_loop,
                 ordem_exibicao
             )
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
             RETURNING
                 ${CAMPOS_PUBLICOS}
         `, [
             cena_id,
+            livro_id,
             titulo,
             legenda,
             descricao,

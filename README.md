@@ -55,9 +55,14 @@ As **Cenas** são o elemento central da narrativa. Elas podem possuir texto, ima
 
 * PostgreSQL 16
 
-## Strorage
+## Storage físico
 
-* Todo conteúdo do Livro esta estruturado para servicesStorage
+Arquivos gerenciados são armazenados fora de `media/`, sob a raiz absoluta
+definida por `CIGANA_STORAGE_ROOT` (padrão: `storage/` na raiz do projeto).
+Cada obra ocupa `/<livro_id>/`, e cada objeto usa a UUID registrada em
+`arquivos_midia.chave_armazenamento`, sem usar o nome original como caminho.
+Consulte `backend/README.md` para a configuração e a auditoria/cópia segura do
+layout legado `storage/arquivos_midia/`.
 
 ## Testes da API
 

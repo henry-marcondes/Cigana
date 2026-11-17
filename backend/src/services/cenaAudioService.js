@@ -1,7 +1,7 @@
 const CenaAudio = require('../models/CenaAudio');
 const pool = require('../db/connection');
 const CenaConteudo = require('../models/CenaConteudo');
-const { executarComArquivoValidado } = require('./arquivoCenaService');
+const { executarComArquivoDaObraValidado, resolverLivroDoConteudo } = require('./arquivoCenaService');
 
 class CenaAudioService {
 
@@ -14,13 +14,13 @@ class CenaAudioService {
     }
 
     static async criar(cenaAudio) {
-        if (cenaAudio.arquivo_id) {
-            return executarComArquivoValidado(
-                pool, cenaAudio.arquivo_id, cenaAudio.cena_id,
-                (transacao) => CenaAudio.criar(cenaAudio, transacao)
-            );
-        }
-        return CenaAudio.criar(cenaAudio);
+        const livro_id = await resolverLivroDoConteudo(cenaAudio, pool);
+        const dados = { ...cenaAudio, livro_id };
+        if (dados.arquivo_id) return executarComArquivoDaObraValidado(
+            pool, dados.arquivo_id, livro_id,
+            (transacao) => CenaAudio.criar(dados, transacao)
+        );
+        return CenaAudio.criar(dados);
     }
 
     static async alterarInformacoes(id, cenaAudio) {
@@ -31,8 +31,8 @@ class CenaAudioService {
         if (arquivo_id) {
             const atual = await CenaAudio.buscarPorId(id);
             if (!atual) return null;
-            return executarComArquivoValidado(
-                pool, arquivo_id, atual.cena_id,
+            return executarComArquivoDaObraValidado(
+                pool, arquivo_id, atual.livro_id,
                 (transacao) => CenaAudio.alterarAudio(
                     id, audio_url, transacao, arquivo_id
                 )

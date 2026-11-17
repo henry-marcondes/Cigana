@@ -3,6 +3,15 @@ const apiResponse = require('../utils/apiResponse');
 
 class CenaConteudoController {
 
+    static async listarDisponiveisPorLivro(req, res) {
+        try {
+            const dados = await CenaConteudoService.listarDisponiveisPorLivro(req.params.livro_id);
+            return apiResponse.success(res, dados);
+        } catch (error) {
+            return apiResponse.error(res, error.message, error.status || 500);
+        }
+    }
+
     static async listarPorCena(req, res) {
         try {
             const { cena_id } = req.params;

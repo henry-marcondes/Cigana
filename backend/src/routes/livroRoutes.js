@@ -16,7 +16,9 @@ const {
     validarAlteracaoVisibilidadeLivro,
     validarAlteracaoCapaLivro,
     validarCriacaoLivroParaAutor,
-    validarDecisaoEditorial
+    validarDecisaoEditorial,
+    validarIdCotaArmazenamento,
+    validarAlteracaoCotaArmazenamento
 } = require('../validators/livroValidator');
 
 const router = express.Router();
@@ -31,6 +33,22 @@ router.get(
     autenticar,
     autorizar('moderacao.visualizar'),
     LivroController.listarParaDecisaoEditorial
+);
+
+router.get(
+    '/gestao/cotas-armazenamento',
+    autenticar,
+    autorizar('plataforma.configurar'),
+    LivroController.listarCotasArmazenamento
+);
+
+router.patch(
+    '/:id/cota-armazenamento',
+    autenticar,
+    autorizar('plataforma.configurar'),
+    validarIdCotaArmazenamento,
+    validarAlteracaoCotaArmazenamento,
+    LivroController.alterarCotaArmazenamento
 );
 
 router.get(
