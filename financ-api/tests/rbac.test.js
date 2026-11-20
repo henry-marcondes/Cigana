@@ -6,7 +6,8 @@ const exigirPermissao = require('../src/middleware/exigirPermissao');
 const pool = require('../src/db/pool');
 const PermissaoFinanceira = require('../src/models/PermissaoFinanceira');
 
-const usuarioId = 'bf03c86c-de36-4409-9305-ba8752edd3b2';
+const usuarioFinanceiroId = 'e4fc3e89-16b3-4e56-8353-3e7c7676083a';
+const usuarioIdExterno = '6ad662a5-4bb5-4111-bb05-c9b03c4abc13';
 const permissaoNecessaria = 'financeiro.extrato.consultar';
 
 function criarResposta() {
@@ -45,16 +46,16 @@ async function executarMiddleware(usuario, resultadoConsulta, t) {
 }
 
 test('usuário sem associação financeira não recebe autorização', async (t) => {
-    const resultado = await executarMiddleware({ id: usuarioId }, [], t);
+    const resultado = await executarMiddleware({ id: usuarioIdExterno, usuarioFinanceiroId }, [], t);
 
     assert.equal(resultado.res.statusCode, 403);
     assert.equal(resultado.chamouNext, false);
-    assert.deepEqual(resultado.queryExecutada.parametros, [usuarioId]);
+    assert.deepEqual(resultado.queryExecutada.parametros, [usuarioFinanceiroId]);
 });
 
 test('usuário recebe autorização quando a consulta retorna a permissão exigida', async (t) => {
     const resultado = await executarMiddleware(
-        { id: usuarioId },
+        { id: usuarioIdExterno, usuarioFinanceiroId },
         [{ codigo: permissaoNecessaria }],
         t
     );
@@ -65,7 +66,7 @@ test('usuário recebe autorização quando a consulta retorna a permissão exigi
 
 test('papel sem a permissão exigida não autoriza a operação', async (t) => {
     const resultado = await executarMiddleware(
-        { id: usuarioId, papel: 'papel-com-outra-permissao' },
+        { id: usuarioIdExterno, usuarioFinanceiroId, papel: 'papel-com-outra-permissao' },
         [{ codigo: 'financeiro.pagamento.consultar' }],
         t
     );
@@ -75,7 +76,7 @@ test('papel sem a permissão exigida não autoriza a operação', async (t) => {
 });
 
 test('usuário inativo não recebe permissão efetiva', async (t) => {
-    const resultado = await executarMiddleware({ id: usuarioId }, [], t);
+    const resultado = await executarMiddleware({ id: usuarioIdExterno, usuarioFinanceiroId }, [], t);
 
     assert.equal(resultado.res.statusCode, 403);
     assert.match(resultado.queryExecutada.sql, /usuario\.ativo = TRUE/);
@@ -87,7 +88,8 @@ test('usuário inativo não recebe permissão efetiva', async (t) => {
 
 test('declarações de papel e permissão no JWT não concedem acesso', async (t) => {
     const resultado = await executarMiddleware({
-        id: usuarioId,
+        id: usuarioIdExterno,
+        usuarioFinanceiroId,
         role: 'financeiro_admin',
         roles: ['financeiro_admin'],
         permissions: [permissaoNecessaria]
@@ -99,7 +101,7 @@ test('declarações de papel e permissão no JWT não concedem acesso', async (t
 
 test('falha na consulta ao banco resulta em negação segura', async (t) => {
     const resultado = await executarMiddleware(
-        { id: usuarioId },
+        { id: usuarioIdExterno, usuarioFinanceiroId },
         new Error('falha interna simulada'),
         t
     );
@@ -137,12 +139,14 @@ test('model consulta apenas relações ativas no schema financeiro', async (t) =
     }));
 
     const permissoes = await PermissaoFinanceira
-        .listarCodigosEfetivosPorUsuario(usuarioId);
+        .listarCodigosEfetivosPorUsuario(usuarioFinanceiroId);
 
     assert.deepEqual(permissoes, [permissaoNecessaria]);
-    assert.deepEqual(chamada.parametros, [usuarioId]);
+    assert.deepEqual(chamada.parametros, [usuarioFinanceiroId]);
     assert.match(chamada.sql, /FROM financeiro\.usuarios_financeiros/);
     assert.match(chamada.sql, /JOIN financeiro\.usuario_papeis_financeiros/);
+    assert.match(chamada.sql, /usuario_papel\.usuario_financeiro_id = usuario\.id/);
+    assert.match(chamada.sql, /WHERE usuario\.id = \$1/);
     assert.match(chamada.sql, /JOIN financeiro\.papeis_financeiros/);
     assert.match(chamada.sql, /JOIN financeiro\.papel_permissoes_financeiras/);
     assert.match(chamada.sql, /JOIN financeiro\.permissoes_financeiras/);

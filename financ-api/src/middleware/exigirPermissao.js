@@ -6,9 +6,9 @@ function exigirPermissao(codigoPermissao) {
     }
 
     return async function middlewareExigirPermissao(req, res, next) {
-        const usuarioIdExterno = req.usuario && req.usuario.id;
+        const usuarioFinanceiroId = req.usuario && req.usuario.usuarioFinanceiroId;
 
-        if (typeof usuarioIdExterno !== 'string' || usuarioIdExterno === '') {
+        if (typeof usuarioFinanceiroId !== 'string' || usuarioFinanceiroId === '') {
             return res.status(401).json({
                 success: false,
                 message: 'Autenticação necessária.'
@@ -17,7 +17,7 @@ function exigirPermissao(codigoPermissao) {
 
         try {
             const permissoes = await AutorizacaoFinanceiraService
-                .listarPermissoesEfetivas(usuarioIdExterno);
+                .listarPermissoesEfetivas(usuarioFinanceiroId);
 
             if (!permissoes.includes(codigoPermissao)) {
                 return res.status(403).json({

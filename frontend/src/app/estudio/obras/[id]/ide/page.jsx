@@ -7,7 +7,9 @@ import { apiFetch } from '../../../../../services/api';
 import { listarEscolhasPorCena } from '../../../../../services/escolha';
 import EditorMarkdown from '../../../../../components/EditorMarkdown';
 import EditorConteudosObra from '../../../../../components/EditorConteudosObra';
+import EditorAtributosCapitulo from '../../../../../components/EditorAtributosCapitulo';
 import EditorEscolhasObra from '../../../../../components/EditorEscolhasObra';
+import EditorNavegacaoEstrutural from '../../../../../components/EditorNavegacaoEstrutural';
 import {
   criarDocumentoMarkdown, desativarDocumentoMarkdown, enviarDocumentoMarkdown, listarDocumentosMarkdown,
   lerDocumentoMarkdown, salvarDocumentoMarkdown, consultarTrechoMarkdown,
@@ -72,6 +74,7 @@ export default function IDEObra() {
   const [selecionado, setSelecionado] = useState({ tipo: 'obra', id: '', titulo: '' });
   const [cenaSelecionadaId, setCenaSelecionadaId] = useState('');
   const [modoEscolhas, setModoEscolhas] = useState(false);
+  const [modoNavegacaoEstrutural, setModoNavegacaoEstrutural] = useState(false);
   const [pedidoNovaEscolha, setPedidoNovaEscolha] = useState(0);
   const [composicaoOcupada, setComposicaoOcupada] = useState(false);
   const [composicaoMovimentadaId, setComposicaoMovimentadaId] = useState('');
@@ -548,8 +551,18 @@ async function criarElemento(event) {
     return selecionado;
   }, [selecionado, obra]);
 
+  const capituloSelecionado = useMemo(() => (
+    arvore.find((capitulo) => capitulo.id === selecionado?.id) || null
+  ), [arvore, selecionado]);
+
+  function atualizarCapitulo(atualizado) {
+    setArvore((atuais) => atuais.map((capitulo) => capitulo.id === atualizado.id ? { ...capitulo, ...atualizado } : capitulo));
+    setSelecionado((atual) => atual?.id === atualizado.id ? { ...atual, ...atualizado, tipo: 'capitulo' } : atual);
+  }
+
   function abrir(item, tipo, url, extra = {}) {
     setAba('editor');
+    setModoNavegacaoEstrutural(false);
     if (tipo === 'cena') setCenaSelecionadaId(item.id);
     else {
       setCenaSelecionadaId('');
@@ -563,6 +576,7 @@ async function criarElemento(event) {
   function selecionarConteudoEditor(item) {
     setAba('editor');
     setModoEscolhas(false);
+    setModoNavegacaoEstrutural(false);
     setSelecionado({ ...item, tipo: 'CONTEUDO' });
     setMostrarArvore(false);
     setMostrarPropriedades(false);
@@ -573,9 +587,23 @@ async function criarElemento(event) {
       setErroNavegador('Selecione uma cena no Navegador antes de adicionar uma escolha.');
       return;
     }
+    setModoNavegacaoEstrutural(false);
     setModoEscolhas(true);
     setSelecionado({ tipo: 'ESCOLHAS', id: cenaDestino.id, cenaId: cenaDestino.id, titulo: 'Escolhas' });
     setPedidoNovaEscolha((atual) => atual + 1);
+    setAba('editor');
+    setMostrarArvore(false);
+    setMostrarPropriedades(false);
+  }
+
+  function abrirNavegacaoEstruturalDaCena() {
+    if (!cenaDestino) {
+      setErroNavegador('Selecione uma cena no Navegador para configurar a navegação estrutural.');
+      return;
+    }
+    setModoEscolhas(false);
+    setModoNavegacaoEstrutural(true);
+    setSelecionado({ tipo: 'NAVEGACAO_ESTRUTURAL', id: cenaDestino.id, cenaId: cenaDestino.id, titulo: 'Navegação estrutural' });
     setAba('editor');
     setMostrarArvore(false);
     setMostrarPropriedades(false);
@@ -663,6 +691,7 @@ async function criarElemento(event) {
           <button type="button" onClick={() => {
             setCenaSelecionadaId(cena.id);
             if (item.tipo === 'ESCOLHA') {
+              setModoNavegacaoEstrutural(false);
               setModoEscolhas(true);
               setSelecionado({ ...item, tipo: 'ESCOLHAS', cenaId: cena.id, titulo: 'Escolhas' });
               setAba('editor'); setMostrarArvore(false); setMostrarPropriedades(false);
@@ -858,13 +887,16 @@ async function criarElemento(event) {
         </aside>
 
         <section className={`${!mostrarArvore && !mostrarPropriedades ? 'block' : 'hidden'} min-h-0 min-w-0 bg-slate-950 lg:block`}>
-          <div className="flex h-11 items-center justify-between border-b border-slate-800 bg-slate-900/70 px-4">
+          <div className="flex h-11 items-center justify-between gap-2 border-b border-slate-800 bg-slate-900/70 px-4">
             <div className="flex h-full items-center gap-1">
               <button type="button" onClick={() => setAba('editor')} className={`h-full border-b-2 px-3 text-xs ${aba === 'editor' ? 'border-indigo-400 text-white' : 'border-transparent text-slate-400'}`}>Editor</button>
               <button type="button" onClick={() => setAba('preview')} className={`h-full border-b-2 px-3 text-xs ${aba === 'preview' ? 'border-indigo-400 text-white' : 'border-transparent text-slate-400'}`}>Pré-visualização</button>
               <button type="button" onClick={() => { setAba('arquivos'); carregarArmazenamento(); }} className={`h-full border-b-2 px-3 text-xs ${aba === 'arquivos' ? 'border-indigo-400 text-white' : 'border-transparent text-slate-400'}`}>Arquivos</button>
             </div>
-            <span className="max-w-[45%] truncate text-xs text-slate-500">{aba === 'preview' ? 'Leitura da obra' : aba === 'arquivos' ? 'Armazenamento da obra' : itemSelecionado.titulo}</span>
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="max-w-[45vw] truncate text-xs text-slate-500">{aba === 'preview' ? 'Leitura da obra' : aba === 'arquivos' ? 'Armazenamento da obra' : itemSelecionado.titulo}</span>
+              {aba === 'editor' && cenaDestino && <button type="button" onClick={abrirNavegacaoEstruturalDaCena} className={`shrink-0 rounded border px-2 py-1.5 text-[10px] hover:bg-slate-800 ${modoNavegacaoEstrutural ? 'border-indigo-500 text-indigo-200' : 'border-slate-700 text-slate-300'}`}>Navegação</button>}
+            </div>
           </div>
           <div className="h-[calc(100%-2.75rem)] min-h-[500px]">
             {aba === 'arquivos' ? (
@@ -944,6 +976,12 @@ async function criarElemento(event) {
               </div>
             ) : aba === 'preview' ? (
               <iframe title="Pré-visualização da obra" src={`/estudio/obras/${id}/visualizar`} className="h-full w-full border-0 bg-white" />
+            ) : modoNavegacaoEstrutural ? (
+              <EditorNavegacaoEstrutural
+                key={`navegacao-estrutural-${cenaDestino?.id || ''}`}
+                cena={cenaDestino}
+                capitulos={arvore}
+              />
             ) : modoEscolhas ? (
               <EditorEscolhasObra
                 key={`escolhas-${cenaDestino?.id || ''}`}
@@ -968,7 +1006,14 @@ async function criarElemento(event) {
               />
             ) : selecionado?.tipo === 'TEXTO' ? (
               <EditorMarkdown key={selecionado.id} textoId={selecionado.id} />
-            ) : (!selecionado || ['obra', 'capitulo', 'cena', 'CONTEUDO'].includes(selecionado.tipo)) ? (
+            ) : selecionado?.tipo === 'capitulo' ? (
+              <EditorAtributosCapitulo
+                key={selecionado.id}
+                livroId={id}
+                capitulo={capituloSelecionado || selecionado}
+                onSalvo={atualizarCapitulo}
+              />
+            ) : (!selecionado || ['obra', 'cena', 'CONTEUDO'].includes(selecionado.tipo)) ? (
               <EditorConteudosObra
                 livroId={id}
                 cenaDestino={cenaDestino}

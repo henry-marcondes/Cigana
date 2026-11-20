@@ -8,7 +8,9 @@ export default function LeituraCena({
   cena,
   conteudos,
   escolhas,
+  navegacoesEstruturais = [],
   onSelecionarEscolha,
+  onSelecionarNavegacaoEstrutural,
   onVoltar,
   linkVoltar,
   textoVoltar = '← Voltar para o capítulo',
@@ -112,6 +114,39 @@ export default function LeituraCena({
                   </div>
                 )}
               </section>
+            )}
+
+            {navegacoesEstruturais.some((item) => item.destino_disponivel === true) && (
+              <nav
+                aria-label="Navegação estrutural da obra"
+                className="mt-6 border-t border-gray-200 pt-6"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
+                  {navegacoesEstruturais
+                    .filter((item) => item.destino_disponivel === true)
+                    .map((item) => {
+                      const href = `/livros/${livro.slug}/capitulos/${item.capitulo_destino_slug}/cenas/${item.cena_destino_slug}`;
+                      return onSelecionarNavegacaoEstrutural ? (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => onSelecionarNavegacaoEstrutural(item)}
+                          className="rounded-lg border border-primary px-5 py-3 text-center font-medium text-primary transition hover:bg-primary hover:text-white"
+                        >
+                          {item.rotulo}
+                        </button>
+                      ) : (
+                        <Link
+                          key={item.id}
+                          href={href}
+                          className="rounded-lg border border-primary px-5 py-3 text-center font-medium text-primary transition hover:bg-primary hover:text-white"
+                        >
+                          {item.rotulo}
+                        </Link>
+                      );
+                    })}
+                </div>
+              </nav>
             )}
           </div>
         </article>

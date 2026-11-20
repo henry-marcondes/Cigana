@@ -2,6 +2,7 @@ const { criarPool } = require('../src/db/pool');
 
 const CODIGO_PAPEL_ADMIN = 'ADMIN_RBAC_FINANCEIRO';
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const CODIGO_PLATAFORMA_REGEX = /^[A-Z][A-Z0-9_]{0,49}$/;
 const PERMISSOES_RBAC = [
     {
         codigo: 'financeiro.rbac.consultar',
@@ -24,28 +25,63 @@ class ProvisionamentoRbacError extends Error {}
 
 function obterUsuarioAlvo(argumentos) {
     if (
-        argumentos.length !== 4 ||
-        argumentos[0] !== '--usuario-id' ||
-        argumentos[2] !== '--confirmar-papel-plataforma' ||
-        argumentos[3] !== 'ADMINISTRADOR'
+        argumentos.length !== 6 ||
+        argumentos[0] !== '--plataforma' ||
+        argumentos[2] !== '--usuario-id' ||
+        argumentos[4] !== '--confirmar-papel-plataforma' ||
+        argumentos[5] !== 'ADMINISTRADOR'
     ) {
         throw new ProvisionamentoRbacError(
-            'Uso: node scripts/provisionar-rbac.js --usuario-id <UUID> --confirmar-papel-plataforma ADMINISTRADOR'
+            'Uso: node scripts/provisionar-rbac.js --plataforma <CODIGO> --usuario-id <UUID> --confirmar-papel-plataforma ADMINISTRADOR'
         );
     }
 
-    const usuarioIdExterno = argumentos[1];
+    const codigoPlataforma = argumentos[1];
+    if (!CODIGO_PLATAFORMA_REGEX.test(codigoPlataforma)) {
+        throw new ProvisionamentoRbacError('A plataforma informada precisa ter um código válido em maiúsculas.');
+    }
+
+    const usuarioIdExterno = argumentos[3];
     if (!UUID_REGEX.test(usuarioIdExterno)) {
         throw new ProvisionamentoRbacError('O usuário informado precisa ter um UUID válido.');
     }
 
-    return usuarioIdExterno;
+    return { codigoPlataforma, usuarioIdExterno };
 }
 
-async function provisionarRbac(client, usuarioIdExterno) {
+async function provisionarRbac(client, codigoPlataforma, usuarioIdExterno) {
     await client.query('BEGIN');
 
     try {
+        const identidadeResult = await client.query(`
+            SELECT usuario.id AS usuario_financeiro_id,
+                   usuario.ativo AS usuario_ativo,
+                   identidade.ativo AS identidade_ativa,
+                   plataforma.ativo AS plataforma_ativa
+              FROM financeiro.identidades_externas AS identidade
+              INNER JOIN financeiro.plataformas AS plataforma
+                ON plataforma.id = identidade.plataforma_id
+              INNER JOIN financeiro.usuarios_financeiros AS usuario
+                ON usuario.id = identidade.usuario_financeiro_id
+             WHERE plataforma.codigo = $1
+               AND identidade.usuario_id_externo = $2
+             FOR UPDATE OF identidade, plataforma, usuario
+        `, [codigoPlataforma, usuarioIdExterno]);
+        const identidade = identidadeResult.rows[0];
+
+        if (
+            !identidade ||
+            !identidade.usuario_ativo ||
+            !identidade.identidade_ativa ||
+            !identidade.plataforma_ativa
+        ) {
+            throw new ProvisionamentoRbacError(
+                'A identidade externa, plataforma ou usuário financeiro não existe ou está inativo.'
+            );
+        }
+
+        const usuarioFinanceiroId = identidade.usuario_financeiro_id;
+
         await client.query(`
             INSERT INTO financeiro.papeis_financeiros (
                 codigo, nome, descricao, criado_por_usuario_id_externo
@@ -105,9 +141,9 @@ async function provisionarRbac(client, usuarioIdExterno) {
               FROM financeiro.usuario_papeis_financeiros
              WHERE papel_id = $1
                AND ativo = TRUE
-               AND usuario_id_externo <> $2
+               AND usuario_financeiro_id <> $2
              LIMIT 1
-        `, [papel.id, usuarioIdExterno]);
+        `, [papel.id, usuarioFinanceiroId]);
 
         const permissoesAtivasResult = await client.query(`
             SELECT permissao.codigo
@@ -158,20 +194,12 @@ async function provisionarRbac(client, usuarioIdExterno) {
             );
         }
 
-        await client.query(`
-            INSERT INTO financeiro.usuarios_financeiros (
-                usuario_id_externo, criado_por_usuario_id_externo
-            )
-            VALUES ($1, $2)
-            ON CONFLICT (usuario_id_externo) DO NOTHING
-        `, [usuarioIdExterno, usuarioIdExterno]);
-
         const usuarioResult = await client.query(`
             SELECT ativo
               FROM financeiro.usuarios_financeiros
-             WHERE usuario_id_externo = $1
+             WHERE id = $1
              FOR UPDATE
-        `, [usuarioIdExterno]);
+        `, [usuarioFinanceiroId]);
 
         if (!usuarioResult.rows[0] || !usuarioResult.rows[0].ativo) {
             throw new ProvisionamentoRbacError(
@@ -181,21 +209,21 @@ async function provisionarRbac(client, usuarioIdExterno) {
 
         await client.query(`
             INSERT INTO financeiro.usuario_papeis_financeiros (
-                usuario_id_externo,
+                usuario_financeiro_id,
                 papel_id,
                 atribuido_por_usuario_id_externo
             )
             VALUES ($1, $2, $3)
-            ON CONFLICT (usuario_id_externo, papel_id) DO NOTHING
-        `, [usuarioIdExterno, papel.id, usuarioIdExterno]);
+            ON CONFLICT (usuario_financeiro_id, papel_id) DO NOTHING
+        `, [usuarioFinanceiroId, papel.id, usuarioIdExterno]);
 
         const associacaoResult = await client.query(`
             SELECT ativo
               FROM financeiro.usuario_papeis_financeiros
-             WHERE usuario_id_externo = $1
+             WHERE usuario_financeiro_id = $1
                AND papel_id = $2
              FOR UPDATE
-        `, [usuarioIdExterno, papel.id]);
+        `, [usuarioFinanceiroId, papel.id]);
 
         if (!associacaoResult.rows[0] || !associacaoResult.rows[0].ativo) {
             throw new ProvisionamentoRbacError(
@@ -211,13 +239,13 @@ async function provisionarRbac(client, usuarioIdExterno) {
 }
 
 async function executar(argumentos = process.argv.slice(2)) {
-    const usuarioIdExterno = obterUsuarioAlvo(argumentos);
+    const { codigoPlataforma, usuarioIdExterno } = obterUsuarioAlvo(argumentos);
     const pool = criarPool();
     let client;
 
     try {
         client = await pool.connect();
-        await provisionarRbac(client, usuarioIdExterno);
+        await provisionarRbac(client, codigoPlataforma, usuarioIdExterno);
         console.log('Provisionamento RBAC concluído para o usuário indicado.');
     } finally {
         if (client) client.release();

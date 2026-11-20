@@ -1,0 +1,16 @@
+info:
+  name: 05-Desativar botão estrutural
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: http://localhost:3001/api/navegacoes-estruturais/{{navegacao_id}}
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

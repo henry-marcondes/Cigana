@@ -1,7 +1,7 @@
 const PermissaoFinanceira = require('../models/PermissaoFinanceira');
 
-async function listarPermissoesEfetivas(usuarioIdExterno) {
-    return PermissaoFinanceira.listarCodigosEfetivosPorUsuario(usuarioIdExterno);
+async function listarPermissoesEfetivas(usuarioFinanceiroId) {
+    return PermissaoFinanceira.listarCodigosEfetivosPorUsuario(usuarioFinanceiroId);
 }
 
 module.exports = { listarPermissoesEfetivas };

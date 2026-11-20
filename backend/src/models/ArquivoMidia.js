@@ -146,6 +146,7 @@ class ArquivoMidia {
                        OR EXISTS (SELECT 1 FROM cena_imagens ci WHERE ci.arquivo_id = arquivos_midia.id)
                        OR EXISTS (SELECT 1 FROM cena_audios ca WHERE ca.arquivo_id = arquivos_midia.id)
                        OR EXISTS (SELECT 1 FROM cena_videos cv WHERE cv.arquivo_id = arquivos_midia.id)
+                       OR EXISTS (SELECT 1 FROM capitulos cap WHERE cap.arquivo_capa_id = arquivos_midia.id AND cap.ativo = TRUE)
                        OR EXISTS (SELECT 1 FROM livro_documentos ld WHERE ld.arquivo_id = arquivos_midia.id)
                    ) AS utilizado
               FROM arquivos_midia

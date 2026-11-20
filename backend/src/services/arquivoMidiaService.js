@@ -446,6 +446,14 @@ class ArquivoMidiaService {
                 throw erroApi('Desative primeiro o vínculo documental antes de desativar o arquivo.', 409);
             }
 
+            const capaCapitulo = await client.query(
+                'SELECT 1 FROM capitulos WHERE arquivo_capa_id=$1 AND ativo=TRUE LIMIT 1',
+                [id]
+            );
+            if (capaCapitulo.rowCount) {
+                throw erroApi('O arquivo está sendo usado como capa de capítulo. Selecione outra capa antes de desativá-lo.', 409);
+            }
+
             return ArquivoMidia.desativar(id, client);
         });
     }

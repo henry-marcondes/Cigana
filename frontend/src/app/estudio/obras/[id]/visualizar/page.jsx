@@ -23,6 +23,7 @@ export default function PrevisualizarObraPage() {
   const [cena, setCena] = useState(null);
   const [conteudos, setConteudos] = useState([]);
   const [escolhas, setEscolhas] = useState([]);
+  const [navegacoesEstruturais, setNavegacoesEstruturais] = useState([]);
   const [etapa, setEtapa] = useState('livro');
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
@@ -100,6 +101,7 @@ export default function PrevisualizarObraPage() {
       setCena(cenaAtual);
       setConteudos(dadosLeitura.conteudos);
       setEscolhas(dadosLeitura.escolhas);
+      setNavegacoesEstruturais(dadosLeitura.navegacoesEstruturais || []);
       setEtapa('cena');
     } catch (erroCarregamento) {
       setErro(
@@ -123,6 +125,7 @@ export default function PrevisualizarObraPage() {
       setCena(escolha.cenaDestino);
       setConteudos(dadosLeitura.conteudos);
       setEscolhas(dadosLeitura.escolhas);
+      setNavegacoesEstruturais(dadosLeitura.navegacoesEstruturais || []);
     } catch (erroCarregamento) {
       setErro(
         erroCarregamento.message || 'Não foi possível abrir o destino.'
@@ -130,6 +133,10 @@ export default function PrevisualizarObraPage() {
     } finally {
       setCarregando(false);
     }
+  }
+
+  async function selecionarNavegacaoEstrutural(navegacao) {
+    await abrirCena(navegacao.cena_destino_id);
   }
 
   return (
@@ -191,7 +198,9 @@ export default function PrevisualizarObraPage() {
           cena={cena}
           conteudos={conteudos}
           escolhas={escolhas}
+          navegacoesEstruturais={navegacoesEstruturais}
           onSelecionarEscolha={selecionarEscolha}
+          onSelecionarNavegacaoEstrutural={selecionarNavegacaoEstrutural}
           onVoltar={() => setEtapa('capitulo')}
         />
       )}

@@ -7,14 +7,21 @@ const {
     provisionarRbac
 } = require('../scripts/provisionar-rbac');
 
-const usuarioAdmin = 'bf03c86c-de36-4409-9305-ba8752edd3b2';
+const usuarioIdExterno = '6ad662a5-4bb5-4111-bb05-c9b03c4abc13';
+const usuarioFinanceiroId = 'e4fc3e89-16b3-4e56-8353-3e7c7676083a';
 
 function criarClienteFalso(seed = {}) {
     const estado = {
         papel: null,
         permissoes: new Map(),
         permissoesDoPapel: new Set(),
-        usuarios: new Map(),
+        usuarios: new Map([[usuarioFinanceiroId, true]]),
+        identidade: {
+            usuario_financeiro_id: usuarioFinanceiroId,
+            usuario_ativo: true,
+            identidade_ativa: true,
+            plataforma_ativa: true
+        },
         associacoesUsuarioPapel: new Map(),
         outrosUsuariosAtivos: [],
         ...seed
@@ -41,7 +48,12 @@ function criarClienteFalso(seed = {}) {
                 Object.assign(estado, snapshot);
                 return { rows: [], rowCount: 0 };
             }
-
+            if (sql.startsWith('SELECT usuario.id AS usuario_financeiro_id')) {
+                const corresponde = parametros[0] === 'CIGANA' && parametros[1] === usuarioIdExterno;
+                return {
+                    rows: corresponde && estado.identidade ? [{ ...estado.identidade }] : []
+                };
+            }
             if (sql.startsWith('INSERT INTO financeiro.papeis_financeiros')) {
                 estado.papel ||= { id: 41, codigo: parametros[0], ativo: true };
                 return { rows: [], rowCount: 0 };
@@ -76,10 +88,6 @@ function criarClienteFalso(seed = {}) {
                 estado.permissoesDoPapel.add(codigo);
                 return { rows: [], rowCount: 0 };
             }
-            if (sql.startsWith('INSERT INTO financeiro.usuarios_financeiros')) {
-                if (!estado.usuarios.has(parametros[0])) estado.usuarios.set(parametros[0], true);
-                return { rows: [], rowCount: 0 };
-            }
             if (sql.startsWith('SELECT ativo FROM financeiro.usuarios_financeiros')) {
                 const ativo = estado.usuarios.get(parametros[0]);
                 return { rows: ativo === undefined ? [] : [{ ativo }] };
@@ -101,44 +109,47 @@ function criarClienteFalso(seed = {}) {
     };
 }
 
-test('exige UUID explícito e confirmação do papel ADMINISTRADOR externo', () => {
-    assert.equal(obterUsuarioAlvo([
-        '--usuario-id', usuarioAdmin,
+test('exige plataforma, UUID externo e confirmação do papel ADMINISTRADOR', () => {
+    assert.deepEqual(obterUsuarioAlvo([
+        '--plataforma', 'CIGANA',
+        '--usuario-id', usuarioIdExterno,
         '--confirmar-papel-plataforma', 'ADMINISTRADOR'
-    ]), usuarioAdmin);
+    ]), { codigoPlataforma: 'CIGANA', usuarioIdExterno });
 
     assert.throws(() => obterUsuarioAlvo([]), /Uso:/);
     assert.throws(() => obterUsuarioAlvo([
+        '--plataforma', 'cigana',
+        '--usuario-id', usuarioIdExterno,
+        '--confirmar-papel-plataforma', 'ADMINISTRADOR'
+    ]), /código válido/);
+    assert.throws(() => obterUsuarioAlvo([
+        '--plataforma', 'CIGANA',
         '--usuario-id', 'uuid-inválido',
         '--confirmar-papel-plataforma', 'ADMINISTRADOR'
     ]), /UUID válido/);
-    assert.throws(() => obterUsuarioAlvo([
-        '--usuario-id', usuarioAdmin,
-        '--confirmar-papel-plataforma', 'GERENTE'
-    ]), /Uso:/);
 });
 
-test('provisionamento idempotente cria só o papel dedicado e associa um usuário explícito', async () => {
+test('provisionamento idempotente resolve identidade sem criar usuário ou identidade', async () => {
     const client = criarClienteFalso();
 
-    await provisionarRbac(client, usuarioAdmin);
+    await provisionarRbac(client, 'CIGANA', usuarioIdExterno);
     const estadoInicial = structuredClone(client.estado);
-    await provisionarRbac(client, usuarioAdmin);
+    await provisionarRbac(client, 'CIGANA', usuarioIdExterno);
 
     assert.equal(client.estado.papel.codigo, CODIGO_PAPEL_ADMIN);
     assert.deepEqual([...client.estado.permissoes.keys()], PERMISSOES_RBAC.map(({ codigo }) => codigo));
     assert.deepEqual([...client.estado.permissoesDoPapel].sort(), PERMISSOES_RBAC.map(({ codigo }) => codigo).sort());
-    assert.deepEqual([...client.estado.usuarios.keys()], [usuarioAdmin]);
-    assert.deepEqual([...client.estado.associacoesUsuarioPapel.keys()], [`${usuarioAdmin}:41`]);
+    assert.deepEqual([...client.estado.usuarios.keys()], [usuarioFinanceiroId]);
+    assert.deepEqual([...client.estado.associacoesUsuarioPapel.keys()], [`${usuarioFinanceiroId}:41`]);
     assert.deepEqual(client.estado, estadoInicial);
 
     const inserts = client.consultas.filter(({ sql }) => sql.startsWith('INSERT INTO'));
     assert.ok(inserts.every(({ sql }) => /ON CONFLICT .* DO NOTHING/.test(sql)));
+    assert.equal(inserts.some(({ sql }) => /usuarios_financeiros|identidades_externas/.test(sql)), false);
     assert.ok(inserts
         .filter(({ sql }) => /criado_por_usuario_id_externo|atribuido_por_usuario_id_externo/.test(sql))
-        .every(({ parametros }) => parametros.at(-1) === usuarioAdmin));
+        .every(({ parametros }) => parametros.at(-1) === usuarioIdExterno));
     assert.equal(client.consultas.some(({ sql }) => /^(UPDATE|DELETE)\b/i.test(sql)), false);
-    assert.equal(client.estado.papel.codigo === 'FINANCEIRO', false);
 });
 
 test('não amplia papel administrativo incompleto já atribuído a outros usuários', async () => {
@@ -149,7 +160,7 @@ test('não amplia papel administrativo incompleto já atribuído a outros usuár
     const estadoOriginal = structuredClone(client.estado);
 
     await assert.rejects(
-        provisionarRbac(client, usuarioAdmin),
+        provisionarRbac(client, 'CIGANA', usuarioIdExterno),
         /já possui outros usuários ativos/
     );
 
@@ -158,15 +169,21 @@ test('não amplia papel administrativo incompleto já atribuído a outros usuár
     assert.equal(client.consultas.some(({ sql }) => sql.startsWith('INSERT INTO financeiro.papel_permissoes_financeiras')), false);
 });
 
-test('não reativa usuário inativo existente', async () => {
-    const client = criarClienteFalso({ usuarios: new Map([[usuarioAdmin, false]]) });
-    const estadoOriginal = structuredClone(client.estado);
+test('rejeita plataforma, identidade ou usuário inativo e não cria vínculo', async () => {
+    for (const identidade of [
+        null,
+        { usuario_financeiro_id: usuarioFinanceiroId, usuario_ativo: false, identidade_ativa: true, plataforma_ativa: true },
+        { usuario_financeiro_id: usuarioFinanceiroId, usuario_ativo: true, identidade_ativa: false, plataforma_ativa: true },
+        { usuario_financeiro_id: usuarioFinanceiroId, usuario_ativo: true, identidade_ativa: true, plataforma_ativa: false }
+    ]) {
+        const client = criarClienteFalso({ identidade });
+        const estadoOriginal = structuredClone(client.estado);
 
-    await assert.rejects(
-        provisionarRbac(client, usuarioAdmin),
-        /usuário financeiro informado não existe ou está inativo/
-    );
-
-    assert.deepEqual(client.estado, estadoOriginal);
-    assert.equal(client.consultas.some(({ sql }) => /^UPDATE\b/i.test(sql)), false);
+        await assert.rejects(
+            provisionarRbac(client, 'CIGANA', usuarioIdExterno),
+            /identidade externa, plataforma ou usuário financeiro não existe ou está inativo/
+        );
+        assert.deepEqual(client.estado, estadoOriginal);
+        assert.equal(client.consultas.some(({ sql }) => sql.startsWith('INSERT INTO financeiro.identidades_externas')), false);
+    }
 });

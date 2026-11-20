@@ -42,7 +42,7 @@ export default async function CenaPage({ params }) {
 
   const cena = respostaCena.data;
 
-  const { conteudos, escolhas } = await carregarDadosLeituraCena(cena);
+  const { conteudos, escolhas, navegacoesEstruturais } = await carregarDadosLeituraCena(cena);
 
   /*
    * ============================================================
@@ -58,6 +58,7 @@ export default async function CenaPage({ params }) {
         cena={cena}
         conteudos={conteudos}
         escolhas={escolhas}
+        navegacoesEstruturais={navegacoesEstruturais}
         linkVoltar={`/livros/${slug}/capitulos/${capituloSlug}`}
         mostrarAcaoFinal
       />

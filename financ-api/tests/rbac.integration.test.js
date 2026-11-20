@@ -6,6 +6,7 @@ const AutorizacaoFinanceiraService = require('../src/services/AutorizacaoFinance
 const exigirPermissao = require('../src/middleware/exigirPermissao');
 
 const USUARIO_ADMIN_ID = 'e4fc3e89-16b3-4e56-8353-3e7c7676083a';
+const USUARIO_EXTERNO_ID = '6ad662a5-4bb5-4111-bb05-c9b03c4abc13';
 const PERMISSAO_ADMIN_RBAC = 'financeiro.rbac.consultar';
 const CODIGO_PAPEL_ADMIN_RBAC = 'ADMIN_RBAC_FINANCEIRO';
 
@@ -27,7 +28,12 @@ function criarResposta() {
 async function executarMiddleware(codigoPermissao) {
     // req.usuario representa identidade já autenticada: este teste isola autorização;
     // a validação JWT permanece coberta pelas suítes JWT existentes.
-    const req = { usuario: { id: USUARIO_ADMIN_ID } };
+    const req = {
+        usuario: {
+            id: USUARIO_EXTERNO_ID,
+            usuarioFinanceiroId: USUARIO_ADMIN_ID
+        }
+    };
     const res = criarResposta();
     let chamouNext = false;
 
@@ -40,10 +46,10 @@ async function executarMiddleware(codigoPermissao) {
 
 async function capturarEstadoRbac(client) {
     const tabelas = [
-        ['usuarios_financeiros', 'usuario_id_externo'],
+        ['usuarios_financeiros', 'id'],
         ['papeis_financeiros', 'id'],
         ['permissoes_financeiras', 'id'],
-        ['usuario_papeis_financeiros', 'usuario_id_externo, papel_id'],
+        ['usuario_papeis_financeiros', 'usuario_financeiro_id, papel_id'],
         ['papel_permissoes_financeiras', 'papel_id, permissao_id']
     ];
     const estado = {};
@@ -80,14 +86,14 @@ test('integra middleware RBAC com financeiro_db sem persistir fixtures', async (
                    papel_permissao.ativo AS permissao_papel_ativa
               FROM financeiro.usuarios_financeiros AS usuario
               INNER JOIN financeiro.usuario_papeis_financeiros AS usuario_papel
-                ON usuario_papel.usuario_id_externo = usuario.usuario_id_externo
+                ON usuario_papel.usuario_financeiro_id = usuario.id
               INNER JOIN financeiro.papeis_financeiros AS papel
                 ON papel.id = usuario_papel.papel_id
               INNER JOIN financeiro.papel_permissoes_financeiras AS papel_permissao
                 ON papel_permissao.papel_id = papel.id
               INNER JOIN financeiro.permissoes_financeiras AS permissao
                 ON permissao.id = papel_permissao.permissao_id
-             WHERE usuario.usuario_id_externo = $1
+             WHERE usuario.id = $1
                AND papel.codigo = $2
                AND permissao.codigo = $3
         `, [USUARIO_ADMIN_ID, CODIGO_PAPEL_ADMIN_RBAC, PERMISSAO_ADMIN_RBAC]);
@@ -123,7 +129,7 @@ test('integra middleware RBAC com financeiro_db sem persistir fixtures', async (
                     codigoNaoAtribuido,
                     'Permissão de teste não atribuída',
                     'Fixture temporária da integração RBAC.',
-                    USUARIO_ADMIN_ID
+                    USUARIO_EXTERNO_ID
                 ]);
                 assert.equal(fixture.rowCount, 1);
                 assert.equal(permissoesBase.includes(codigoNaoAtribuido), false);
@@ -142,7 +148,7 @@ test('integra middleware RBAC com financeiro_db sem persistir fixtures', async (
                 const alteracao = await client.query(`
                     UPDATE financeiro.usuario_papeis_financeiros
                        SET ativo = FALSE
-                     WHERE usuario_id_externo = $1
+                     WHERE usuario_financeiro_id = $1
                        AND papel_id = $2
                 `, [USUARIO_ADMIN_ID, associacao.rows[0].papel_id]);
                 assert.equal(alteracao.rowCount, 1);

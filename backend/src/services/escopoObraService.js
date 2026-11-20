@@ -7,6 +7,7 @@ const CenaConteudo = require('../models/CenaConteudo');
 const CenaAudio = require('../models/CenaAudio');
 const CenaVideo = require('../models/CenaVideo');
 const Escolha = require('../models/Escolha');
+const NavegacaoEstrutural = require('../models/NavegacaoEstrutural');
 
 
 class EscopoObraService {
@@ -434,6 +435,20 @@ class EscopoObraService {
         }
 
         return capitulo.livro_id;
+    }
+
+    static async porNavegacaoEstruturalCenaOrigemBody(req) {
+        const cena = await Cena.buscarPorId(req.body.cena_origem_id);
+        if (!cena) throw new Error('Cena de origem não encontrada.');
+        const capitulo = await Capitulo.buscarPorId(cena.capitulo_id);
+        if (!capitulo) throw new Error('Capítulo da cena de origem não encontrado.');
+        return capitulo.livro_id;
+    }
+
+    static async porNavegacaoEstruturalParam(req) {
+        const navegacao = await NavegacaoEstrutural.buscarConfiguracaoPorId(req.params.id);
+        if (!navegacao) throw new Error('Navegação estrutural não encontrada.');
+        return navegacao.livro_origem_id;
     }
     
 }

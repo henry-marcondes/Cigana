@@ -152,7 +152,7 @@ test('falha fechada quando configuração RS256 está incompleta ou PEM é invá
     }));
 });
 
-test('middleware não expõe erro de configuração ou detalhes do token', () => {
+test('middleware não expõe erro de configuração ou detalhes do token', async () => {
     const req = { headers: { authorization: `Bearer ${criarToken()}` } };
     const res = {
         statusCode: null,
@@ -172,7 +172,7 @@ test('middleware não expõe erro de configuração ou detalhes do token', () =>
 
     try {
         for (const name of names) delete env[name];
-        autenticar(req, res, () => assert.fail('não deveria aceitar sem configuração'));
+        await autenticar(req, res, () => assert.fail('não deveria aceitar sem configuração'));
     } finally {
         for (const [name, value] of Object.entries(original)) {
             if (value === undefined) delete env[name];

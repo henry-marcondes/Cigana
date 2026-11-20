@@ -1,6 +1,6 @@
 # API Financeira Cigana
 
-Serviço REST independente, com configuração, conexão PostgreSQL, autenticação e migrations próprias. Nesta etapa há somente o endpoint de saúde e a infraestrutura inicial; não há módulos de pedidos, pagamentos, PIX, reembolsos, remuneração, repasses ou relatórios.
+Serviço REST independente, com configuração, conexão PostgreSQL, autenticação e migrations próprias. A API oferece endpoint de saúde e consulta protegida da identidade financeira autenticada; não há módulos de pedidos, pagamentos, PIX, reembolsos, remuneração, repasses ou relatórios.
 
 ## Requisitos locais
 
@@ -29,19 +29,23 @@ O serviço não executa migrations ao iniciar. Depois de configurar o banco loca
 npm run migrate
 ```
 
-O runner usa apenas `financ-api/database/migrations/`, registra os arquivos em `public.financ_api_migrations` e executa cada arquivo em transação. As migrations criam o schema `financeiro` e as tabelas mínimas do RBAC financeiro. Nenhuma migration foi executada durante a implementação.
+O runner usa apenas `financ-api/database/migrations/`, registra os arquivos em `public.financ_api_migrations` e executa cada arquivo em transação. A migration `0003_identidades_externas.sql` lê `FINANC_API_JWT_ISSUER` da configuração carregada pelo runner e grava esse emissor confiável na plataforma `CIGANA`. Ela interrompe a execução se encontrar usuários financeiros fora do mapeamento aprovado ou se não localizar o vínculo existente com `ADMIN_RBAC_FINANCEIRO`. A falha provoca rollback da migration e não marca o arquivo como aplicado. O runner não possui migrations reversas; depois do commit, a reversão documentada é restaurar um backup consistente do banco anterior à migration. Não remover manualmente as tabelas novas.
 
 ## Autenticação RS256
 
 O módulo `src/utils/jwt.js` valida tokens emitidos por outro serviço; esta API não emite JWT. A validação exige RS256, assinatura válida com a chave pública, `kid`, `iss` e `aud` configurados, `sub` como UUID, `id === sub`, `iat` e `exp` inteiros válidos e duração máxima de 86.400 segundos. Se `nbf` existir, precisa ser inteiro e anterior a `exp`. A tolerância de relógio segue o contrato atual de cinco segundos.
 
-Configure `FINANC_API_JWT_PUBLIC_KEY`, `FINANC_API_JWT_KID`, `FINANC_API_JWT_ISSUER` e `FINANC_API_JWT_AUDIENCE` quando os valores contratuais forem formalizados. PEM pode usar quebras de linha ou `\\n`. Ausência de configuração, chave inválida, token inválido e falha criptográfica rejeitam a autenticação; as respostas HTTP não expõem detalhes internos. Não há fallback HS256 nem leitura de `JWT_SECRET`.
+Configure `FINANC_API_JWT_PUBLIC_KEY` com somente a chave pública da API Cigana, e `FINANC_API_JWT_KID`, `FINANC_API_JWT_ISSUER` e `FINANC_API_JWT_AUDIENCE` com os mesmos valores semânticos configurados no emissor Cigana (`JWT_RS256_KID`, `JWT_ISSUER` e `JWT_AUDIENCE`). O emissor mantém a chave privada e habilita seu dispatcher RS256 com `JWT_RS256_ENABLED=true`. PEM pode usar quebras de linha ou `\\n`. Ausência de configuração, chave inválida, token inválido e falha criptográfica rejeitam a autenticação; as respostas HTTP não expõem detalhes internos. Não há fallback HS256 nem leitura de `JWT_SECRET`.
 
-Os identificadores de emissor e audiência continuam pendentes de aprovação/configuração. A API Financeira deverá usar uma audiência exclusiva para si. Permissões financeiras não são obtidas de claims `role` do token.
+Os valores concretos são definidos na configuração de cada ambiente e não devem ser registrados neste arquivo. A API Financeira não recebe a chave privada. Permissões financeiras não são obtidas de claims `role` do token.
+
+## Primeira rota protegida
+
+`GET /api/financeiro/usuario-autenticado` exige token RS256 e a permissão financeira existente `financeiro.rbac.consultar`. Depois de validar assinatura, `kid`, `iss`, `aud` e claims temporais, o middleware resolve `iss` para uma plataforma ativa e combina essa plataforma com o UUID externo de `sub`/`id`. `req.usuario.id` continua sendo o UUID externo; `req.usuario.usuarioFinanceiroId` é o identificador interno financeiro usado no RBAC. Identidade ou plataforma ausente/inativa retorna `403`; falha de resolução ou autorização no PostgreSQL retorna `503`. A resposta mantém o UUID externo no campo `usuario.id`.
 
 ## RBAC financeiro
 
-A migration `0002_create_rbac_financeiro.sql` cria `usuarios_financeiros`, `papeis_financeiros`, `permissoes_financeiras`, `usuario_papeis_financeiros` e `papel_permissoes_financeiras` no schema `financeiro`. O UUID externo do usuário é armazenado como identidade local, sem chave estrangeira para a plataforma principal. As chaves estrangeiras existem somente entre tabelas do `financeiro_db`. Os registros têm timestamps e identificadores externos de auditoria; estes identificadores também não criam dependências com o banco principal. Não são copiados dados pessoais ou credenciais, e a migration não insere usuários, papéis ou permissões.
+As migrations `0001` e `0002` criam o schema e o RBAC no banco financeiro. A migration `0003` adiciona `plataformas` (incluindo o `issuer` confiável), `identidades_externas` e o identificador interno `usuarios_financeiros.id`. Ela preserva o UUID financeiro `e4fc…`, estado, papel e vínculos RBAC; registra a identidade aprovada `CIGANA + 6ad… → e4fc…`; e migra a FK de `usuario_papeis_financeiros` para a chave interna. Os campos históricos de auditoria permanecem inalterados. A associação da identidade é imutável; para suspender acesso, desative o registro sem excluí-lo ou reassociá-lo. Outros usuários sem origem aprovada fazem a migration abortar; nenhum dado pessoal da Cigana é copiado.
 
 `middleware/exigirPermissao.js` deve ser usado depois de `middleware/autenticar.js` na cadeia da rota. Ele recebe o código da permissão aprovado para aquela operação e consulta as permissões efetivas no banco; usuário, papel, permissão ou consulta indisponível nunca concede acesso. A listagem efetiva considera somente usuário, associações, papel e permissão ativos. Falhas de banco retornam erro genérico `503`, sem expor detalhes internos.
 
@@ -55,15 +59,16 @@ Depois de confirmar fora da `financ-api` que uma pessoa específica possui esse 
 
 ```sh
 node scripts/provisionar-rbac.js \
+  --plataforma CIGANA \
   --usuario-id <UUID_VERIFICADO> \
   --confirmar-papel-plataforma ADMINISTRADOR
 ```
 
-O comando exige um único UUID explícito e a confirmação do código externo. Ele cria idempotentemente o papel `ADMIN_RBAC_FINANCEIRO`, as permissões `financeiro.rbac.consultar`, `financeiro.rbac.atribuir` e `financeiro.rbac.revogar`, associa essas permissões somente ao papel administrativo dedicado e associa apenas o UUID informado a esse papel. Nos registros novos, preenche os campos de auditoria com esse UUID como ator do bootstrap; `ON CONFLICT DO NOTHING` preserva registros e auditoria existentes. O comando não reativa usuários, papéis, permissões ou associações inativas. Também aborta se completar as permissões de um papel administrativo já atribuído a outras pessoas pudesse ampliar os acessos delas. Não há endpoint público de provisionamento.
+O comando exige o código de plataforma e o UUID externo, resolve uma identidade e um usuário financeiro já existentes e ativos, e então cria idempotentemente o papel `ADMIN_RBAC_FINANCEIRO`, as permissões `financeiro.rbac.consultar`, `financeiro.rbac.atribuir` e `financeiro.rbac.revogar`, associa essas permissões ao papel e associa o usuário interno ao papel. Não cria usuário financeiro nem identidade externa. Nos registros novos, os campos de auditoria continuam guardando o UUID externo informado. `ON CONFLICT DO NOTHING` preserva registros e auditoria existentes. O comando não reativa usuários, identidades, plataformas, papéis, permissões ou associações inativas. Também aborta se completar as permissões de um papel administrativo já atribuído a outras pessoas pudesse ampliar os acessos delas. Não há endpoint público de provisionamento.
 
-O banco `financeiro_db` foi consultado somente para leitura nesta etapa: as tabelas de RBAC existem e não havia códigos de papéis ou permissões cadastrados. Portanto, o provisionador não foi executado e nenhum UUID foi escolhido. A plataforma principal contém as permissões gerais `financeiro.visualizar` e `financeiro.operar`, mas elas não são copiadas nem substituem os códigos específicos de administração do RBAC.
+O mapeamento usado na migration foi aprovado explicitamente para esta implantação. O provisionador continua sem inferir papéis a partir do JWT e não cria identidades.
 
-A confirmação de `ADMINISTRADOR` na linha de comando é uma declaração operacional explícita, não uma verificação automática do papel externo. Continua pendente definir quem aprova e fornece o UUID inicial e qual procedimento documentado comprova essa associação na plataforma principal. A API financeira não concede o acesso a todos os usuários com `ADMINISTRADOR`.
+A confirmação de `ADMINISTRADOR` na linha de comando é uma declaração operacional explícita, não uma verificação automática do papel externo. Para novas provisões, o responsável deve confirmar fora da Financeira o papel da identidade informada. A API financeira não concede acesso a todos os usuários com `ADMINISTRADOR`.
 
 ## Testes
 
@@ -71,4 +76,4 @@ A confirmação de `ADMINISTRADOR` na linha de comando é uma declaração opera
 npm test
 ```
 
-Os testes usam o runner nativo `node:test` e chaves RSA efêmeras em memória. Não exigem PostgreSQL, chaves reais ou acesso ao banco.
+Os testes unitários usam o runner nativo `node:test` e chaves RSA efêmeras em memória. Os testes de integração RBAC e da rota financeira exigem um `financeiro_db` de teste com as migrations aplicadas e os vínculos de teste correspondentes; não apontam para produção.

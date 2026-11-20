@@ -1,22 +1,18 @@
-# Configuração futura do JWT RS256
+# Integração JWT RS256 com a API Financeira
 
-O módulo `src/utils/jwtAsimetrico.js` permanece isolado: não está conectado ao login, aos controllers ou aos middlewares atuais. O mecanismo legado em `src/utils/jwt.js` continua independente.
+O login em `src/controllers/UsuarioController.js` emite RS256 por `assinarTokenRS256`. O dispatcher `src/utils/jwtAutenticacao.js` continua aceitando tokens HS256 legados durante a transição e valida RS256 quando `JWT_RS256_ENABLED=true`. Novos logins recebem RS256; o formato da resposta de login permanece o mesmo.
 
 ## Configuração
 
 O emissor precisa da chave privada e os validadores precisam somente da chave pública. Cada ambiente deve receber sua configuração pelo mecanismo de segredos/configuração da infraestrutura, sem guardar chaves no Git.
 
-- `JWT_RS256_PRIVATE_KEY`: chave privada PEM, exclusiva do emissor. Nunca distribuir à API Financeira. Obrigatória somente para assinar.
-- `JWT_RS256_PUBLIC_KEY`: chave pública PEM correspondente. Obrigatória para validar.
-- `JWT_RS256_KID`: identificador da única chave ativa configurada neste módulo.
-- `JWT_ISSUER`: identificador aprovado do emissor. Não há valor padrão.
-- `JWT_AUDIENCE`: identificador aprovado do serviço destinatário. Não há valor padrão; configure a audiência própria de cada validador.
+- `JWT_RS256_PRIVATE_KEY`: chave privada PEM, exclusiva da API Cigana emissora. Nunca distribuir à API Financeira.
+- `JWT_RS256_PUBLIC_KEY`: chave pública correspondente, usada pela API Cigana para validar seus tokens RS256.
+- `JWT_RS256_KID`, `JWT_ISSUER` e `JWT_AUDIENCE`: claims do contrato compartilhado.
+- `JWT_RS256_ENABLED=true`: habilita a validação RS256 pelo dispatcher da API Cigana.
+- Na API Financeira, configurar `FINANC_API_JWT_PUBLIC_KEY` com somente a chave pública e `FINANC_API_JWT_KID`, `FINANC_API_JWT_ISSUER` e `FINANC_API_JWT_AUDIENCE` com os mesmos valores semânticos de `kid`, `iss` e `aud` da API Cigana.
 
-Propostas ainda pendentes de formalização e configuração dos ambientes:
-
-- `JWT_ISSUER=plataforma-cigana`
-- `JWT_AUDIENCE=cigana-api` no ambiente da API principal.
-- `JWT_AUDIENCE=cigana-api-financeira` no ambiente independente da API Financeira.
+Os valores de `kid`, emissor e audiência devem ser acordados e configurados de forma idêntica nos dois serviços; não há valores padrão. As chaves e configurações devem ser fornecidas pela infraestrutura, sem inclusão em arquivos versionados. A API Financeira não deve receber a chave privada nem o segredo legado `JWT_SECRET`.
 
 Valores PEM aceitam quebras de linha reais ou sequências `\\n`, que são normalizadas. Falta de configuração, PEM inválido ou erro criptográfico causa falha fechada. As mensagens emitidas pelo módulo são genéricas e não incluem token ou conteúdo de chave.
 
@@ -32,12 +28,12 @@ O `kid` identifica somente a chave configurada no processo; este módulo ainda n
 
 ## Validação central da API principal
 
-`src/utils/jwtAutenticacao.js` prepara `verificarTokenApiPrincipal(token)`, mas não está conectado às rotas nem aos middlewares. Ele roteia explicitamente `HS256` ao verificador legado e `RS256` ao verificador assimétrico; outros algoritmos são rejeitados. Não há tentativa de validar o mesmo token com outra chave ou algoritmo. A configuração `JWT_AUDIENCE` deve conter a audiência da API principal no ambiente desse serviço. Os valores propostos acima não foram ativados.
+`src/utils/jwtAutenticacao.js` roteia explicitamente `HS256` ao verificador legado e `RS256` ao verificador assimétrico; outros algoritmos são rejeitados. Não há tentativa de validar o mesmo token com outra chave ou algoritmo.
 
-O middleware global atual devolve `err.message` ao cliente. Por isso, o validador central transforma falhas de token e configuração RS256 em mensagens genéricas. Na integração futura, os dois pontos de autenticação devem chamar essa mesma função e responder com erros genéricos; não devem encaminhar tokens ou detalhes criptográficos ao error handler.
+Os middlewares de autenticação e proteção de leitura usam esse dispatcher e respondem com mensagens genéricas; tokens e detalhes criptográficos não são encaminhados ao cliente.
 
 O caminho legado fica disponível somente no backend principal, que mantém `JWT_SECRET`. A API Financeira não deve importar este dispatcher nem receber o segredo legado; ela validará somente RS256 com sua chave pública e sua audiência configurada.
 
 ## Testes
 
-Execute em `backend/` com `node tests/jwtAsimetrico.test.js` e `node tests/jwtAutenticacao.test.js`. Os testes geram chaves RSA efêmeras somente em memória, não escrevem arquivos e restauram as variáveis de ambiente do processo ao terminar.
+Execute em `backend/` com `node --test tests/jwt*.test.js`. Os testes geram chaves RSA efêmeras somente em memória, não escrevem arquivos e restauram as variáveis de ambiente do processo ao terminar. `jwtFinanceIntegration.test.js` exercita o login com serviço de usuário simulado e valida o token emitido no middleware Financeiro; a verificação RBAC com PostgreSQL permanece coberta pelo teste de integração da `financ-api`.

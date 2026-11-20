@@ -1,11 +1,11 @@
 const pool = require('../db/pool');
 
-async function listarCodigosEfetivosPorUsuario(usuarioIdExterno) {
+async function listarCodigosEfetivosPorUsuario(usuarioFinanceiroId) {
     const resultado = await pool.obterPool().query(`
         SELECT DISTINCT permissao.codigo
           FROM financeiro.usuarios_financeiros AS usuario
           INNER JOIN financeiro.usuario_papeis_financeiros AS usuario_papel
-            ON usuario_papel.usuario_id_externo = usuario.usuario_id_externo
+            ON usuario_papel.usuario_financeiro_id = usuario.id
            AND usuario_papel.ativo = TRUE
           INNER JOIN financeiro.papeis_financeiros AS papel
             ON papel.id = usuario_papel.papel_id
@@ -16,10 +16,10 @@ async function listarCodigosEfetivosPorUsuario(usuarioIdExterno) {
           INNER JOIN financeiro.permissoes_financeiras AS permissao
             ON permissao.id = papel_permissao.permissao_id
            AND permissao.ativo = TRUE
-         WHERE usuario.usuario_id_externo = $1
+         WHERE usuario.id = $1
            AND usuario.ativo = TRUE
          ORDER BY permissao.codigo
-    `, [usuarioIdExterno]);
+    `, [usuarioFinanceiroId]);
 
     return resultado.rows.map((linha) => linha.codigo);
 }

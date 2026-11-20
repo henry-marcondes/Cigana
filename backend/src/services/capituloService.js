@@ -1,4 +1,11 @@
 const Capitulo = require('../models/Capitulo');
+const ArquivoMidia = require('../models/ArquivoMidia');
+
+function erroValidacao(message) {
+    const error = new Error(message);
+    error.statusCode = 400;
+    return error;
+}
 
 class CapituloService {
 
@@ -29,6 +36,18 @@ class CapituloService {
     }
 
     static async alterarInformacoes(id, capitulo) {
+        if (Object.prototype.hasOwnProperty.call(capitulo, 'arquivo_capa_id')) {
+            if (capitulo.arquivo_capa_id === null) {
+                capitulo.capa_url = null;
+            } else {
+                const atual = await Capitulo.buscarPorId(id);
+                const arquivo = await ArquivoMidia.buscarPorId(capitulo.arquivo_capa_id);
+                if (!atual || !arquivo || arquivo.livro_id !== atual.livro_id || !arquivo.mime_type?.toLowerCase().startsWith('image/')) {
+                    throw erroValidacao('A capa deve ser uma imagem ativa armazenada na mesma obra do capítulo.');
+                }
+                capitulo.capa_url = null;
+            }
+        }
         return await Capitulo.alterarInformacoes(id, capitulo);
     }
 

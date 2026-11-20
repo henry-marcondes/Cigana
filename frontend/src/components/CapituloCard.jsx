@@ -1,12 +1,28 @@
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { obterUrlAssinadaArquivo } from '../services/arquivoMidia';
 
 export default function CapituloCard({ livro, capitulo, onSelect }) {
+  const [urlCapa, setUrlCapa] = useState(capitulo.capa_url || '');
+
+  useEffect(() => {
+    let ativo = true;
+    if (!capitulo.arquivo_capa_id) {
+      setUrlCapa(capitulo.capa_url || '');
+      return () => { ativo = false; };
+    }
+    obterUrlAssinadaArquivo(capitulo.arquivo_capa_id)
+      .then((url) => { if (ativo) setUrlCapa(url); })
+      .catch(() => { if (ativo) setUrlCapa(''); });
+    return () => { ativo = false; };
+  }, [capitulo.arquivo_capa_id, capitulo.capa_url]);
+
   const conteudo = (
     <article className="overflow-hidden rounded-lg bg-white text-left shadow-md transition hover:scale-[1.02]">
         <div className="flex h-40 items-center justify-center bg-gray-200">
-          {capitulo.capa_url ? (
+          {urlCapa ? (
             <img
-              src={capitulo.capa_url}
+              src={urlCapa}
               alt={`Capa do capítulo ${capitulo.titulo}`}
               className="h-full w-full object-cover"
             />

@@ -268,12 +268,12 @@ test('rejeita reutilização textual do segredo legado, inclusive PEM escapado',
     });
 });
 
-test('middlewares usam o dispatcher e o login permanece no JWT legado', () => {
+test('middlewares usam o dispatcher e o login emite JWT RS256', () => {
     const controller = readFileSync(
         require.resolve('../src/controllers/UsuarioController.js'),
         'utf8'
     );
-    assert.doesNotMatch(controller, /jwtAsimetrico|jwtAutenticacao/);
+    assert.match(controller, /assinarTokenRS256\(usuario\.id\)/);
 
     for (const caminho of [
         '../src/middleware/autenticar.js',

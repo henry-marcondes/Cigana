@@ -44,7 +44,8 @@ function validarAlteracaoInformacoesCapitulo(req, res, next) {
         resumo,
         texto_introdutorio,
         ordem_exibicao,
-        capa_url
+        capa_url,
+        arquivo_capa_id
     } = req.body;
 
     if (titulo === undefined &&
@@ -52,7 +53,8 @@ function validarAlteracaoInformacoesCapitulo(req, res, next) {
         resumo === undefined &&
         texto_introdutorio === undefined &&
         ordem_exibicao === undefined &&
-        capa_url === undefined) {
+        capa_url === undefined &&
+        arquivo_capa_id === undefined) {
 
         return res.status(400).json({
             success: false,
@@ -64,6 +66,16 @@ function validarAlteracaoInformacoesCapitulo(req, res, next) {
         return res.status(400).json({
             success: false,
             message: 'capa_url deve ser um texto ou nulo.'
+        });
+    }
+
+    if (arquivo_capa_id !== undefined && arquivo_capa_id !== null && (
+        typeof arquivo_capa_id !== 'string' ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(arquivo_capa_id)
+    )) {
+        return res.status(400).json({
+            success: false,
+            message: 'arquivo_capa_id deve ser um identificador ou nulo.'
         });
     }
 

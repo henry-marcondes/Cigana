@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { criarPool } = require('../src/db/pool');
+const { obterConfiguracaoJwt } = require('../src/config');
 
 const diretorioMigrations = path.resolve(__dirname, '../database/migrations');
 
@@ -32,6 +33,14 @@ async function executarMigrations() {
             await client.query('BEGIN');
 
             try {
+                if (filename === '0003_identidades_externas.sql') {
+                    const { issuer } = obterConfiguracaoJwt();
+                    await client.query(
+                        "SELECT set_config('financ_api.jwt_issuer', $1, true)",
+                        [issuer]
+                    );
+                }
+
                 await client.query(sql);
                 await client.query(
                     'INSERT INTO public.financ_api_migrations (filename) VALUES ($1)',
@@ -53,8 +62,9 @@ async function executarMigrations() {
 }
 
 if (require.main === module) {
-    executarMigrations().catch(() => {
-        console.error('Falha ao executar migrations da financ-api. Verifique banco e arquivos de migration.');
+    executarMigrations().catch((error) => {
+        const detalhe = error instanceof Error ? ` Motivo: ${error.message}` : '';
+        console.error(`Falha ao executar migrations da financ-api.${detalhe}`);
         process.exitCode = 1;
     });
 }

@@ -1,6 +1,7 @@
 const { verificarToken } = require('../utils/jwt');
+const IdentidadeExternaService = require('../services/IdentidadeExternaService');
 
-function autenticar(req, res, next) {
+async function autenticar(req, res, next) {
     const authorization = req.headers.authorization;
 
     if (!authorization) {
@@ -18,13 +19,39 @@ function autenticar(req, res, next) {
         });
     }
 
+    let usuario;
     try {
-        req.usuario = verificarToken(partes[1]);
-        return next();
+        usuario = verificarToken(partes[1]);
     } catch {
         return res.status(401).json({
             success: false,
             message: 'Token de autenticação inválido ou expirado.'
+        });
+    }
+
+    try {
+        const identidade = await IdentidadeExternaService.resolverIdentidade(
+            usuario.iss,
+            usuario.id
+        );
+
+        if (!identidade) {
+            return res.status(403).json({
+                success: false,
+                message: 'Identidade financeira não cadastrada ou inativa.'
+            });
+        }
+
+        req.usuario = {
+            ...usuario,
+            usuarioFinanceiroId: identidade.usuarioFinanceiroId,
+            plataformaCodigo: identidade.plataformaCodigo
+        };
+        return next();
+    } catch {
+        return res.status(503).json({
+            success: false,
+            message: 'Não foi possível resolver a identidade financeira.'
         });
     }
 }

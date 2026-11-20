@@ -8,6 +8,7 @@ const CAMPOS_PUBLICOS = `
     resumo,
     texto_introdutorio,
     capa_url,
+    arquivo_capa_id,
     ordem_exibicao,
     ativo,
     criado_em,
@@ -122,7 +123,8 @@ class Capitulo {
             resumo,
             texto_introdutorio,
             ordem_exibicao,
-            capa_url
+            capa_url,
+            arquivo_capa_id
         } = capitulo;
 
         const result = await client.query(`
@@ -133,6 +135,7 @@ class Capitulo {
                    texto_introdutorio = $4,
                    ordem_exibicao = COALESCE($5, ordem_exibicao),
                    capa_url = CASE WHEN $8 THEN $7 ELSE capa_url END,
+                   arquivo_capa_id = CASE WHEN $9 THEN $10 WHEN $8 THEN NULL ELSE arquivo_capa_id END,
                    atualizado_em = NOW()
              WHERE id = $6
                AND ativo = TRUE
@@ -146,7 +149,9 @@ class Capitulo {
             ordem_exibicao,
             id,
             capa_url,
-            Object.prototype.hasOwnProperty.call(capitulo, 'capa_url')
+            Object.prototype.hasOwnProperty.call(capitulo, 'capa_url'),
+            Object.prototype.hasOwnProperty.call(capitulo, 'arquivo_capa_id'),
+            arquivo_capa_id || null
         ]);
 
         return result.rows[0];

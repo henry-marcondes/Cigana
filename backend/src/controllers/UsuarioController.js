@@ -1,6 +1,6 @@
 const UsuarioService = require('../services/usuarioService');
 const { success, error } = require('../utils/apiResponse');
-const { gerarToken } = require('../utils/jwt');
+const { assinarTokenRS256 } = require('../utils/jwtAsimetrico');
 
 class UsuarioController {
 
@@ -197,9 +197,7 @@ class UsuarioController {
                 req.body.senha
             );
 
-        const token = gerarToken({
-            id: usuario.id
-        });
+        const token = assinarTokenRS256(usuario.id);
 
         return success(
             res,

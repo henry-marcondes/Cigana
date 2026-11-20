@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { listarArquivosPorLivro } from '../services/arquivoMidia';
 
 function tamanhoLegivel(tamanho) {
@@ -26,6 +27,10 @@ export default function ArquivoGerenciadoSelect({
   const [arquivos, setArquivos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
+  const [menuAberto, setMenuAberto] = useState(false);
+  const [posicaoMenu, setPosicaoMenu] = useState(null);
+  const referenciaBotao = useRef(null);
+  const referenciaMenu = useRef(null);
 
   useEffect(() => {
     let ativo = true;
@@ -74,36 +79,129 @@ export default function ArquivoGerenciadoSelect({
   const arquivoAssociadoDisponivel = arquivos.some(
     (arquivo) => arquivo.id === value
   );
+  const arquivoSelecionado = arquivos.find((arquivo) => arquivo.id === value);
+
+  function abrirMenu() {
+    if (disabled || carregando || typeof window === 'undefined') return;
+    const retangulo = referenciaBotao.current.getBoundingClientRect();
+    setPosicaoMenu({
+      left: retangulo.left,
+      bottom: window.innerHeight - retangulo.top + 4,
+      width: retangulo.width,
+    });
+    setMenuAberto(true);
+  }
+
+  function fecharMenu() {
+    setMenuAberto(false);
+  }
+
+  function selecionar(valor) {
+    onChange(valor);
+    fecharMenu();
+  }
+
+  useEffect(() => {
+    if (!menuAberto) return undefined;
+
+    function fecharFora(event) {
+      if (!referenciaBotao.current?.contains(event.target)
+        && !referenciaMenu.current?.contains(event.target)) fecharMenu();
+    }
+    function fecharAoMoverTela() {
+      fecharMenu();
+    }
+
+    document.addEventListener('mousedown', fecharFora);
+    window.addEventListener('scroll', fecharAoMoverTela, true);
+    window.addEventListener('resize', fecharAoMoverTela);
+    return () => {
+      document.removeEventListener('mousedown', fecharFora);
+      window.removeEventListener('scroll', fecharAoMoverTela, true);
+      window.removeEventListener('resize', fecharAoMoverTela);
+    };
+  }, [menuAberto]);
+
+  function navegarOpcoes(event) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      fecharMenu();
+      referenciaBotao.current?.focus();
+      return;
+    }
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const opcoes = [...(referenciaMenu.current?.querySelectorAll('[role="option"]') || [])];
+    if (!opcoes.length) return;
+    const atual = opcoes.indexOf(document.activeElement);
+    const proximo = event.key === 'Home' ? 0
+      : event.key === 'End' ? opcoes.length - 1
+        : event.key === 'ArrowDown' ? (atual + 1 + opcoes.length) % opcoes.length
+          : (atual - 1 + opcoes.length) % opcoes.length;
+    opcoes[proximo].focus();
+  }
 
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700">
         Arquivo da obra
       </label>
-      <select
-        value={value || ''}
+      <button
+        ref={referenciaBotao}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={menuAberto}
         disabled={disabled || carregando}
-        onChange={(event) => onChange(event.target.value)}
-        className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-gray-500 disabled:bg-gray-100"
+        onClick={() => (menuAberto ? fecharMenu() : abrirMenu())}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            if (!menuAberto) abrirMenu();
+          }
+        }}
+        className="mt-1 flex w-full items-center justify-between gap-3 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm outline-none focus:border-gray-500 disabled:bg-gray-100"
       >
-        <option value="">Usar URL (compatibilidade legada)</option>
-        {value && !arquivoAssociadoDisponivel && !carregando && (
-          <option value={value} disabled>
-            {erro
-              ? 'Arquivo associado; não foi possível consultar a lista'
-              : 'Arquivo associado indisponível'}
-          </option>
-        )}
-        {arquivos.map((arquivo) => (
-          <option key={arquivo.id} value={arquivo.id}>
-            {arquivo.nome_original}
-            {' · '}
-            {arquivo.mime_type || 'Tipo não informado'}
-            {' · '}
-            {tamanhoLegivel(arquivo.tamanho_bytes)}
-          </option>
-        ))}
-      </select>
+        <span className="min-w-0 truncate">
+          {arquivoSelecionado?.nome_original || (value
+            ? (erro ? 'Arquivo associado; lista indisponível' : 'Arquivo associado indisponível')
+            : 'Usar URL (compatibilidade legada)')}
+        </span>
+        <span aria-hidden="true" className="shrink-0">{menuAberto ? '▴' : '▾'}</span>
+      </button>
+
+      {menuAberto && posicaoMenu && typeof document !== 'undefined' && createPortal(
+        <div
+          ref={referenciaMenu}
+          role="listbox"
+          aria-label="Arquivos gerenciados da obra"
+          onKeyDown={navegarOpcoes}
+          style={{
+            position: 'fixed',
+            left: posicaoMenu.left,
+            bottom: posicaoMenu.bottom,
+            width: posicaoMenu.width,
+          }}
+          className="z-[1000] max-h-64 overflow-y-auto rounded-lg border border-gray-300 bg-white p-1 shadow-xl"
+        >
+          <button type="button" role="option" aria-selected={!value} onClick={() => selecionar('')} className={`block w-full rounded px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 ${!value ? 'bg-gray-100' : ''}`}>
+            Usar URL (compatibilidade legada)
+          </button>
+          {value && !arquivoAssociadoDisponivel && !carregando && (
+            <button type="button" role="option" aria-selected="true" onClick={() => selecionar(value)} className="block w-full rounded px-3 py-2 text-left text-sm text-gray-500">
+              {erro ? 'Arquivo associado; não foi possível consultar a lista' : 'Arquivo associado indisponível'}
+            </button>
+          )}
+          {arquivos.map((arquivo) => (
+            <button key={arquivo.id} type="button" role="option" aria-selected={arquivo.id === value} onClick={() => selecionar(arquivo.id)} className={`block w-full rounded px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 ${arquivo.id === value ? 'bg-gray-100' : ''}`}>
+              <span className="block truncate">{arquivo.nome_original}</span>
+              <span className="block truncate text-xs text-gray-500">
+                {arquivo.mime_type || 'Tipo não informado'} · {tamanhoLegivel(arquivo.tamanho_bytes)}
+              </span>
+            </button>
+          ))}
+        </div>,
+        document.body
+      )}
 
       {carregando && (
         <p role="status" className="mt-2 text-sm text-gray-500">

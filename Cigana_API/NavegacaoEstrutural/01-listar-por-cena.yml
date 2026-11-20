@@ -1,0 +1,16 @@
+info:
+  name: 01-Listar navegação estrutural por cena
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: http://localhost:3001/api/navegacoes-estruturais/cena/{{cena_origem_id}}
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

@@ -2,6 +2,7 @@ import { apiFetch } from './api';
 import { montarUrlMedia } from './media';
 import { obterUrlAssinadaArquivo } from './arquivoMidia';
 import { consultarTrechoMarkdown } from './livroDocumento';
+import { listarNavegacoesEstruturaisPorCena } from './navegacaoEstrutural';
 
 async function carregarTexto(textoUrl) {
   const url = montarUrlMedia(textoUrl);
@@ -105,5 +106,14 @@ export async function carregarDadosLeituraCena(cena) {
     }
   ));
 
-  return { conteudos, escolhas };
+  let navegacoesEstruturais = [];
+  try {
+    const respostaNavegacao = await listarNavegacoesEstruturaisPorCena(cena.id);
+    navegacoesEstruturais = (respostaNavegacao.data || [])
+      .filter((item) => item.destino_disponivel === true);
+  } catch {
+    // A navegação estrutural é opcional e não deve bloquear a leitura da cena.
+  }
+
+  return { conteudos, escolhas, navegacoesEstruturais };
 }
